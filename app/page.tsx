@@ -1,25 +1,29 @@
-import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import PainPoints from '@/components/PainPoints';
+import Capabilities from '@/components/Capabilities';
+import Work from '@/components/Work';
+import Challenge from '@/components/Challenge';
+import About from '@/components/About';
 import HowItWorks from '@/components/HowItWorks';
-import Results from '@/components/Results';
 import Services from '@/components/Services';
 import FAQ from '@/components/FAQ';
 import CTASection from '@/components/CTASection';
-import Footer from '@/components/Footer';
+import ScrollDepth from '@/components/ScrollDepth';
 
 export default function Home() {
   return (
-    <main className='min-h-screen relative'>
-      <Navbar />
+    <main id='main' className='min-h-screen relative'>
+      <ScrollDepth page='home' />
       <Hero />
       <PainPoints />
+      <Capabilities />
+      <Work />
+      <Challenge />
+      <About />
       <HowItWorks />
-      <Results />
       <Services />
       <FAQ />
       <CTASection />
-      <Footer />
     </main>
   );
 }

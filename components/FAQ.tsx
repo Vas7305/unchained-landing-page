@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Plus, Minus } from 'lucide-react';
@@ -9,34 +9,39 @@ gsap.registerPlugin(ScrollTrigger);
 
 const faqs = [
   {
-    q: 'Do I need a large following to work with you?',
-    a: "No. We've built acquisition systems for founders with 500 followers and for those with 100k+. Follower count matters less than having a clear offer, a defined audience, and the ability to deliver results.",
+    q: 'What exactly does Unchained Business build?',
+    a: 'Digital infrastructure: websites, web applications, SaaS products and custom software; the automation layer that connects your tools and removes manual work; and the growth systems that turn attention and leads into predictable opportunities. Most engagements involve more than one of the three.',
   },
   {
-    q: 'How long does it take to see results?',
-    a: 'Most clients book their first qualified call within 3-6 weeks of system activation. Full revenue momentum typically occurs within 60-90 days depending on your existing brand equity and offer.',
+    q: 'How established is the company?',
+    a: 'We are early stage, and we would rather say so than imply otherwise. The domain was established around eight months ago. TanCerca — a full marketplace platform with merchant systems, payments, subscriptions and delivery infrastructure — is our first completed flagship product, and five further projects are in development. What we can demonstrate today is technical capability. Client outcomes are what we are building next, and we publish them as they happen.',
   },
   {
-    q: 'What makes this different from a marketing agency?',
-    a: "Traditional agencies run ads or manage content. We build infrastructure — the complete backend system that turns your authority into inbound revenue. We're not in the business of impressions; we're in the business of clients.",
+    q: 'Why should I work with an early-stage company?',
+    a: 'Because you get the people who architect the system actually building it, and a company whose reputation depends on your project going well. We are transparent about the trade-off: we are not the safe, established choice, and if you need a decade of comparable case studies, we are not it yet. What we offer instead is senior attention, a documented process, and work you can inspect.',
   },
   {
-    q: 'Is this a done-for-you service or a course?',
-    a: '100% done-for-you. We build, install, and run the system. You simply show up to sales calls and close. No homework, no learning curves.',
+    q: 'Can I see what you have built?',
+    a: 'Yes — that is the point of our portfolio. TanCerca has a full project page covering its architecture, the problem it solves and what it demonstrates technically. The projects still in development are listed with their real status, and we publish each one when it launches rather than before.',
   },
   {
-    q: 'What kind of personal brands do you work with?',
-    a: 'Coaches, consultants, advisors, content creators, and service providers who sell high-ticket offers ($2k+). We work best with people who are already generating some revenue and want to scale it predictably.',
+    q: 'Do you still build client acquisition systems?',
+    a: 'Yes. It is now one of three pillars rather than the whole company. Growth systems work best once the digital foundation underneath them is solid, so we often build or repair that foundation first — and then the acquisition, qualification, nurturing and conversion layer on top of it.',
   },
   {
-    q: "What's the investment?",
-    a: "Our engagements are custom-scoped based on your situation. During our strategy call, we'll outline a specific plan and investment. We don't publish generic pricing because we don't build generic systems.",
+    q: 'How do projects usually start?',
+    a: 'With discovery and architecture: a fixed-scope engagement where we map how your business operates, define the system, and produce a delivery plan. You own that plan whether or not we build it. From there most clients move into a design and build engagement.',
+  },
+  {
+    q: 'What is the investment?',
+    a: 'Engagements are scoped to the system being built, so we do not publish generic pricing. On an initial call we will tell you what your project realistically involves and what it would cost — including when the honest answer is that you need something smaller than you asked for.',
   },
 ];
 
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
+  const panelId = useId();
 
   useEffect(() => {
     if (!bodyRef.current) return;
@@ -57,28 +62,34 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   }, [open]);
 
   return (
-    <div
-      className='border-b border-border last:border-0 py-5 cursor-pointer group'
-      onClick={() => setOpen(!open)}
-    >
-      <div className='flex items-center justify-between gap-4'>
-        <span className='text-sm font-medium text-foreground group-hover:text-foreground/80 transition-colors'>
-          {q}
-        </span>
-        <div className='shrink-0 w-6 h-6 rounded-full border border-border flex items-center justify-center'>
-          {open ? (
-            <Minus size={12} className='text-muted-foreground' />
-          ) : (
-            <Plus size={12} className='text-muted-foreground' />
-          )}
-        </div>
-      </div>
+    <div className='border-b border-border last:border-0 py-1'>
+      <h3>
+        <button
+          type='button'
+          onClick={() => setOpen(!open)}
+          aria-expanded={open}
+          aria-controls={panelId}
+          className='w-full text-left py-5 flex items-center justify-between gap-4 group cursor-pointer'
+        >
+          <span className='text-sm font-medium text-foreground group-hover:text-foreground/80 transition-colors'>
+            {q}
+          </span>
+          <span className='shrink-0 w-6 h-6 rounded-full border border-border flex items-center justify-center'>
+            {open ? (
+              <Minus size={12} aria-hidden='true' className='text-muted-foreground' />
+            ) : (
+              <Plus size={12} aria-hidden='true' className='text-muted-foreground' />
+            )}
+          </span>
+        </button>
+      </h3>
       <div
         ref={bodyRef}
+        id={panelId}
         className='overflow-hidden'
         style={{ height: 0, opacity: 0 }}
       >
-        <p className='pt-3 text-sm text-muted-foreground leading-relaxed'>
+        <p className='pb-5 text-sm text-muted-foreground leading-relaxed max-w-2xl'>
           {a}
         </p>
       </div>
@@ -108,13 +119,21 @@ export default function FAQ() {
   }, []);
 
   return (
-    <section id='faq' ref={sectionRef} className='py-28 px-6 bg-secondary/20'>
+    <section
+      id='faq'
+      ref={sectionRef}
+      className='py-24 md:py-28 px-6 bg-secondary/20'
+      aria-labelledby='faq-heading'
+    >
       <div className='max-w-3xl mx-auto'>
         <div className='text-center mb-14'>
           <p className='text-xs uppercase tracking-widest text-muted-foreground mb-3 font-medium'>
             Questions
           </p>
-          <h2 className='text-4xl md:text-5xl font-bold gradient-text'>
+          <h2
+            id='faq-heading'
+            className='text-4xl md:text-5xl font-bold gradient-text'
+          >
             Common Questions
           </h2>
         </div>

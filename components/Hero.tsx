@@ -1,8 +1,16 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ArrowRight, ChevronDown } from 'lucide-react';
+import { track } from '@/lib/analytics';
+
+const stageFacts = [
+  { value: '01', label: 'Flagship product shipped' },
+  { value: '05', label: 'Projects in development' },
+  { value: '03', label: 'Capability pillars' },
+];
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -10,6 +18,7 @@ export default function Hero() {
   const h1Ref = useRef<HTMLHeadingElement>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
+  const factsRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const orb1Ref = useRef<HTMLDivElement>(null);
   const orb2Ref = useRef<HTMLDivElement>(null);
@@ -37,6 +46,12 @@ export default function Hero() {
         )
         .fromTo(
           ctaRef.current,
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' },
+          '-=0.3',
+        )
+        .fromTo(
+          factsRef.current,
           { y: 20, opacity: 0 },
           { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' },
           '-=0.3',
@@ -74,21 +89,15 @@ export default function Hero() {
   return (
     <section
       ref={containerRef}
-      className='relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-6 pt-24 pb-16'
+      className='relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-6 pt-28 pb-20'
     >
       {/* Background grid */}
-      <div
-        className='absolute inset-0 opacity-[0.03]'
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(240,240,242,1) 1px, transparent 1px), linear-gradient(90deg, rgba(240,240,242,1) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-        }}
-      />
+      <div className='absolute inset-0 blueprint-grid' aria-hidden='true' />
 
       {/* Orbs */}
       <div
         ref={orb1Ref}
+        aria-hidden='true'
         className='absolute top-1/4 right-1/4 w-125 h-125 rounded-full pointer-events-none'
         style={{
           background:
@@ -97,6 +106,7 @@ export default function Hero() {
       />
       <div
         ref={orb2Ref}
+        aria-hidden='true'
         className='absolute bottom-1/4 left-1/4 w-100 h-100 rounded-full pointer-events-none'
         style={{
           background:
@@ -111,8 +121,11 @@ export default function Hero() {
           ref={badgeRef}
           className='inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-medium text-muted-foreground tracking-wide uppercase'
         >
-          <span className='w-1.5 h-1.5 rounded-full bg-foreground/50 animate-pulse' />
-          Client Acquisition Systems
+          <span
+            className='w-1.5 h-1.5 rounded-full bg-foreground/50 animate-pulse'
+            aria-hidden='true'
+          />
+          Software · Automation · Growth Systems
         </div>
 
         {/* Headline */}
@@ -120,9 +133,9 @@ export default function Hero() {
           ref={h1Ref}
           className='text-5xl sm:text-6xl md:text-7xl font-extrabold leading-[1.05] tracking-tight'
         >
-          <span className='gradient-text'>Turn Your Personal Brand</span>
+          <span className='gradient-text'>Digital Infrastructure</span>
           <br />
-          <span className='text-foreground'>Into a Client Magnet.</span>
+          <span className='text-foreground'>for Businesses Ready to Grow.</span>
         </h1>
 
         {/* Sub */}
@@ -130,9 +143,9 @@ export default function Hero() {
           ref={descRef}
           className='max-w-2xl text-lg md:text-xl text-muted-foreground leading-relaxed'
         >
-          We build done-for-you acquisition systems that attract, qualify, and
-          convert ideal clients — so you can focus on your craft, not the
-          hustle.
+          We design and build the software, websites, automation and growth
+          systems a business runs on — architected around how it actually
+          operates, not around a template.
         </p>
 
         {/* CTAs */}
@@ -142,41 +155,45 @@ export default function Hero() {
         >
           <a
             href='#contact'
+            onClick={() => track('start_project_click', { location: 'hero' })}
             className='group inline-flex items-center gap-2 bg-foreground text-background font-semibold px-7 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200 shadow-lg'
           >
-            Book a Free Strategy Call
+            Start a Project
             <ArrowRight
               size={16}
+              aria-hidden='true'
               className='group-hover:translate-x-1 transition-transform duration-200'
             />
           </a>
-          <a
-            href='#how-it-works'
-            className='inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 px-4 py-3.5'
+          <Link
+            href='/work'
+            onClick={() => track('explore_work_click', { location: 'hero' })}
+            className='inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 px-4 py-3.5 underline decoration-border underline-offset-8 hover:decoration-foreground/40'
           >
-            See how it works
-          </a>
+            Explore Our Work
+          </Link>
         </div>
 
-        {/* Social proof nudge */}
-        <div className='flex items-center gap-3 text-xs text-muted-foreground'>
-          <div className='flex -space-x-2'>
-            {['G', 'M', 'A', 'R', 'T'].map((l, i) => (
-              <div
-                key={i}
-                className='w-7 h-7 rounded-full border border-border bg-secondary flex items-center justify-center text-[10px] font-bold text-foreground'
-              >
-                {l}
-              </div>
-            ))}
-          </div>
-          <span>Joined by 50+ personal brand founders</span>
+        {/* Honest stage indicator — capability, not commercial claims */}
+        <div
+          ref={factsRef}
+          className='flex flex-wrap items-center justify-center gap-x-8 gap-y-4 pt-2'
+        >
+          {stageFacts.map((f) => (
+            <div key={f.label} className='flex items-center gap-2.5'>
+              <span className='text-sm font-bold text-foreground tabular-nums'>
+                {f.value}
+              </span>
+              <span className='text-xs text-muted-foreground'>{f.label}</span>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Scroll cue */}
       <div
         ref={scrollRef}
+        aria-hidden='true'
         className='absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-muted-foreground/40'
       >
         <span className='text-[10px] uppercase tracking-widest'>Scroll</span>

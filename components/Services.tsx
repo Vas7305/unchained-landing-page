@@ -4,49 +4,47 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { track } from '@/lib/analytics';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const services = [
+const engagements = [
   {
-    tag: 'Foundation',
-    title: 'Brand & Offer Audit',
-    price: 'Included',
+    tag: 'Start Here',
+    title: 'Discovery & Architecture',
     description:
-      'We deep-dive into your current positioning, offers, audience, and conversion gaps. You get a custom acquisition blueprint before we build anything.',
+      'We deep-dive into how your business operates, where the process breaks, and what the system needs to do. You leave with an architecture and a delivery plan — whether or not we build it.',
     features: [
-      'Positioning & messaging review',
-      'Offer clarity & pricing analysis',
-      'Traffic & conversion audit',
-      'Custom acquisition roadmap',
+      'Operational & technical audit',
+      'System architecture and data model',
+      'Scope, sequence and delivery plan',
+      'Fixed scope, fixed timeline',
     ],
   },
   {
-    tag: 'Core System',
-    title: 'Full Acquisition Stack',
-    price: 'Custom',
+    tag: 'Core Engagement',
+    title: 'Design & Build',
     description:
-      'Everything built, installed, and activated for you. The complete client acquisition infrastructure from brand to booked call.',
+      'We design and develop the product or infrastructure end to end — websites, web applications, SaaS, custom software, or the automation layer connecting them.',
     features: [
-      'High-converting landing funnel',
-      'Automated nurture sequences',
-      'Content-to-DM conversion system',
-      'Outreach scripts & playbooks',
-      'Weekly optimization calls',
+      'Product design and development',
+      'Integrations and automation',
+      'Deployment and handover',
+      'Documentation your team can work from',
+      'Working increments throughout, not a black box',
     ],
     featured: true,
   },
   {
-    tag: 'Growth',
-    title: 'Scale & Optimize',
-    price: 'Retainer',
+    tag: 'Ongoing',
+    title: 'Growth & Optimization',
     description:
-      'For founders already getting clients who want to predictably scale to high-ticket months while removing themselves from day-to-day lead gen.',
+      'Once the digital foundation is in place, we build the systems that help a business attract, qualify, convert and retain customers — and keep improving them against real data.',
     features: [
-      'Paid traffic integration',
-      'Advanced funnel split-testing',
-      'Sales team training & oversight',
-      'Monthly performance reporting',
+      'Client acquisition systems',
+      'Lead qualification & nurturing flows',
+      'Conversion and funnel optimization',
+      'Performance measurement and reporting',
     ],
   },
 ];
@@ -74,25 +72,33 @@ export default function Services() {
   }, []);
 
   return (
-    <section id='services' ref={sectionRef} className='py-28 px-6'>
+    <section
+      id='engagements'
+      ref={sectionRef}
+      className='py-24 md:py-28 px-6'
+      aria-labelledby='engagements-heading'
+    >
       <div className='max-w-5xl mx-auto'>
         <div className='text-center mb-16'>
           <p className='text-xs uppercase tracking-widest text-muted-foreground mb-3 font-medium'>
-            What We Offer
+            Working Together
           </p>
-          <h2 className='text-4xl md:text-5xl font-bold leading-tight gradient-text'>
-            Services Built for
+          <h2
+            id='engagements-heading'
+            className='text-4xl md:text-5xl font-bold leading-tight gradient-text'
+          >
+            Three Ways to
             <br />
-            <span className='text-foreground'>Personal Brand Founders</span>
+            <span className='text-foreground'>Start With Us</span>
           </h2>
           <p className='mt-5 text-muted-foreground max-w-lg mx-auto text-base leading-relaxed'>
-            We don&apos;t sell courses or templates. We build and run your
-            client acquisition engine.
+            We don&apos;t sell courses or templates. We architect, build and run
+            the systems your business operates on.
           </p>
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6 items-start'>
-          {services.map((s) => (
+          {engagements.map((s) => (
             <div
               key={s.title}
               className={`service-card relative rounded-2xl p-8 flex flex-col gap-6 transition-all duration-300
@@ -104,8 +110,8 @@ export default function Services() {
               `}
             >
               {s.featured && (
-                <div className='absolute -top-3 left-1/2 -translate-x-1/2 bg-background text-foreground text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-border'>
-                  Most Popular
+                <div className='absolute -top-3 left-1/2 -translate-x-1/2 bg-background text-foreground text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-border whitespace-nowrap'>
+                  The Core Build
                 </div>
               )}
 
@@ -139,6 +145,7 @@ export default function Services() {
                   <li key={f} className='flex items-start gap-2.5 text-sm'>
                     <CheckCircle2
                       size={15}
+                      aria-hidden='true'
                       className={`mt-0.5 shrink-0 ${s.featured ? 'text-background/60' : 'text-muted-foreground'}`}
                     />
                     <span
@@ -156,6 +163,12 @@ export default function Services() {
 
               <a
                 href='#contact'
+                onClick={() =>
+                  track('start_project_click', {
+                    location: 'engagements',
+                    engagement: s.title,
+                  })
+                }
                 className={`inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-sm py-3 px-5 transition-all duration-200 group
                   ${
                     s.featured
@@ -163,9 +176,10 @@ export default function Services() {
                       : 'bg-secondary hover:bg-accent text-foreground'
                   }`}
               >
-                Apply Now
+                Start a Project
                 <ArrowRight
                   size={14}
+                  aria-hidden='true'
                   className='group-hover:translate-x-1 transition-transform duration-200'
                 />
               </a>

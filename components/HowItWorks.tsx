@@ -3,28 +3,46 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Settings2, Megaphone, Handshake } from 'lucide-react';
+import {
+  Search,
+  DraftingCompass,
+  Hammer,
+  Rocket,
+  LineChart,
+} from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const steps = [
   {
     number: '01',
-    icon: Settings2,
-    title: 'We Architect Your System',
-    body: 'We audit your brand, offers, and audience — then build a custom acquisition blueprint: messaging, positioning, outreach flows, and conversion funnel.',
+    icon: Search,
+    title: 'Discover',
+    body: 'We start with the business, not the technology. How the work actually flows, where it breaks, who it serves, and what the market rewards — before anyone writes a line of code.',
   },
   {
     number: '02',
-    icon: Megaphone,
-    title: 'We Install & Activate It',
-    body: 'Our team sets up every piece — landing pages, automated follow-ups, content frameworks, and outreach scripts — fully hands-off for you.',
+    icon: DraftingCompass,
+    title: 'Architect',
+    body: 'We define the system on paper first: data model, surfaces, integrations, and the sequence of delivery. Decisions are cheap here and expensive later.',
   },
   {
     number: '03',
-    icon: Handshake,
-    title: 'Clients Come to You',
-    body: 'Qualified leads land directly in your calendar. You show up, close, and deliver. The system keeps running while you focus on your work.',
+    icon: Hammer,
+    title: 'Build',
+    body: 'Design and development run together, in working increments you can see and use. No six-month black box, no big-bang reveal at the end.',
+  },
+  {
+    number: '04',
+    icon: Rocket,
+    title: 'Launch',
+    body: 'Deploy, integrate, test under real conditions, and hand over something your team can actually operate — with the documentation to match.',
+  },
+  {
+    number: '05',
+    icon: LineChart,
+    title: 'Optimize',
+    body: 'Real usage tells you things planning cannot. We measure how the system performs and improve it against what the data shows.',
   },
 ];
 
@@ -70,18 +88,27 @@ export default function HowItWorks() {
   }, []);
 
   return (
-    <section id='how-it-works' ref={sectionRef} className='py-28 px-6'>
+    <section
+      id='how-we-work'
+      ref={sectionRef}
+      className='py-24 md:py-28 px-6'
+      aria-labelledby='how-we-work-heading'
+    >
       <div className='max-w-4xl mx-auto'>
         {/* Header */}
         <div className='text-center mb-20'>
           <p className='text-xs uppercase tracking-widest text-muted-foreground mb-3 font-medium'>
             The Process
           </p>
-          <h2 className='text-4xl md:text-5xl font-bold leading-tight'>
-            <span className='gradient-text'>How It Works</span>
+          <h2
+            id='how-we-work-heading'
+            className='text-4xl md:text-5xl font-bold leading-tight'
+          >
+            <span className='gradient-text'>How We Work</span>
           </h2>
           <p className='mt-5 text-muted-foreground max-w-lg mx-auto text-base leading-relaxed'>
-            A three-phase system that replaces hustle with infrastructure.
+            The same five phases whether we&apos;re building a website, a SaaS
+            product, an automation layer or a growth system.
           </p>
         </div>
 

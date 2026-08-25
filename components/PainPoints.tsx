@@ -3,30 +3,30 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { AlertTriangle, Clock, TrendingDown, Users } from 'lucide-react';
+import { Boxes, Repeat, Unplug, Waypoints } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const pains = [
   {
-    icon: TrendingDown,
-    title: 'Inconsistent Revenue',
-    body: 'Your income swings wildly every month. You close a deal — then silence. The feast-or-famine cycle is exhausting and unpredictable.',
+    icon: Repeat,
+    title: 'Manual Work That Should Be Automatic',
+    body: 'Your team re-types the same data, chases the same approvals, and rebuilds the same report every week. The process works — but only because people keep carrying it.',
   },
   {
-    icon: Clock,
-    title: 'All Day Creating, No Clients',
-    body: "You're posting, engaging, and showing up online — but the DMs aren't converting. Effort without a system is just noise.",
+    icon: Unplug,
+    title: 'Tools That Do Not Talk to Each Other',
+    body: 'Six subscriptions, six sources of truth, and a spreadsheet holding them together. Every integration gap becomes someone’s daily copy-and-paste job.',
   },
   {
-    icon: Users,
-    title: 'Chasing the Wrong Leads',
-    body: "You attract followers but not buyers. The people who reach out can't afford you or aren't the right fit, wasting your precious time.",
+    icon: Boxes,
+    title: 'Software That Fights How You Operate',
+    body: 'Off-the-shelf tools force your business to work their way. So you build workarounds around the workarounds, and the real process lives in people’s heads.',
   },
   {
-    icon: AlertTriangle,
-    title: 'No Scalable Process',
-    body: "Every new client feels like starting from scratch. You're the whole sales team — and it's burning you out.",
+    icon: Waypoints,
+    title: 'Growth That Depends on Someone Remembering',
+    body: 'Leads arrive, then stall. Follow-up happens when there is time. Nothing is broken exactly — it is just that none of it is a system yet.',
   },
 ];
 
@@ -72,7 +72,11 @@ export default function PainPoints() {
   }, []);
 
   return (
-    <section ref={sectionRef} className='py-28 px-6 relative'>
+    <section
+      id='problem'
+      ref={sectionRef}
+      className='py-24 md:py-28 px-6 relative'
+    >
       <div className='max-w-5xl mx-auto'>
         {/* Header */}
         <div className='pain-heading text-center mb-16'>
@@ -80,15 +84,15 @@ export default function PainPoints() {
             Sound Familiar?
           </p>
           <h2 className='text-4xl md:text-5xl font-bold leading-tight gradient-text'>
-            You&apos;re Working Hard.
+            The Business Works.
             <br />
             <span className='text-foreground'>
-              The Clients Aren&apos;t Coming.
+              The Infrastructure Doesn&apos;t.
             </span>
           </h2>
           <p className='mt-5 text-muted-foreground max-w-xl mx-auto text-base leading-relaxed'>
-            Most personal brand founders have big audiences and empty pipelines.
-            The problem isn&apos;t your content — it&apos;s the missing system.
+            Most growing businesses are held together by effort rather than by
+            systems. That works right up until the moment it has to scale.
           </p>
         </div>
 
