@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Twitter, Linkedin, Instagram } from 'lucide-react';
-import logo from '@/public/favicon.svg';
+import logo from '@/public/unchained-business-logo.png';
 import { siteConfig, pillars } from '@/lib/site';
 
 const footerLinks = [
@@ -33,13 +33,12 @@ export default function Footer() {
         <div className='grid grid-cols-1 md:grid-cols-4 gap-12'>
           {/* Brand */}
           <div className='flex flex-col gap-4 md:col-span-2'>
-            <Link href='/' className='flex items-center gap-2 w-fit'>
-              <span className='w-7 h-7 rounded-md bg-foreground flex items-center justify-center'>
-                <Image src={logo} alt='' width={24} height={24} />
-              </span>
-              <span className='font-bold text-sm tracking-tight text-foreground'>
-                UNCHAINED BUSINESS
-              </span>
+            <Link href='/' className='flex items-center w-fit'>
+              <Image
+                src={logo}
+                alt='Unchained Business — home'
+                className='h-9 w-auto'
+              />
             </Link>
             <p className='text-sm text-muted-foreground max-w-xs leading-relaxed'>
               Digital infrastructure for growing businesses. Software,
