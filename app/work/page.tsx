@@ -16,7 +16,7 @@ import {
 export const metadata: Metadata = {
   title: 'Our Work',
   description:
-    'The products, websites and systems Unchained Business is building — including TanCerca, our first completed flagship product, and five projects currently in development.',
+    'The products, websites and systems Unchained Business is building — including TanCerca, our first completed flagship product, alongside the projects currently in development.',
   alternates: { canonical: '/work' },
 };
 
@@ -25,6 +25,7 @@ const statusOrder: ProjectStatus[] = [
   'in-development',
   'concept',
   'internal',
+  'dismissed',
 ];
 
 export default function WorkPage() {

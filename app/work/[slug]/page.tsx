@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
 import ProjectVisual from '@/components/ProjectVisual';
@@ -57,6 +58,9 @@ export default async function ProjectPage({
 
   if (!project) notFound();
 
+  // Detail pages prefer a dedicated hero image, falling back to the card shot.
+  const bandImage = project.heroImage ?? project.thumbnail;
+
   return (
     <main id='main' className='min-h-screen'>
       <ScrollDepth page={`work/${project.slug}`} />
@@ -110,19 +114,32 @@ export default async function ProjectPage({
       </section>
 
       {/* Visual band */}
-      <section className='px-6' aria-hidden='true'>
-        <div className='max-w-5xl mx-auto h-56 md:h-72 rounded-3xl glow-border bg-card overflow-hidden relative'>
-          <div className='absolute inset-0 text-foreground opacity-70'>
-            <ProjectVisual slug={project.slug} density='full' />
-          </div>
-          <div
-            className='absolute inset-0'
-            style={{
-              background:
-                'radial-gradient(ellipse 80% 70% at 50% 50%, transparent 0%, var(--card) 100%)',
-              opacity: 0.6,
-            }}
-          />
+      <section className='px-6' aria-hidden={bandImage ? undefined : true}>
+        <div className='max-w-5xl mx-auto h-72 md:h-[26rem] rounded-3xl glow-border bg-card overflow-hidden relative'>
+          {bandImage ? (
+            <Image
+              src={bandImage}
+              alt={project.title + ' product interface'}
+              fill
+              sizes='(min-width: 1024px) 1024px, 100vw'
+              priority
+              className='object-cover object-top'
+            />
+          ) : (
+            <>
+              <div className='absolute inset-0 text-foreground opacity-70'>
+                <ProjectVisual slug={project.slug} density='full' />
+              </div>
+              <div
+                className='absolute inset-0'
+                style={{
+                  background:
+                    'radial-gradient(ellipse 80% 70% at 50% 50%, transparent 0%, var(--card) 100%)',
+                  opacity: 0.6,
+                }}
+              />
+            </>
+          )}
         </div>
       </section>
 

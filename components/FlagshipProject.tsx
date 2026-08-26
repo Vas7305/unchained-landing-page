@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { track } from '@/lib/analytics';
 import type { Project } from '@/lib/projects';
@@ -8,9 +9,11 @@ import ProjectVisual from '@/components/ProjectVisual';
 import StatusBadge from '@/components/StatusBadge';
 
 export default function FlagshipProject({ project }: { project: Project }) {
+  const image = project.thumbnail;
+
   return (
     <article className='flagship-card relative overflow-hidden glow-border rounded-3xl bg-card'>
-      <div className='grid grid-cols-1 lg:grid-cols-[1.15fr_1fr]'>
+      <div className='grid grid-cols-1 lg:grid-cols-2'>
         {/* Narrative */}
         <div className='p-8 md:p-12 flex flex-col gap-6 order-2 lg:order-1'>
           <div className='flex flex-wrap items-center gap-3'>
@@ -68,19 +71,35 @@ export default function FlagshipProject({ project }: { project: Project }) {
           </div>
         </div>
 
-        {/* Visual */}
-        <div className='relative order-1 lg:order-2 min-h-56 lg:min-h-0 border-b lg:border-b-0 lg:border-l border-border overflow-hidden'>
-          <div className='absolute inset-0 text-foreground opacity-70'>
-            <ProjectVisual slug={project.slug} density='full' />
-          </div>
-          <div
-            className='absolute inset-0 pointer-events-none'
-            style={{
-              background:
-                'radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, var(--card) 100%)',
-              opacity: 0.65,
-            }}
-          />
+        {/* Product shot — right half only */}
+        <div className='relative order-1 lg:order-2 min-h-56 lg:min-h-0 overflow-hidden border-b lg:border-b-0 lg:border-l border-border'>
+          {image ? (
+            <div className='absolute inset-0 p-5 lg:p-8'>
+              <div className='relative h-full w-full'>
+                <Image
+                  src={image}
+                  alt={project.title + ' product interface'}
+                  fill
+                  sizes='(min-width: 1024px) 50vw, 100vw'
+                  className='object-contain object-center'
+                />
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className='absolute inset-0 text-foreground opacity-70'>
+                <ProjectVisual slug={project.slug} density='full' />
+              </div>
+              <div
+                className='absolute inset-0 pointer-events-none'
+                style={{
+                  background:
+                    'radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, var(--card) 100%)',
+                  opacity: 0.65,
+                }}
+              />
+            </>
+          )}
         </div>
       </div>
     </article>

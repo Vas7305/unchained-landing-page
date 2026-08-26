@@ -18,7 +18,8 @@ export type ProjectStatus =
   | 'completed'
   | 'in-development'
   | 'concept'
-  | 'internal';
+  | 'internal'
+  | 'dismissed';
 
 export const STATUS_META: Record<
   ProjectStatus,
@@ -43,6 +44,11 @@ export const STATUS_META: Record<
     label: 'Internal Product',
     className: 'text-violet-300/90 border-violet-300/25 bg-violet-300/5',
     description: 'Built and owned by Unchained Business.',
+  },
+  dismissed: {
+    label: 'Dismissed',
+    className: 'text-red-400/90 border-red-400/25 bg-red-400/5',
+    description: 'No longer being pursued.',
   },
 };
 
@@ -86,6 +92,9 @@ export const projects: Project[] = [
     detailed: true,
     year: '2026',
     industry: 'Local commerce & delivery',
+    thumbnail: '/work/tancerca.webp',
+    heroImage: '/work/tancerca-hero.webp',
+    externalUrl: 'https://www.tancercadeti.com',
     services: [
       'Product architecture',
       'Product design',
@@ -120,31 +129,37 @@ export const projects: Project[] = [
       'A launch-ready, full-stack commerce platform running in production — the most complete demonstration of what we can build end to end.',
   },
   {
-    title: 'Project 02',
-    slug: 'project-02',
+    title: 'Lazara Sersa Makeup Artist',
+    slug: 'lazara-sersa',
     description:
-      'A web application currently in active development. We publish the detail when it launches.',
-    category: 'Web Application',
+      'A brand and portfolio site for a makeup artist working across beauty, editorial, fashion and celebrity work.',
+    category: 'Portfolio Website',
     status: 'in-development',
     year: '2026',
+    industry: 'Beauty & editorial',
+    thumbnail: '/work/lazara-sersa.webp',
   },
   {
-    title: 'Project 03',
-    slug: 'project-03',
+    title: 'Klassisches Ballet',
+    slug: 'klassisches-ballet',
     description:
-      'A business automation system currently in active development. We publish the detail when it launches.',
-    category: 'Business Automation',
-    status: 'in-development',
-    year: '2026',
+      'A launch and reservation site for the official European debut gala of a classical ballet company — a single-night cultural event.',
+    category: 'Event Website',
+    status: 'dismissed',
+    year: '2025',
+    industry: 'Performing arts & culture',
+    thumbnail: '/work/klassisches-ballet.webp',
   },
   {
-    title: 'Project 04',
-    slug: 'project-04',
+    title: 'Mensalere',
+    slug: 'mensalere',
     description:
-      'A digital platform currently in active development. We publish the detail when it launches.',
-    category: 'Digital Platform',
+      'A platform connecting people with psychology professionals for private online consultations, with professional profiles and online appointment booking.',
+    category: 'Online Consultation Platform',
     status: 'in-development',
     year: '2026',
+    industry: 'Mental health & wellbeing',
+    thumbnail: '/work/mensalere.webp',
   },
   {
     title: 'Project 05',
@@ -168,7 +183,17 @@ export const projects: Project[] = [
 
 export const featuredProject = projects.find((p) => p.featured);
 
-export const otherProjects = projects.filter((p) => !p.featured);
+/** Most recent first. Entries without a year sort last; equal years keep
+ *  their source order, so this file still controls tie-breaks. */
+function byYearDesc(a: Project, b: Project): number {
+  const ya = a.year ? Number(a.year) : Number.NEGATIVE_INFINITY;
+  const yb = b.year ? Number(b.year) : Number.NEGATIVE_INFINITY;
+  return yb - ya;
+}
+
+export const otherProjects = projects
+  .filter((p) => !p.featured)
+  .sort(byYearDesc);
 
 export const detailedProjects = projects.filter((p) => p.detailed);
 

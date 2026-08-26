@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowUpRight } from 'lucide-react';
 import { track } from '@/lib/analytics';
 import type { Project } from '@/lib/projects';
@@ -18,7 +19,17 @@ function CardBody({ project }: { project: Project }) {
       </div>
 
       <div className='relative h-28 -mx-1 my-1 text-foreground overflow-hidden rounded-xl opacity-60 group-hover:opacity-100 transition-opacity duration-500'>
-        <ProjectVisual slug={project.slug} />
+        {project.thumbnail ? (
+          <Image
+            src={project.thumbnail}
+            alt=''
+            fill
+            sizes='(min-width: 768px) 33vw, 100vw'
+            className='object-cover object-top'
+          />
+        ) : (
+          <ProjectVisual slug={project.slug} />
+        )}
       </div>
 
       <div className='flex-1'>
