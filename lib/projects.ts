@@ -162,22 +162,26 @@ export const projects: Project[] = [
     thumbnail: '/work/mensalere.webp',
   },
   {
-    title: 'Project 05',
-    slug: 'project-05',
+    title: 'Frito',
+    slug: 'frito',
     description:
-      'A growth system currently in active development. We publish the detail when it launches.',
-    category: 'Growth Systems',
+      'A mobile dating app for meeting new people in Cuba, with the marketing and download site behind its iOS and Android launch.',
+    category: 'Mobile App',
     status: 'in-development',
     year: '2026',
+    industry: 'Social & dating',
+    thumbnail: '/work/frito.webp',
   },
   {
-    title: 'Project 06',
-    slug: 'project-06',
+    title: 'Unchained OS',
+    slug: 'unchained-os',
     description:
-      'A software product currently in active development. We publish the detail when it launches.',
-    category: 'Custom Software',
+      'Our own private equity operating system: deal analysis and comparison, pipeline CRM, capital allocation, multi-investor management and fund performance tracking.',
+    category: 'Internal Software',
     status: 'in-development',
     year: '2026',
+    industry: 'Private equity & investment operations',
+    thumbnail: '/work/unchained-os.webp',
   },
 ];
 
