@@ -10,6 +10,7 @@ import StatusBadge from '@/components/StatusBadge';
 
 export default function FlagshipProject({ project }: { project: Project }) {
   const image = project.thumbnail;
+  const size = project.thumbnailSize;
 
   return (
     <article className='flagship-card relative overflow-hidden glow-border rounded-3xl bg-card'>
@@ -74,16 +75,29 @@ export default function FlagshipProject({ project }: { project: Project }) {
         {/* Product shot — right half only */}
         <div className='relative order-1 lg:order-2 min-h-56 lg:min-h-0 overflow-hidden border-b lg:border-b-0 lg:border-l border-border'>
           {image ? (
-            <div className='absolute inset-0 p-5 lg:p-8'>
-              <div className='relative h-full w-full'>
+            <div className='absolute inset-0 p-5 lg:p-8 flex items-center justify-center'>
+              {size ? (
+                /* Sized to the artwork, not the frame, so the rounded corners
+                   land on the screenshot's own edges. */
                 <Image
                   src={image}
                   alt={project.title + ' product interface'}
-                  fill
+                  width={size.width}
+                  height={size.height}
                   sizes='(min-width: 1024px) 50vw, 100vw'
-                  className='object-contain object-center'
+                  className='h-auto w-auto max-h-full max-w-full rounded-xl'
                 />
-              </div>
+              ) : (
+                <div className='relative h-full w-full'>
+                  <Image
+                    src={image}
+                    alt={project.title + ' product interface'}
+                    fill
+                    sizes='(min-width: 1024px) 50vw, 100vw'
+                    className='object-contain object-center'
+                  />
+                </div>
+              )}
             </div>
           ) : (
             <>

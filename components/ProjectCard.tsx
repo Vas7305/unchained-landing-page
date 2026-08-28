@@ -11,7 +11,9 @@ import StatusBadge from '@/components/StatusBadge';
 function CardBody({ project }: { project: Project }) {
   return (
     <>
-      <div className='flex items-start justify-between gap-4'>
+      {/* Fixed two-line height: a category that wraps must not push the
+          thumbnail down, or cards sit at different heights in the same row. */}
+      <div className='flex items-start justify-between gap-4 min-h-8'>
         <span className='text-xs uppercase tracking-widest text-muted-foreground'>
           {project.category}
         </span>

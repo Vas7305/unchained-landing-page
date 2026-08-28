@@ -66,6 +66,13 @@ export type Project = {
   services?: string[];
   technologies?: string[];
   thumbnail?: string;
+  /**
+   * Intrinsic pixel size of `thumbnail`. Only needed where the image is shown
+   * uncropped (the flagship card): it lets the element be sized to the artwork
+   * instead of to its frame, so rounding follows the screenshot's own edges
+   * rather than the letterbox around it.
+   */
+  thumbnailSize?: { width: number; height: number };
   heroImage?: string;
   summary?: string;
   challenge?: string;
@@ -93,6 +100,7 @@ export const projects: Project[] = [
     year: '2026',
     industry: 'Local commerce & delivery',
     thumbnail: '/work/tancerca.webp',
+    thumbnailSize: { width: 747, height: 546 },
     heroImage: '/work/tancerca-hero.webp',
     externalUrl: 'https://www.tancercadeti.com',
     services: [
@@ -127,6 +135,17 @@ export const projects: Project[] = [
     ],
     outcome:
       'A launch-ready, full-stack commerce platform running in production — the most complete demonstration of what we can build end to end.',
+  },
+  {
+    title: 'Lanna Kamilina',
+    slug: 'lanna-kamilina',
+    description:
+      'A Russian-language site for a beauty salon open in central Moscow since 1999 — service catalogue, master profiles, work gallery and online booking with live availability.',
+    category: 'Salon & Booking Website',
+    status: 'in-development',
+    year: '2026',
+    industry: 'Beauty & personal care',
+    thumbnail: '/work/lanna-kamilina.webp',
   },
   {
     title: 'Lazara Sersa Makeup Artist',
