@@ -10,43 +10,51 @@ import {
   Rocket,
   LineChart,
 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/LanguageProvider';
+import type { TranslationKey } from '@/lib/i18n/dictionaries';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const steps = [
+const steps: {
+  number: string;
+  icon: typeof Search;
+  title: TranslationKey;
+  body: TranslationKey;
+}[] = [
   {
     number: '01',
     icon: Search,
-    title: 'Discover',
-    body: 'We start with the business, not the technology. How the work actually flows, where it breaks, who it serves, and what the market rewards — before anyone writes a line of code.',
+    title: 'how.discover.title',
+    body: 'how.discover.body',
   },
   {
     number: '02',
     icon: DraftingCompass,
-    title: 'Architect',
-    body: 'We define the system on paper first: data model, surfaces, integrations, and the sequence of delivery. Decisions are cheap here and expensive later.',
+    title: 'how.architect.title',
+    body: 'how.architect.body',
   },
   {
     number: '03',
     icon: Hammer,
-    title: 'Build',
-    body: 'Design and development run together, in working increments you can see and use. No six-month black box, no big-bang reveal at the end.',
+    title: 'how.build.title',
+    body: 'how.build.body',
   },
   {
     number: '04',
     icon: Rocket,
-    title: 'Launch',
-    body: 'Deploy, integrate, test under real conditions, and hand over something your team can actually operate — with the documentation to match.',
+    title: 'how.launch.title',
+    body: 'how.launch.body',
   },
   {
     number: '05',
     icon: LineChart,
-    title: 'Optimize',
-    body: 'Real usage tells you things planning cannot. We measure how the system performs and improve it against what the data shows.',
+    title: 'how.optimize.title',
+    body: 'how.optimize.body',
   },
 ];
 
 export default function HowItWorks() {
+  const t = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
 
@@ -98,17 +106,16 @@ export default function HowItWorks() {
         {/* Header */}
         <div className='text-center mb-20'>
           <p className='text-xs uppercase tracking-widest text-muted-foreground mb-3 font-medium'>
-            The Process
+            {t('how.eyebrow')}
           </p>
           <h2
             id='how-we-work-heading'
             className='text-4xl md:text-5xl font-bold leading-tight'
           >
-            <span className='gradient-text'>How We Work</span>
+            <span className='gradient-text'>{t('how.title')}</span>
           </h2>
           <p className='mt-5 text-muted-foreground max-w-lg mx-auto text-base leading-relaxed'>
-            The same five phases whether we&apos;re building a website, a SaaS
-            product, an automation layer or a growth system.
+            {t('how.body')}
           </p>
         </div>
 
@@ -146,10 +153,10 @@ export default function HowItWorks() {
                   {/* Content */}
                   <div className='pt-2 md:pt-4'>
                     <h3 className='text-xl font-semibold text-foreground mb-2'>
-                      {step.title}
+                      {t(step.title)}
                     </h3>
                     <p className='text-muted-foreground text-sm leading-relaxed max-w-lg'>
-                      {step.body}
+                      {t(step.body)}
                     </p>
                   </div>
                 </div>

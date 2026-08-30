@@ -6,31 +6,22 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight } from 'lucide-react';
 import { track } from '@/lib/analytics';
+import { useTranslation } from '@/lib/i18n/LanguageProvider';
+import type { TranslationKey } from '@/lib/i18n/dictionaries';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const phases = [
-  {
-    key: 'build',
-    label: 'Build',
-    body: 'Create real products and prove technical capability.',
-  },
-  {
-    key: 'prove',
-    label: 'Prove',
-    body: 'Put that capability to work for businesses and measure what happens.',
-  },
-  {
-    key: 'scale',
-    label: 'Scale',
-    body: 'Turn what works into infrastructure other companies can rely on.',
-  },
+const phases: { key: string; label: TranslationKey; body: TranslationKey }[] = [
+  { key: 'build', label: 'challenge.build.label', body: 'challenge.build.body' },
+  { key: 'prove', label: 'challenge.prove.label', body: 'challenge.prove.body' },
+  { key: 'scale', label: 'challenge.scale.label', body: 'challenge.scale.body' },
 ];
 
 // We are transitioning from Build toward Prove.
 const CURRENT_PHASE = 1;
 
 export default function Challenge() {
+  const t = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -76,16 +67,16 @@ export default function Challenge() {
       <div className='challenge-inner relative max-w-4xl mx-auto'>
         <div className='text-center'>
           <p className='text-xs uppercase tracking-widest text-muted-foreground mb-3 font-medium'>
-            Build → Prove → Scale
+            {t('challenge.eyebrow')}
           </p>
           <h2
             id='challenge-heading'
             className='text-4xl md:text-5xl font-bold leading-[1.1] tracking-tight gradient-text'
           >
-            The Unchained Challenge
+            {t('challenge.title')}
           </h2>
           <p className='mt-4 text-lg md:text-xl text-foreground/80 font-medium'>
-            Build a global technology company. One project at a time.
+            {t('challenge.lede')}
           </p>
         </div>
 
@@ -113,16 +104,16 @@ export default function Challenge() {
                   <span
                     className={`text-sm font-bold tracking-tight ${labelTone}`}
                   >
-                    {phase.label}
+                    {t(phase.label)}
                   </span>
                   {isCurrent && (
                     <span className='status-pill border-border text-muted-foreground'>
-                      We are here
+                      {t('challenge.weAreHere')}
                     </span>
                   )}
                 </div>
                 <p className='text-sm text-muted-foreground leading-relaxed'>
-                  {phase.body}
+                  {t(phase.body)}
                 </p>
               </div>
             );
@@ -132,23 +123,13 @@ export default function Challenge() {
         {/* Narrative */}
         <div className='mt-14 glow-border rounded-3xl bg-card p-8 md:p-12 flex flex-col gap-6'>
           <div className='flex flex-col gap-4 text-muted-foreground text-base leading-relaxed'>
-            <p>
-              Unchained Business is still in its early stages. We&apos;ve spent
-              our first months building real products, digital systems and
-              technical capabilities. Now we&apos;re taking the next step:
-              putting those capabilities to work for businesses around the
-              world.
-            </p>
-            <p>
-              We&apos;re documenting that journey openly — the projects,
-              experiments, wins, failures, lessons and milestones.
-            </p>
+            <p>{t('challenge.p1')}</p>
+            <p>{t('challenge.p2')}</p>
           </div>
 
           <blockquote className='border-l-2 border-foreground/25 pl-5 md:pl-6'>
             <p className='text-lg md:text-xl font-semibold text-foreground leading-snug tracking-tight'>
-              Our first proof is what we&apos;ve built. Our next proof will be
-              what we help our clients achieve.
+              {t('challenge.quote')}
             </p>
           </blockquote>
 
@@ -160,7 +141,7 @@ export default function Challenge() {
               }
               className='group inline-flex items-center gap-2 bg-foreground text-background font-semibold px-6 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200'
             >
-              Follow the Journey
+              {t('common.followTheJourney')}
               <ArrowRight
                 size={15}
                 aria-hidden='true'

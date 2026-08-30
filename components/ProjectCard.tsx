@@ -7,15 +7,19 @@ import { track } from '@/lib/analytics';
 import type { Project } from '@/lib/projects';
 import ProjectVisual from '@/components/ProjectVisual';
 import StatusBadge from '@/components/StatusBadge';
+import { useTranslation } from '@/lib/i18n/LanguageProvider';
+import type { TranslationKey } from '@/lib/i18n/dictionaries';
 
 function CardBody({ project }: { project: Project }) {
+  const t = useTranslation();
+
   return (
     <>
       {/* Fixed two-line height: a category that wraps must not push the
           thumbnail down, or cards sit at different heights in the same row. */}
       <div className='flex items-start justify-between gap-4 min-h-8'>
         <span className='text-xs uppercase tracking-widest text-muted-foreground'>
-          {project.category}
+          {t(('project.' + project.slug + '.category') as TranslationKey)}
         </span>
         <StatusBadge status={project.status} />
       </div>
@@ -46,7 +50,7 @@ function CardBody({ project }: { project: Project }) {
           )}
         </h3>
         <p className='text-sm text-muted-foreground leading-relaxed'>
-          {project.description}
+          {t(('project.' + project.slug + '.description') as TranslationKey)}
         </p>
       </div>
 

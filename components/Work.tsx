@@ -10,10 +10,12 @@ import FlagshipProject from '@/components/FlagshipProject';
 import ProjectCard from '@/components/ProjectCard';
 import { track } from '@/lib/analytics';
 import { featuredProject, otherProjects } from '@/lib/projects';
+import { useTranslation } from '@/lib/i18n/LanguageProvider';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Work() {
+  const t = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -56,11 +58,11 @@ export default function Work() {
     >
       <div className='max-w-6xl mx-auto'>
         <SectionHeading
-          eyebrow='Proof'
-          title='Our Work'
-          accent='Is Our Proof.'
+          eyebrow={t('work.eyebrow')}
+          title={t('work.title')}
+          accent={t('work.titleAccent')}
           titleId='work-heading'
-          body='We are building Unchained Business one project at a time. These are the products, websites and systems we are creating along the way.'
+          body={t('work.body')}
         />
 
         {featuredProject && (
@@ -81,7 +83,7 @@ export default function Work() {
             onClick={() => track('explore_work_click', { location: 'work' })}
             className='group inline-flex items-center gap-2 glow-border bg-card hover:border-foreground/25 text-foreground font-semibold px-6 py-3 rounded-xl text-sm transition-all duration-200'
           >
-            Explore all our work
+            {t('work.exploreAll')}
             <ArrowRight
               size={15}
               aria-hidden='true'
@@ -89,8 +91,7 @@ export default function Work() {
             />
           </Link>
           <p className='text-xs text-muted-foreground/70 max-w-xs sm:text-left'>
-            Projects in development are published here when they launch — named,
-            documented and honest about their status.
+            {t('work.note')}
           </p>
         </div>
       </div>

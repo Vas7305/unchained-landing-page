@@ -3,6 +3,9 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import SkipLink from '@/components/SkipLink';
+import { LanguageProvider } from '@/lib/i18n/LanguageProvider';
+import { defaultLocale } from '@/lib/i18n/config';
 import { siteConfig } from '@/lib/site';
 
 const inter = Inter({
@@ -52,17 +55,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en' className='dark'>
+    // `lang` is the prerendered default; LanguageProvider updates it on the
+    // client whenever the visitor picks another language.
+    <html lang={defaultLocale} className='dark'>
       <body className={`${inter.variable} antialiased`}>
-        <a
-          href='#main'
-          className='sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-foreground focus:text-background focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-semibold'
-        >
-          Skip to content
-        </a>
-        <Navbar />
-        {children}
-        <Footer />
+        <LanguageProvider>
+          <SkipLink />
+          <Navbar />
+          {children}
+          <Footer />
+        </LanguageProvider>
       </body>
     </html>
   );

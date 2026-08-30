@@ -1,28 +1,58 @@
+'use client';
+
 import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
 import ScrollDepth from '@/components/ScrollDepth';
 import { pillars } from '@/lib/site';
 import type { PillarContent } from '@/lib/pillar-content';
+import { useLanguage } from '@/lib/i18n/LanguageProvider';
+import type { ListKey, TranslationKey } from '@/lib/i18n/dictionaries';
+
+/**
+ * Each pillar's copy lives under its own short dictionary prefix. The offering
+ * ids are listed here rather than derived from the content file because the
+ * dictionary keys them by concept (`webapps`), not by their English name.
+ */
+const PILLAR_KEYS = {
+  'software-development': {
+    prefix: 'sd',
+    offerings: ['websites', 'webapps', 'saas', 'custom', 'products'],
+  },
+  'business-automation': {
+    prefix: 'ba',
+    offerings: ['workflow', 'integrations', 'tools', 'operational'],
+  },
+  'growth-systems': {
+    prefix: 'gs',
+    offerings: ['acquisition', 'qualification', 'nurturing', 'conversion'],
+  },
+} as const;
+
+const APPROACH_STEPS = [1, 2, 3] as const;
 
 export default function PillarPage({ content }: { content: PillarContent }) {
+  const { t, tList } = useLanguage();
   const siblings = pillars.filter((p) => p.slug !== content.slug);
+  const { prefix, offerings } = PILLAR_KEYS[content.slug];
+
+  /** Shorthand for this pillar's own namespace. */
+  const p = (suffix: string) => t((prefix + '.' + suffix) as TranslationKey);
 
   return (
     <main id='main' className='min-h-screen'>
       <ScrollDepth page={content.slug} />
 
       <PageHeader
-        eyebrow={content.eyebrow}
-        title={content.title}
-        accent={content.accent}
-        lede={content.lede}
+        eyebrow={p('eyebrow')}
+        title={t(('pillar.' + content.slug) as TranslationKey)}
+        lede={p('lede')}
       >
         <Link
           href='/#contact'
           className='group inline-flex items-center gap-2 bg-foreground text-background font-semibold px-6 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200'
         >
-          Start a Project
+          {t('nav.startProject')}
           <ArrowRight
             size={15}
             aria-hidden='true'
@@ -41,20 +71,20 @@ export default function PillarPage({ content }: { content: PillarContent }) {
             id='offerings-heading'
             className='text-3xl md:text-4xl font-bold tracking-tight gradient-text'
           >
-            What we build
+            {t('pillarPage.whatWeBuild')}
           </h2>
 
           <div className='mt-10 grid grid-cols-1 md:grid-cols-2 gap-5'>
-            {content.offerings.map((o) => (
+            {offerings.map((id) => (
               <article
-                key={o.name}
+                key={id}
                 className='glow-border rounded-2xl bg-card p-7 flex flex-col gap-3'
               >
                 <h3 className='text-lg font-semibold text-foreground'>
-                  {o.name}
+                  {p('offering.' + id + '.name')}
                 </h3>
                 <p className='text-sm text-muted-foreground leading-relaxed'>
-                  {o.body}
+                  {p('offering.' + id + '.body')}
                 </p>
               </article>
             ))}
@@ -72,27 +102,27 @@ export default function PillarPage({ content }: { content: PillarContent }) {
             id='approach-heading'
             className='text-3xl md:text-4xl font-bold tracking-tight gradient-text'
           >
-            How we approach it
+            {t('pillarPage.howWeApproach')}
           </h2>
 
           <div className='mt-10 flex flex-col gap-10'>
-            {content.approach.map((a, i) => (
+            {APPROACH_STEPS.map((n) => (
               <article
-                key={a.heading}
+                key={n}
                 className='grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 md:gap-8 items-start'
               >
                 <span
                   className='text-sm font-bold text-muted-foreground/40 tabular-nums pt-1'
                   aria-hidden='true'
                 >
-                  {String(i + 1).padStart(2, '0')}
+                  {String(n).padStart(2, '0')}
                 </span>
                 <div className='max-w-2xl'>
                   <h3 className='text-xl font-semibold text-foreground mb-3'>
-                    {a.heading}
+                    {p('approach.' + n + '.heading')}
                   </h3>
                   <p className='text-base text-muted-foreground leading-relaxed'>
-                    {a.body}
+                    {p('approach.' + n + '.body')}
                   </p>
                 </div>
               </article>
@@ -106,10 +136,10 @@ export default function PillarPage({ content }: { content: PillarContent }) {
         <div className='max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start'>
           <div>
             <h2 className='text-2xl md:text-3xl font-bold tracking-tight text-foreground'>
-              You probably need this if…
+              {t('pillarPage.youNeedThis')}
             </h2>
             <ul className='mt-6 flex flex-col gap-3'>
-              {content.signals.map((s) => (
+              {tList((prefix + '.signals') as ListKey).map((s) => (
                 <li key={s} className='flex items-start gap-3'>
                   <Check
                     size={16}
@@ -126,16 +156,16 @@ export default function PillarPage({ content }: { content: PillarContent }) {
 
           <div className='glow-border rounded-2xl bg-card p-8'>
             <h2 className='text-xs uppercase tracking-widest text-muted-foreground/60 mb-4'>
-              Where we are with this
+              {t('pillarPage.whereWeAre')}
             </h2>
             <p className='text-base text-foreground leading-relaxed'>
-              {content.proof}
+              {p('proof')}
             </p>
             <Link
               href='/work'
               className='group mt-6 inline-flex items-center gap-2 text-sm font-medium text-foreground'
             >
-              See our work
+              {t('pillarPage.seeOurWork')}
               <ArrowRight
                 size={14}
                 aria-hidden='true'
@@ -156,20 +186,20 @@ export default function PillarPage({ content }: { content: PillarContent }) {
             id='other-capabilities-heading'
             className='text-xs uppercase tracking-widest text-muted-foreground mb-6 font-medium'
           >
-            The other pillars
+            {t('pillarPage.otherPillars')}
           </h2>
           <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
-            {siblings.map((p) => (
+            {siblings.map((sibling) => (
               <Link
-                key={p.slug}
-                href={`/${p.slug}`}
+                key={sibling.slug}
+                href={`/${sibling.slug}`}
                 className='group glow-border rounded-2xl bg-card p-7 hover:border-foreground/25 hover:bg-accent/25 transition-all duration-300'
               >
                 <span className='text-xs font-bold tracking-widest text-muted-foreground/40 tabular-nums'>
-                  {p.number}
+                  {sibling.number}
                 </span>
                 <h3 className='mt-2 text-lg font-semibold text-foreground flex items-center gap-2'>
-                  {p.title}
+                  {t(('pillar.' + sibling.slug) as TranslationKey)}
                   <ArrowRight
                     size={15}
                     aria-hidden='true'
@@ -177,7 +207,7 @@ export default function PillarPage({ content }: { content: PillarContent }) {
                   />
                 </h3>
                 <p className='mt-2 text-sm text-muted-foreground leading-relaxed'>
-                  {p.summary}
+                  {t(('pillarSummary.' + sibling.slug) as TranslationKey)}
                 </p>
               </Link>
             ))}

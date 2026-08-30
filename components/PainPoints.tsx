@@ -4,33 +4,24 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Boxes, Repeat, Unplug, Waypoints } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/LanguageProvider';
+import type { TranslationKey } from '@/lib/i18n/dictionaries';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const pains = [
-  {
-    icon: Repeat,
-    title: 'Manual Work That Should Be Automatic',
-    body: 'Your team re-types the same data, chases the same approvals, and rebuilds the same report every week. The process works — but only because people keep carrying it.',
-  },
-  {
-    icon: Unplug,
-    title: 'Tools That Do Not Talk to Each Other',
-    body: 'Six subscriptions, six sources of truth, and a spreadsheet holding them together. Every integration gap becomes someone’s daily copy-and-paste job.',
-  },
-  {
-    icon: Boxes,
-    title: 'Software That Fights How You Operate',
-    body: 'Off-the-shelf tools force your business to work their way. So you build workarounds around the workarounds, and the real process lives in people’s heads.',
-  },
-  {
-    icon: Waypoints,
-    title: 'Growth That Depends on Someone Remembering',
-    body: 'Leads arrive, then stall. Follow-up happens when there is time. Nothing is broken exactly — it is just that none of it is a system yet.',
-  },
+const pains: {
+  icon: typeof Repeat;
+  title: TranslationKey;
+  body: TranslationKey;
+}[] = [
+  { icon: Repeat, title: 'pain.manual.title', body: 'pain.manual.body' },
+  { icon: Unplug, title: 'pain.tools.title', body: 'pain.tools.body' },
+  { icon: Boxes, title: 'pain.software.title', body: 'pain.software.body' },
+  { icon: Waypoints, title: 'pain.growth.title', body: 'pain.growth.body' },
 ];
 
 export default function PainPoints() {
+  const t = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
 
@@ -81,18 +72,15 @@ export default function PainPoints() {
         {/* Header */}
         <div className='pain-heading text-center mb-16'>
           <p className='text-xs uppercase tracking-widest text-muted-foreground mb-3 font-medium'>
-            Sound Familiar?
+            {t('pain.eyebrow')}
           </p>
           <h2 className='text-4xl md:text-5xl font-bold leading-tight gradient-text'>
-            The Business Works.
+            {t('pain.title')}
             <br />
-            <span className='text-foreground'>
-              The Infrastructure Doesn&apos;t.
-            </span>
+            <span className='text-foreground'>{t('pain.titleAccent')}</span>
           </h2>
           <p className='mt-5 text-muted-foreground max-w-xl mx-auto text-base leading-relaxed'>
-            Most growing businesses are held together by effort rather than by
-            systems. That works right up until the moment it has to scale.
+            {t('pain.body')}
           </p>
         </div>
 
@@ -112,10 +100,10 @@ export default function PainPoints() {
                   />
                 </div>
                 <h3 className='font-semibold text-foreground text-base mb-2'>
-                  {p.title}
+                  {t(p.title)}
                 </h3>
                 <p className='text-muted-foreground text-sm leading-relaxed'>
-                  {p.body}
+                  {t(p.body)}
                 </p>
               </div>
             );

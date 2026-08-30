@@ -14,7 +14,8 @@ export type AnalyticsEvent =
   | 'project_click'
   | 'tancerca_view'
   | 'booking_cta_click'
-  | 'scroll_depth';
+  | 'scroll_depth'
+  | 'language_change';
 
 type Props = Record<string, string | number | boolean | undefined>;
 

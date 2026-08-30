@@ -7,10 +7,14 @@ import { track } from '@/lib/analytics';
 import type { Project } from '@/lib/projects';
 import ProjectVisual from '@/components/ProjectVisual';
 import StatusBadge from '@/components/StatusBadge';
+import { useLanguage } from '@/lib/i18n/LanguageProvider';
+import type { ListKey, TranslationKey } from '@/lib/i18n/dictionaries';
 
 export default function FlagshipProject({ project }: { project: Project }) {
+  const { t, tList } = useLanguage();
   const image = project.thumbnail;
   const size = project.thumbnailSize;
+  const interfaceAlt = project.title + ' ' + t('flagship.interfaceAlt');
 
   return (
     <article className='flagship-card relative overflow-hidden glow-border rounded-3xl bg-card'>
@@ -19,7 +23,7 @@ export default function FlagshipProject({ project }: { project: Project }) {
         <div className='p-8 md:p-12 flex flex-col gap-6 order-2 lg:order-1'>
           <div className='flex flex-wrap items-center gap-3'>
             <span className='status-pill border-border text-muted-foreground'>
-              Flagship Product
+              {t('flagship.badge')}
             </span>
             <StatusBadge status={project.status} />
           </div>
@@ -29,17 +33,19 @@ export default function FlagshipProject({ project }: { project: Project }) {
               {project.title}
             </h3>
             <p className='mt-3 text-muted-foreground text-base leading-relaxed max-w-lg'>
-              {project.description}
+              {t(('project.' + project.slug + '.description') as TranslationKey)}
             </p>
           </div>
 
           {project.capabilities && (
             <div>
               <p className='text-xs uppercase tracking-widest text-muted-foreground/70 mb-3 font-medium'>
-                What it proves
+                {t('flagship.proves')}
               </p>
               <ul className='flex flex-wrap gap-2'>
-                {project.capabilities.map((c) => (
+                {tList(
+                  ('project.' + project.slug + '.capabilities') as ListKey,
+                ).map((c) => (
                   <li
                     key={c}
                     className='text-xs text-muted-foreground bg-secondary/70 border border-border rounded-lg px-2.5 py-1.5'
@@ -57,7 +63,7 @@ export default function FlagshipProject({ project }: { project: Project }) {
               onClick={() => track('project_click', { project: project.slug })}
               className='group inline-flex items-center justify-center gap-2 bg-foreground text-background font-semibold px-6 py-3 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200'
             >
-              View the project
+              {t('flagship.view')}
               <ArrowRight
                 size={15}
                 aria-hidden='true'
@@ -66,7 +72,7 @@ export default function FlagshipProject({ project }: { project: Project }) {
             </Link>
             {project.outcome && (
               <p className='text-xs text-muted-foreground/70 leading-relaxed max-w-xs'>
-                {project.outcome}
+                {t(('project.' + project.slug + '.outcome') as TranslationKey)}
               </p>
             )}
           </div>
@@ -81,7 +87,7 @@ export default function FlagshipProject({ project }: { project: Project }) {
                    land on the screenshot's own edges. */
                 <Image
                   src={image}
-                  alt={project.title + ' product interface'}
+                  alt={interfaceAlt}
                   width={size.width}
                   height={size.height}
                   sizes='(min-width: 1024px) 50vw, 100vw'
@@ -91,7 +97,7 @@ export default function FlagshipProject({ project }: { project: Project }) {
                 <div className='relative h-full w-full'>
                   <Image
                     src={image}
-                    alt={project.title + ' product interface'}
+                    alt={interfaceAlt}
                     fill
                     sizes='(min-width: 1024px) 50vw, 100vw'
                     className='object-contain object-center'

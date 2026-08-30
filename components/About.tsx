@@ -6,33 +6,21 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight } from 'lucide-react';
 import { track } from '@/lib/analytics';
+import { useTranslation } from '@/lib/i18n/LanguageProvider';
+import type { TranslationKey } from '@/lib/i18n/dictionaries';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const principles = [
-  {
-    title: 'Build',
-    body: 'Make the thing. Real products, in production, with real constraints.',
-  },
-  {
-    title: 'Measure',
-    body: 'Track what the system actually does, not what we hoped it would do.',
-  },
-  {
-    title: 'Document',
-    body: 'Publish the result — including the parts that did not work.',
-  },
-  {
-    title: 'Improve',
-    body: 'Feed every lesson back into the next build.',
-  },
-  {
-    title: 'Scale',
-    body: 'Repeat what proves itself. Discard what does not.',
-  },
+const principles: { title: TranslationKey; body: TranslationKey }[] = [
+  { title: 'about.build.title', body: 'about.build.body' },
+  { title: 'about.measure.title', body: 'about.measure.body' },
+  { title: 'about.document.title', body: 'about.document.body' },
+  { title: 'about.improve.title', body: 'about.improve.body' },
+  { title: 'about.scale.title', body: 'about.scale.body' },
 ];
 
 export default function About() {
+  const t = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -78,32 +66,21 @@ export default function About() {
         {/* Narrative */}
         <div className='about-col'>
           <p className='text-xs uppercase tracking-widest text-muted-foreground mb-3 font-medium'>
-            Who We Are
+            {t('about.eyebrow')}
           </p>
           <h2
             id='about-heading'
             className='text-4xl md:text-5xl font-bold leading-[1.1] tracking-tight'
           >
-            <span className='gradient-text'>Our First Case Study</span>
+            <span className='gradient-text'>{t('about.title')}</span>
             <br />
-            <span className='text-foreground'>Is Ourselves.</span>
+            <span className='text-foreground'>{t('about.titleAccent')}</span>
           </h2>
 
           <div className='mt-6 flex flex-col gap-4 text-muted-foreground text-base leading-relaxed'>
-            <p>
-              Before we ask businesses to trust us with their growth, we&apos;re
-              putting our own systems, decisions and execution to the test.
-            </p>
-            <p>
-              Unchained Business is an early-stage technology company. We
-              don&apos;t have a decade of case studies behind us — we have a
-              flagship product in production, five more projects in development,
-              and a deliberate plan to earn the rest.
-            </p>
-            <p className='text-foreground font-medium'>
-              We&apos;re not trying to look established. We&apos;re building
-              something worth becoming established for.
-            </p>
+            <p>{t('about.p1')}</p>
+            <p>{t('about.p2')}</p>
+            <p className='text-foreground font-medium'>{t('about.p3')}</p>
           </div>
 
           <Link
@@ -111,7 +88,7 @@ export default function About() {
             onClick={() => track('follow_journey_click', { location: 'about' })}
             className='group mt-8 inline-flex items-center gap-2 text-sm font-medium text-foreground'
           >
-            Read the journey log
+            {t('about.readLog')}
             <ArrowRight
               size={14}
               aria-hidden='true'
@@ -123,7 +100,7 @@ export default function About() {
         {/* Operating principle */}
         <div className='about-col glow-border rounded-3xl bg-card p-8 md:p-10'>
           <p className='text-xs uppercase tracking-widest text-muted-foreground/70 mb-6 font-medium'>
-            How we operate
+            {t('about.howWeOperate')}
           </p>
 
           <ol className='principle-list flex flex-col'>
@@ -147,10 +124,10 @@ export default function About() {
                 </span>
                 <div className='pt-0.5'>
                   <h3 className='text-sm font-semibold text-foreground'>
-                    {p.title}
+                    {t(p.title)}
                   </h3>
                   <p className='text-sm text-muted-foreground leading-relaxed mt-0.5'>
-                    {p.body}
+                    {t(p.body)}
                   </p>
                 </div>
               </li>

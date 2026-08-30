@@ -4,16 +4,23 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { JourneyEntry } from '@/lib/journey';
+import { useLanguage } from '@/lib/i18n/LanguageProvider';
+import type { ListKey, TranslationKey } from '@/lib/i18n/dictionaries';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const blocks = [
-  { key: 'happened', label: 'What Happened' },
-  { key: 'learned', label: 'What We Learned' },
-  { key: 'changed', label: 'What Changed' },
-] as const;
+  { key: 'happened', label: 'timeline.happened' },
+  { key: 'learned', label: 'timeline.learned' },
+  { key: 'changed', label: 'timeline.changed' },
+] as const satisfies readonly { key: string; label: TranslationKey }[];
 
 function EntryCard({ entry }: { entry: JourneyEntry }) {
+  const { t, tList } = useLanguage();
+  /** Every field of an entry is translated under its own id. */
+  const field = (name: string) =>
+    t(( 'entry.' + entry.id + '.' + name) as TranslationKey);
+
   return (
     <article
       id={entry.id}
@@ -27,25 +34,25 @@ function EntryCard({ entry }: { entry: JourneyEntry }) {
 
       <header className='flex flex-wrap items-center gap-3'>
         <time className='text-xs font-bold uppercase tracking-widest text-muted-foreground'>
-          {entry.date}
+          {field('date')}
         </time>
         <span className='status-pill border-border text-muted-foreground'>
-          Stage: {entry.stage}
+          {t('timeline.stage')}: {field('stage')}
         </span>
       </header>
 
       <h3 className='mt-3 text-2xl md:text-3xl font-bold tracking-tight text-foreground'>
-        {entry.title}
+        {field('title')}
       </h3>
 
       <div className='mt-8 flex flex-col gap-8'>
         {/* What we built */}
         <section>
           <h4 className='text-xs uppercase tracking-widest text-muted-foreground/60 mb-4'>
-            What We Built
+            {t('timeline.built')}
           </h4>
           <ul className='flex flex-col gap-3'>
-            {entry.built.map((item) => (
+            {tList(('entry.' + entry.id + '.built') as ListKey).map((item) => (
               <li
                 key={item}
                 className='glow-border rounded-xl bg-card px-5 py-4 text-sm text-muted-foreground leading-relaxed'
@@ -59,10 +66,10 @@ function EntryCard({ entry }: { entry: JourneyEntry }) {
         {blocks.map((block) => (
           <section key={block.key}>
             <h4 className='text-xs uppercase tracking-widest text-muted-foreground/60 mb-3'>
-              {block.label}
+              {t(block.label)}
             </h4>
             <p className='text-base text-muted-foreground leading-relaxed max-w-2xl'>
-              {entry[block.key]}
+              {field(block.key)}
             </p>
           </section>
         ))}
@@ -70,10 +77,10 @@ function EntryCard({ entry }: { entry: JourneyEntry }) {
         {/* Next milestone */}
         <section className='glow-border rounded-2xl bg-card p-6 md:p-8 max-w-2xl'>
           <h4 className='text-xs uppercase tracking-widest text-muted-foreground/60 mb-3'>
-            Next Milestone
+            {t('timeline.next')}
           </h4>
           <p className='text-base font-medium text-foreground leading-relaxed'>
-            {entry.nextMilestone}
+            {field('nextMilestone')}
           </p>
         </section>
       </div>

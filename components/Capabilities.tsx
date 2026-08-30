@@ -7,6 +7,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Code2, Workflow, Target } from 'lucide-react';
 import SectionHeading from '@/components/SectionHeading';
 import { pillars } from '@/lib/site';
+import { useLanguage } from '@/lib/i18n/LanguageProvider';
+import type { ListKey, TranslationKey } from '@/lib/i18n/dictionaries';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,6 +19,7 @@ const icons = {
 } as const;
 
 export default function Capabilities() {
+  const { t, tList } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -47,10 +50,10 @@ export default function Capabilities() {
     >
       <div className='max-w-5xl mx-auto'>
         <SectionHeading
-          eyebrow='Capabilities'
-          title='What We Build'
+          eyebrow={t('cap.eyebrow')}
+          title={t('cap.title')}
           titleId='what-we-build-heading'
-          body='Three pillars, one system. Most businesses need more than one — and they need the pieces to fit together.'
+          body={t('cap.body')}
         />
 
         <div className='mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch'>
@@ -77,15 +80,15 @@ export default function Capabilities() {
 
                 <div>
                   <h3 className='text-xl font-semibold text-foreground mb-2'>
-                    {pillar.title}
+                    {t(('pillar.' + pillar.slug) as TranslationKey)}
                   </h3>
                   <p className='text-sm text-muted-foreground leading-relaxed'>
-                    {pillar.summary}
+                    {t(('pillarSummary.' + pillar.slug) as TranslationKey)}
                   </p>
                 </div>
 
                 <ul className='flex flex-col gap-2 flex-1 border-t border-border pt-5'>
-                  {pillar.items.map((item) => (
+                  {tList(('pillarItems.' + pillar.slug) as ListKey).map((item) => (
                     <li
                       key={item}
                       className='text-sm text-muted-foreground flex items-center gap-2.5'
@@ -100,7 +103,7 @@ export default function Capabilities() {
                 </ul>
 
                 <span className='inline-flex items-center gap-1.5 text-sm font-medium text-foreground'>
-                  Learn more
+                  {t('cap.learnMore')}
                   <ArrowRight
                     size={14}
                     aria-hidden='true'

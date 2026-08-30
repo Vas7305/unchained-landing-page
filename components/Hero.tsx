@@ -5,14 +5,17 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import { track } from '@/lib/analytics';
+import { useTranslation } from '@/lib/i18n/LanguageProvider';
+import type { TranslationKey } from '@/lib/i18n/dictionaries';
 
-const stageFacts = [
-  { value: '01', label: 'Flagship product shipped' },
-  { value: '05', label: 'Projects in development' },
-  { value: '03', label: 'Capability pillars' },
+const stageFacts: { value: string; key: TranslationKey }[] = [
+  { value: '01', key: 'hero.factFlagship' },
+  { value: '05', key: 'hero.factInDevelopment' },
+  { value: '03', key: 'hero.factPillars' },
 ];
 
 export default function Hero() {
+  const t = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const h1Ref = useRef<HTMLHeadingElement>(null);
@@ -125,7 +128,7 @@ export default function Hero() {
             className='w-1.5 h-1.5 rounded-full bg-foreground/50 animate-pulse'
             aria-hidden='true'
           />
-          Software · Automation · Growth Systems
+          {t('hero.badge')}
         </div>
 
         {/* Headline */}
@@ -133,9 +136,9 @@ export default function Hero() {
           ref={h1Ref}
           className='text-5xl sm:text-6xl md:text-7xl font-extrabold leading-[1.05] tracking-tight'
         >
-          <span className='gradient-text'>Digital Infrastructure</span>
+          <span className='gradient-text'>{t('hero.headlineLead')}</span>
           <br />
-          <span className='text-foreground'>for Businesses Ready to Grow.</span>
+          <span className='text-foreground'>{t('hero.headlineTail')}</span>
         </h1>
 
         {/* Sub */}
@@ -143,9 +146,7 @@ export default function Hero() {
           ref={descRef}
           className='max-w-2xl text-lg md:text-xl text-muted-foreground leading-relaxed'
         >
-          We design and build the software, websites, automation and growth
-          systems a business runs on — architected around how it actually
-          operates, not around a template.
+          {t('hero.description')}
         </p>
 
         {/* CTAs */}
@@ -158,7 +159,7 @@ export default function Hero() {
             onClick={() => track('start_project_click', { location: 'hero' })}
             className='group inline-flex items-center gap-2 bg-foreground text-background font-semibold px-7 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200 shadow-lg'
           >
-            Start a Project
+            {t('nav.startProject')}
             <ArrowRight
               size={16}
               aria-hidden='true'
@@ -170,7 +171,7 @@ export default function Hero() {
             onClick={() => track('explore_work_click', { location: 'hero' })}
             className='inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 px-4 py-3.5 underline decoration-border underline-offset-8 hover:decoration-foreground/40'
           >
-            Explore Our Work
+            {t('common.exploreOurWork')}
           </Link>
         </div>
 
@@ -180,11 +181,11 @@ export default function Hero() {
           className='flex flex-wrap items-center justify-center gap-x-8 gap-y-4 pt-2'
         >
           {stageFacts.map((f) => (
-            <div key={f.label} className='flex items-center gap-2.5'>
+            <div key={f.key} className='flex items-center gap-2.5'>
               <span className='text-sm font-bold text-foreground tabular-nums'>
                 {f.value}
               </span>
-              <span className='text-xs text-muted-foreground'>{f.label}</span>
+              <span className='text-xs text-muted-foreground'>{t(f.key)}</span>
             </div>
           ))}
         </div>
@@ -196,7 +197,9 @@ export default function Hero() {
         aria-hidden='true'
         className='absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-muted-foreground/40'
       >
-        <span className='text-[10px] uppercase tracking-widest'>Scroll</span>
+        <span className='text-[10px] uppercase tracking-widest'>
+          {t('hero.scroll')}
+        </span>
         <ChevronDown size={16} className='animate-bounce' />
       </div>
     </section>

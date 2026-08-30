@@ -7,21 +7,25 @@ import { gsap } from 'gsap';
 import { Menu, X } from 'lucide-react';
 import logo from '@/public/unchained-business-logo.png';
 import { track } from '@/lib/analytics';
+import { useTranslation } from '@/lib/i18n/LanguageProvider';
+import type { TranslationKey } from '@/lib/i18n/dictionaries';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 // Absolute paths so the nav behaves identically from every route,
 // including the anchored homepage sections.
-const navLinks = [
-  { label: 'What We Build', href: '/#what-we-build' },
-  { label: 'Our Work', href: '/work' },
-  { label: 'Journey', href: '/journey' },
-  { label: 'How We Work', href: '/#how-we-work' },
-  { label: 'FAQ', href: '/#faq' },
+const navLinks: { key: TranslationKey; href: string }[] = [
+  { key: 'nav.whatWeBuild', href: '/#what-we-build' },
+  { key: 'nav.ourWork', href: '/work' },
+  { key: 'nav.journey', href: '/journey' },
+  { key: 'nav.howWeWork', href: '/#how-we-work' },
+  { key: 'nav.faq', href: '/#faq' },
 ];
 
 export default function Navbar() {
   const navRef = useRef<HTMLElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const t = useTranslation();
 
   useEffect(() => {
     gsap.fromTo(
@@ -52,68 +56,72 @@ export default function Navbar() {
         <Link href='/' className='flex items-center group shrink-0'>
           <Image
             src={logo}
-            alt='Unchained Business — home'
+            alt={t('common.homeAlt')}
             priority
             className='h-9 md:h-10 w-auto'
           />
         </Link>
 
         {/* Desktop Nav */}
-        <nav aria-label='Main' className='hidden md:flex items-center gap-7'>
+        <nav aria-label={t('nav.mainNav')} className='hidden md:flex items-center gap-7'>
           {navLinks.map((link) => (
             <Link
-              key={link.label}
+              key={link.key}
               href={link.href}
               className='text-sm text-muted-foreground hover:text-foreground transition-colors duration-200'
             >
-              {link.label}
+              {t(link.key)}
             </Link>
           ))}
         </nav>
 
-        {/* CTA */}
-        <div className='hidden md:flex items-center gap-3'>
+        {/* Language + CTA */}
+        <div className='hidden md:flex items-center gap-2'>
+          <LanguageSwitcher />
           <Link
             href='/#contact'
             onClick={() => track('start_project_click', { location: 'navbar' })}
             className='text-sm bg-foreground text-background font-semibold px-5 py-2.5 rounded-lg hover:bg-foreground/90 transition-all duration-200'
           >
-            Start a Project
+            {t('nav.startProject')}
           </Link>
         </div>
 
-        {/* Mobile Toggle */}
-        <button
-          type='button'
-          onClick={() => setMenuOpen(!menuOpen)}
-          className='md:hidden text-foreground p-1'
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-          aria-expanded={menuOpen}
-          aria-controls='mobile-menu'
-        >
-          {menuOpen ? (
-            <X size={22} aria-hidden='true' />
-          ) : (
-            <Menu size={22} aria-hidden='true' />
-          )}
-        </button>
+        {/* Mobile: language switcher stays reachable without opening the menu */}
+        <div className='flex items-center gap-1 md:hidden'>
+          <LanguageSwitcher />
+          <button
+            type='button'
+            onClick={() => setMenuOpen(!menuOpen)}
+            className='text-foreground p-1'
+            aria-label={menuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
+            aria-expanded={menuOpen}
+            aria-controls='mobile-menu'
+          >
+            {menuOpen ? (
+              <X size={22} aria-hidden='true' />
+            ) : (
+              <Menu size={22} aria-hidden='true' />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
       {menuOpen && (
         <nav
           id='mobile-menu'
-          aria-label='Mobile'
+          aria-label={t('nav.mobileNav')}
           className='md:hidden glass border-t border-border px-6 py-6 flex flex-col gap-5'
         >
           {navLinks.map((link) => (
             <Link
-              key={link.label}
+              key={link.key}
               href={link.href}
               onClick={() => setMenuOpen(false)}
               className='text-base text-muted-foreground hover:text-foreground transition-colors py-1'
             >
-              {link.label}
+              {t(link.key)}
             </Link>
           ))}
           <Link
@@ -124,8 +132,15 @@ export default function Navbar() {
             }}
             className='text-sm bg-foreground text-background font-semibold px-5 py-3 rounded-lg text-center mt-1'
           >
-            Start a Project
+            {t('nav.startProject')}
           </Link>
+
+          <div className='pt-5 mt-1 border-t border-border'>
+            <LanguageSwitcher
+              variant='inline'
+              onSelected={() => setMenuOpen(false)}
+            />
+          </div>
         </nav>
       )}
     </header>

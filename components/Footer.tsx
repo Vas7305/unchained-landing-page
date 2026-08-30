@@ -1,21 +1,31 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Twitter, Linkedin, Instagram } from 'lucide-react';
 import logo from '@/public/unchained-business-logo.png';
 import { siteConfig, pillars } from '@/lib/site';
+import { useTranslation } from '@/lib/i18n/LanguageProvider';
+import type { TranslationKey } from '@/lib/i18n/dictionaries';
 
-const footerLinks = [
+const footerColumns: {
+  heading: TranslationKey;
+  links: { key: TranslationKey; href: string }[];
+}[] = [
   {
-    heading: 'Capabilities',
-    links: pillars.map((p) => ({ label: p.title, href: `/${p.slug}` })),
+    heading: 'footer.capabilities',
+    links: pillars.map((p) => ({
+      key: `pillar.${p.slug}` as TranslationKey,
+      href: `/${p.slug}`,
+    })),
   },
   {
-    heading: 'Company',
+    heading: 'footer.company',
     links: [
-      { label: 'Our Work', href: '/work' },
-      { label: 'The Journey', href: '/journey' },
-      { label: 'How We Work', href: '/#how-we-work' },
-      { label: 'FAQ', href: '/#faq' },
+      { key: 'nav.ourWork', href: '/work' },
+      { key: 'footer.theJourney', href: '/journey' },
+      { key: 'nav.howWeWork', href: '/#how-we-work' },
+      { key: 'nav.faq', href: '/#faq' },
     ],
   },
 ];
@@ -27,6 +37,8 @@ const socials = [
 ];
 
 export default function Footer() {
+  const t = useTranslation();
+
   return (
     <footer className='border-t border-border bg-card/40'>
       <div className='max-w-6xl mx-auto px-6 py-16'>
@@ -36,13 +48,12 @@ export default function Footer() {
             <Link href='/' className='flex items-center w-fit'>
               <Image
                 src={logo}
-                alt='Unchained Business — home'
+                alt={t('common.homeAlt')}
                 className='h-9 w-auto'
               />
             </Link>
             <p className='text-sm text-muted-foreground max-w-xs leading-relaxed'>
-              Digital infrastructure for growing businesses. Software,
-              automation and growth systems — built one project at a time.
+              {t('footer.tagline')}
             </p>
             <div className='flex items-center gap-3 mt-1'>
               {socials.map(({ icon: Icon, href, label }) => (
@@ -63,19 +74,23 @@ export default function Footer() {
           </div>
 
           {/* Links */}
-          {footerLinks.map((col) => (
-            <nav key={col.heading} aria-label={col.heading} className='flex flex-col gap-4'>
+          {footerColumns.map((col) => (
+            <nav
+              key={col.heading}
+              aria-label={t(col.heading)}
+              className='flex flex-col gap-4'
+            >
               <h2 className='text-xs font-semibold uppercase tracking-widest text-foreground/60'>
-                {col.heading}
+                {t(col.heading)}
               </h2>
               <ul className='flex flex-col gap-2.5'>
                 {col.links.map((l) => (
-                  <li key={l.label}>
+                  <li key={l.key}>
                     <Link
                       href={l.href}
                       className='text-sm text-muted-foreground hover:text-foreground transition-colors duration-200'
                     >
-                      {l.label}
+                      {t(l.key)}
                     </Link>
                   </li>
                 ))}
@@ -86,10 +101,10 @@ export default function Footer() {
 
         <div className='mt-14 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground/50'>
           <span>
-            © {new Date().getFullYear()} {siteConfig.name}. All rights
-            reserved.
+            © {new Date().getFullYear()} {siteConfig.name}.{' '}
+            {t('footer.rights')}
           </span>
-          <span>Build → Prove → Scale.</span>
+          <span>{t('footer.motto')}</span>
         </div>
       </div>
     </footer>
