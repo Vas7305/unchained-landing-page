@@ -34,7 +34,11 @@ export interface ResolverEndpoint {
   anonKey: string;
 }
 
-function readEndpoint(): ResolverEndpoint | null {
+/**
+ * The validated project base, or null. One place decides whether a database is
+ * configured at all, so the three endpoints below cannot disagree about it.
+ */
+function readBase(): { url: string; anonKey: string } | null {
   const url = supabaseUrl?.trim().replace(/\/+$/, '');
   const anonKey = supabaseAnonKey?.trim();
   if (!url || !anonKey) return null;
@@ -45,13 +49,44 @@ function readEndpoint(): ResolverEndpoint | null {
     return null;
   }
 
-  return {
-    url: `${url}/rest/v1/rpc/resolve_commercial_contact`,
-    anonKey,
-  };
+  return { url, anonKey };
 }
 
-export const resolverEndpoint: ResolverEndpoint | null = readEndpoint();
+const base = readBase();
+
+function rpc(name: string): ResolverEndpoint | null {
+  return base ? { url: `${base.url}/rest/v1/rpc/${name}`, anonKey: base.anonKey } : null;
+}
+
+export const resolverEndpoint: ResolverEndpoint | null = rpc(
+  'resolve_commercial_contact',
+);
+
+/**
+ * The three RPCs this website is able to call, and there are exactly three.
+ *
+ * Phase 7 adds two write operations to what was a read-only public surface, so
+ * the same reasoning the header applies to the resolver has to hold for them:
+ *
+ *   · `create_public_lead` inserts nothing the caller chooses. It takes the
+ *     visitor's own answers, resolves the commercial ITSELF through the same
+ *     routing function, and returns `{ success }` — no lead id, no
+ *     representative, no routing metadata (§9, §14, §42).
+ *   · `record_public_lead_channel_click` takes the opaque token the browser
+ *     generated for its own inquiry and a channel name. An unknown token is a
+ *     silent no-op, so it cannot be used to discover whether a lead exists
+ *     (§44).
+ *
+ * Neither grants the anon key any table access: `unchained_leads` and
+ * `unchained_lead_events` revoke every privilege from anon and carry SELECT-only
+ * policies, so the complete set of things this key can do to the lead tables is
+ * "call these two functions". See section E of docs/lead-capture.md.
+ */
+export const leadEndpoint: ResolverEndpoint | null = rpc('create_public_lead');
+
+export const leadChannelEndpoint: ResolverEndpoint | null = rpc(
+  'record_public_lead_channel_click',
+);
 
 /**
  * The global fallback contact (§22).

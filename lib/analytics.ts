@@ -28,7 +28,14 @@ export type AnalyticsEvent =
   | 'project_cta_clicked'
   | 'commercial_routing_success'
   | 'commercial_routing_fallback'
-  | 'contact_channel_clicked';
+  | 'contact_channel_clicked'
+  // ── Lead capture (Phase 7) ────────────────────────────────────────────────
+  // Fired when the optional inquiry form is accepted by the server. §34: it
+  // carries the language, whether a country was determined, which CTA the
+  // panel was opened from and whether a service was chosen — and nothing the
+  // visitor typed. No name, address, company, phone number or message reaches
+  // an analytics provider; those exist in one place, behind RLS.
+  | 'project_inquiry_submitted';
 
 type Props = Record<string, string | number | boolean | undefined>;
 

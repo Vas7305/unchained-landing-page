@@ -456,6 +456,34 @@ export const es: Dictionary = {
   'contact.close': 'Cerrar',
   'contact.newTab': 'se abre en una pestaña nueva',
 
+  // ── Consulta de proyecto (Fase 7) ─────────────────────────────────────────
+  'inquiry.toggle': '¿Prefieres escribir? Cuéntanos sobre tu proyecto',
+  'inquiry.title': 'Cuéntanos brevemente sobre tu proyecto y te responderemos.',
+  'inquiry.name': 'Tu nombre',
+  'inquiry.email': 'Email',
+  'inquiry.phone': 'Teléfono',
+  'inquiry.company': 'Empresa',
+  'inquiry.service': '¿Qué necesitas?',
+  'inquiry.servicePlaceholder': 'Aún no lo sé',
+  'inquiry.message': 'Sobre el proyecto',
+  'inquiry.optional': '(opcional)',
+  'inquiry.send': 'Enviar',
+  'inquiry.sending': 'Enviando…',
+  'inquiry.sentTitle': 'Gracias — hemos recibido tu mensaje.',
+  'inquiry.sentBody':
+    'Tu contacto regional te responderá personalmente. Si prefieres hablar ahora, los canales de arriba siguen abiertos.',
+  'inquiry.privacy':
+    'Usamos tus datos únicamente para responder a esta consulta. No se comparten con nadie más.',
+  'inquiry.error.name': 'Dinos tu nombre, por favor.',
+  'inquiry.error.email': 'Esa dirección de email no parece correcta.',
+  'inquiry.error.phone': 'Ese número de teléfono no parece correcto.',
+  'inquiry.error.contact': 'Déjanos un email o un teléfono para poder responderte.',
+  'inquiry.error.message': 'Ese mensaje es demasiado largo — acórtalo un poco, por favor.',
+  'inquiry.error.invalid': 'Revisa los datos de arriba e inténtalo de nuevo.',
+  'inquiry.error.rateLimited': 'Son varios mensajes en poco tiempo. Inténtalo de nuevo en un momento.',
+  'inquiry.error.unavailable':
+    'No hemos podido enviarlo ahora mismo. Inténtalo de nuevo o usa uno de los canales de arriba.',
+
   'footer.tagline':
     'Infraestructura digital para empresas en crecimiento. Software, automatización y sistemas de crecimiento — construidos proyecto a proyecto.',
   'footer.capabilities': 'Capacidades',

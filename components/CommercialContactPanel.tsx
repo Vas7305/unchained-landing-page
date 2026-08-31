@@ -11,6 +11,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { track } from '@/lib/analytics';
+import ProjectInquiryForm from '@/components/ProjectInquiryForm';
 import { useCommercialRouting } from '@/lib/commercial/RoutingProvider';
 import type { Channel, ChannelKind } from '@/lib/commercial/channels';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
@@ -76,6 +77,7 @@ function ChannelLink({
   emphasis: 'primary' | 'secondary';
 }) {
   const { t } = useLanguage();
+  const { noteChannelClick } = useCommercialRouting();
   const { label, icon: Icon, external } = CHANNEL_META[channel.kind];
 
   return (
@@ -85,7 +87,12 @@ function ChannelLink({
         ? { target: '_blank', rel: 'noopener noreferrer' }
         : undefined)}
       onClick={() => {
-        track('contact_channel_clicked', { channel: channel.kind });
+        // Fires the same analytics event Phase 6 fired, and — only for a
+        // visitor who has already submitted an inquiry — attaches the click to
+        // their lead (§19, §44). Phase 7 §47: this is a CLICK. It does not mean
+        // a conversation happened, it does not advance the lead's status, and
+        // nothing downstream reads it as contact.
+        noteChannelClick(channel.kind);
         // The booking event this site already fired, kept alive now that the
         // booking link is one channel among several rather than the CTA (§54).
         if (channel.kind === 'calcom') {
@@ -168,6 +175,10 @@ function PanelBody() {
         </div>
 
         <Channels channels={channels} />
+
+        {/* Below the channels, always — §11: the form is the alternative to
+            pressing one of the buttons above, never a gate in front of them. */}
+        <ProjectInquiryForm />
       </div>
     );
   }
@@ -188,6 +199,11 @@ function PanelBody() {
           {t('contact.noChannels')}
         </p>
       )}
+
+      {/* The form matters MOST here. When no channel could be resolved this is
+          the only way left to reach the company, and the inquiry is recorded
+          unassigned for an administrator to route (§58) rather than lost. */}
+      <ProjectInquiryForm />
     </div>
   );
 }

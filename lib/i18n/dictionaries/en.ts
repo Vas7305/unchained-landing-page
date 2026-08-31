@@ -483,6 +483,37 @@ export const en = {
   'contact.close': 'Close',
   'contact.newTab': 'opens in a new tab',
 
+  // ── Project inquiry (Phase 7) ─────────────────────────────────────────────
+  // The optional form under the contact channels. §52: not one of these strings
+  // says lead, pipeline, status, CRM or routing — in any language. The visitor
+  // is writing to a company, and a person will write back.
+  'inquiry.toggle': 'Prefer to write? Tell us about your project',
+  'inquiry.title': 'Tell us briefly about your project and we will reply.',
+  'inquiry.name': 'Your name',
+  'inquiry.email': 'Email',
+  'inquiry.phone': 'Phone',
+  'inquiry.company': 'Company',
+  'inquiry.service': 'What do you need?',
+  'inquiry.servicePlaceholder': 'Not sure yet',
+  'inquiry.message': 'About the project',
+  'inquiry.optional': '(optional)',
+  'inquiry.send': 'Send',
+  'inquiry.sending': 'Sending…',
+  'inquiry.sentTitle': 'Thank you — your message is with us.',
+  'inquiry.sentBody':
+    'Your regional contact will get back to you personally. If you would rather talk now, the channels above are still open.',
+  'inquiry.privacy':
+    'We use your details only to reply to this enquiry. Nothing is shared with anyone else.',
+  'inquiry.error.name': 'Please tell us your name.',
+  'inquiry.error.email': 'That email address does not look right.',
+  'inquiry.error.phone': 'That phone number does not look right.',
+  'inquiry.error.contact': 'Please leave an email address or a phone number so we can reply.',
+  'inquiry.error.message': 'That message is a little too long — please shorten it.',
+  'inquiry.error.invalid': 'Please check the details above and try again.',
+  'inquiry.error.rateLimited': 'That is a few messages in a short time. Please try again in a moment.',
+  'inquiry.error.unavailable':
+    'We could not send that just now. Please try again, or use one of the channels above.',
+
   'footer.tagline':
     'Digital infrastructure for growing businesses. Software, automation and growth systems — built one project at a time.',
   'footer.capabilities': 'Capabilities',

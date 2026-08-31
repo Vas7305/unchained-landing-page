@@ -458,6 +458,34 @@ export const de: Dictionary = {
   'contact.close': 'Schließen',
   'contact.newTab': 'wird in einem neuen Tab geöffnet',
 
+  // ── Projektanfrage (Phase 7) ──────────────────────────────────────────────
+  'inquiry.toggle': 'Lieber schreiben? Erzählen Sie uns von Ihrem Projekt',
+  'inquiry.title': 'Erzählen Sie uns kurz von Ihrem Projekt — wir melden uns.',
+  'inquiry.name': 'Ihr Name',
+  'inquiry.email': 'E-Mail',
+  'inquiry.phone': 'Telefon',
+  'inquiry.company': 'Unternehmen',
+  'inquiry.service': 'Worum geht es?',
+  'inquiry.servicePlaceholder': 'Noch unklar',
+  'inquiry.message': 'Zum Projekt',
+  'inquiry.optional': '(optional)',
+  'inquiry.send': 'Senden',
+  'inquiry.sending': 'Wird gesendet…',
+  'inquiry.sentTitle': 'Danke — Ihre Nachricht ist bei uns.',
+  'inquiry.sentBody':
+    'Ihr regionaler Ansprechpartner meldet sich persönlich bei Ihnen. Wenn Sie lieber gleich sprechen möchten, stehen die Kanäle oben weiterhin offen.',
+  'inquiry.privacy':
+    'Wir verwenden Ihre Angaben ausschließlich, um auf diese Anfrage zu antworten. Sie werden an niemanden weitergegeben.',
+  'inquiry.error.name': 'Bitte nennen Sie uns Ihren Namen.',
+  'inquiry.error.email': 'Diese E-Mail-Adresse sieht nicht richtig aus.',
+  'inquiry.error.phone': 'Diese Telefonnummer sieht nicht richtig aus.',
+  'inquiry.error.contact': 'Bitte hinterlassen Sie eine E-Mail-Adresse oder eine Telefonnummer, damit wir antworten können.',
+  'inquiry.error.message': 'Die Nachricht ist etwas zu lang — bitte kürzen Sie sie.',
+  'inquiry.error.invalid': 'Bitte prüfen Sie die Angaben oben und versuchen Sie es erneut.',
+  'inquiry.error.rateLimited': 'Das sind mehrere Nachrichten in kurzer Zeit. Bitte versuchen Sie es gleich noch einmal.',
+  'inquiry.error.unavailable':
+    'Wir konnten das gerade nicht senden. Bitte versuchen Sie es erneut oder nutzen Sie einen der Kanäle oben.',
+
   'footer.tagline':
     'Digitale Infrastruktur für wachsende Unternehmen. Software, Automatisierung und Wachstumssysteme — Projekt für Projekt gebaut.',
   'footer.capabilities': 'Leistungen',

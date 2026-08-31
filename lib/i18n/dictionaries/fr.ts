@@ -457,6 +457,34 @@ export const fr: Dictionary = {
   'contact.close': 'Fermer',
   'contact.newTab': 'ouvre un nouvel onglet',
 
+  // ── Demande de projet (Phase 7) ───────────────────────────────────────────
+  'inquiry.toggle': 'Vous préférez écrire ? Parlez-nous de votre projet',
+  'inquiry.title': 'Parlez-nous brièvement de votre projet et nous vous répondrons.',
+  'inquiry.name': 'Votre nom',
+  'inquiry.email': 'Email',
+  'inquiry.phone': 'Téléphone',
+  'inquiry.company': 'Entreprise',
+  'inquiry.service': 'De quoi avez-vous besoin ?',
+  'inquiry.servicePlaceholder': 'Je ne sais pas encore',
+  'inquiry.message': 'À propos du projet',
+  'inquiry.optional': '(facultatif)',
+  'inquiry.send': 'Envoyer',
+  'inquiry.sending': 'Envoi…',
+  'inquiry.sentTitle': 'Merci — nous avons bien reçu votre message.',
+  'inquiry.sentBody':
+    'Votre contact régional vous répondra personnellement. Si vous préférez échanger tout de suite, les canaux ci-dessus restent ouverts.',
+  'inquiry.privacy':
+    'Nous utilisons vos coordonnées uniquement pour répondre à cette demande. Elles ne sont partagées avec personne.',
+  'inquiry.error.name': 'Indiquez-nous votre nom, s’il vous plaît.',
+  'inquiry.error.email': 'Cette adresse email ne semble pas correcte.',
+  'inquiry.error.phone': 'Ce numéro de téléphone ne semble pas correct.',
+  'inquiry.error.contact': 'Laissez-nous un email ou un numéro de téléphone pour que nous puissions répondre.',
+  'inquiry.error.message': 'Ce message est un peu trop long — merci de le raccourcir.',
+  'inquiry.error.invalid': 'Vérifiez les informations ci-dessus et réessayez.',
+  'inquiry.error.rateLimited': 'Cela fait plusieurs messages en peu de temps. Réessayez dans un instant.',
+  'inquiry.error.unavailable':
+    'Nous n’avons pas pu l’envoyer pour le moment. Réessayez, ou utilisez l’un des canaux ci-dessus.',
+
   'footer.tagline':
     'Infrastructure numérique pour les entreprises en croissance. Logiciels, automatisation et systèmes de croissance — construits un projet à la fois.',
   'footer.capabilities': 'Compétences',
