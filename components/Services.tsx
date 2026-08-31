@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
-import { track } from '@/lib/analytics';
+import StartProjectButton from '@/components/StartProjectButton';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
 import type { ListKey, TranslationKey } from '@/lib/i18n/dictionaries';
 
@@ -155,14 +155,9 @@ export default function Services() {
                 ))}
               </ul>
 
-              <a
-                href='#contact'
-                onClick={() =>
-                  track('start_project_click', {
-                    location: 'engagements',
-                    engagement: s.id,
-                  })
-                }
+              <StartProjectButton
+                source='engagements'
+                detail={s.id}
                 className={`inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-sm py-3 px-5 transition-all duration-200 group
                   ${
                     s.featured
@@ -176,7 +171,7 @@ export default function Services() {
                   aria-hidden='true'
                   className='group-hover:translate-x-1 transition-transform duration-200'
                 />
-              </a>
+              </StartProjectButton>
             </div>
           ))}
         </div>

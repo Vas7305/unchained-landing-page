@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { gsap } from 'gsap';
 import { Menu, X } from 'lucide-react';
 import logo from '@/public/unchained-business-logo.png';
-import { track } from '@/lib/analytics';
+import StartProjectButton from '@/components/StartProjectButton';
 import { useTranslation } from '@/lib/i18n/LanguageProvider';
 import type { TranslationKey } from '@/lib/i18n/dictionaries';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
@@ -78,13 +78,10 @@ export default function Navbar() {
         {/* Language + CTA */}
         <div className='hidden md:flex items-center gap-2'>
           <LanguageSwitcher />
-          <Link
-            href='/#contact'
-            onClick={() => track('start_project_click', { location: 'navbar' })}
+          <StartProjectButton
+            source='navbar'
             className='text-sm bg-foreground text-background font-semibold px-5 py-2.5 rounded-lg hover:bg-foreground/90 transition-all duration-200'
-          >
-            {t('nav.startProject')}
-          </Link>
+          />
         </div>
 
         {/* Mobile: language switcher stays reachable without opening the menu */}
@@ -124,16 +121,11 @@ export default function Navbar() {
               {t(link.key)}
             </Link>
           ))}
-          <Link
-            href='/#contact'
-            onClick={() => {
-              track('start_project_click', { location: 'navbar_mobile' });
-              setMenuOpen(false);
-            }}
+          <StartProjectButton
+            source='navbar_mobile'
+            onOpened={() => setMenuOpen(false)}
             className='text-sm bg-foreground text-background font-semibold px-5 py-3 rounded-lg text-center mt-1'
-          >
-            {t('nav.startProject')}
-          </Link>
+          />
 
           <div className='pt-5 mt-1 border-t border-border'>
             <LanguageSwitcher

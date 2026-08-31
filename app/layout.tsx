@@ -5,6 +5,8 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SkipLink from '@/components/SkipLink';
 import { LanguageProvider } from '@/lib/i18n/LanguageProvider';
+import { CommercialRoutingProvider } from '@/lib/commercial/RoutingProvider';
+import CommercialContactPanel from '@/components/CommercialContactPanel';
 import { defaultLocale } from '@/lib/i18n/config';
 import { siteConfig } from '@/lib/site';
 
@@ -60,10 +62,17 @@ export default function RootLayout({
     <html lang={defaultLocale} className='dark'>
       <body className={`${inter.variable} antialiased`}>
         <LanguageProvider>
-          <SkipLink />
-          <Navbar />
-          {children}
-          <Footer />
+          {/* Inside LanguageProvider: routing sends the active locale as the
+              inquiry's language, so it has to be able to read it (§8). The
+              contact panel is mounted once, here, rather than beside each CTA
+              — five buttons on a page must open one dialog, not five. */}
+          <CommercialRoutingProvider>
+            <SkipLink />
+            <Navbar />
+            {children}
+            <Footer />
+            <CommercialContactPanel />
+          </CommercialRoutingProvider>
         </LanguageProvider>
       </body>
     </html>

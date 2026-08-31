@@ -441,6 +441,23 @@ export const de: Dictionary = {
     'Was wir angesichts unseres Metiers durchaus ironisch finden. Hier geht es stattdessen weiter.',
   'notFound.backHome': 'Zurück zur Startseite',
 
+  'contact.title': 'Lassen Sie uns gemeinsam etwas bauen.',
+  'contact.subtitle':
+    'Sagen Sie uns, was Sie bauen möchten. Ihr regionaler Ansprechpartner übernimmt von dort.',
+  'contact.regionalContact': 'Ihr regionaler Ansprechpartner',
+  'contact.loading': 'Ihr regionaler Ansprechpartner wird ermittelt…',
+  'contact.whatsapp': 'WhatsApp',
+  'contact.telegram': 'Telegram',
+  'contact.scheduleCall': 'Termin vereinbaren',
+  'contact.email': 'E-Mail',
+  'contact.unavailable':
+    'Wir konnten gerade keinen regionalen Ansprechpartner ermitteln.',
+  'contact.fallback': 'Wenden Sie sich bitte direkt an Unchained Business.',
+  'contact.noChannels':
+    'Unsere Kontaktwege werden gerade aktualisiert. Bitte versuchen Sie es in Kürze erneut.',
+  'contact.close': 'Schließen',
+  'contact.newTab': 'wird in einem neuen Tab geöffnet',
+
   'footer.tagline':
     'Digitale Infrastruktur für wachsende Unternehmen. Software, Automatisierung und Wachstumssysteme — Projekt für Projekt gebaut.',
   'footer.capabilities': 'Leistungen',

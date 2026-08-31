@@ -15,7 +15,20 @@ export type AnalyticsEvent =
   | 'tancerca_view'
   | 'booking_cta_click'
   | 'scroll_depth'
-  | 'language_change';
+  | 'language_change'
+  // ── Commercial routing (Phase 6) ──────────────────────────────────────────
+  // `start_project_click` above stays exactly as it was, so the funnel that
+  // already exists keeps counting. These four describe what happens AFTER the
+  // click, which was previously a redirect no one could measure.
+  //
+  // §34: none of them carries personal data. Language and a `country_known`
+  // boolean are the only things known about the visitor that are ever sent —
+  // never the country itself, never a representative's name, number, handle or
+  // address, and never anything resembling a location.
+  | 'project_cta_clicked'
+  | 'commercial_routing_success'
+  | 'commercial_routing_fallback'
+  | 'contact_channel_clicked';
 
 type Props = Record<string, string | number | boolean | undefined>;
 

@@ -8,6 +8,7 @@ import ProjectViewTracker from '@/components/ProjectViewTracker';
 import ScrollDepth from '@/components/ScrollDepth';
 import StatusBadge from '@/components/StatusBadge';
 import type { Project } from '@/lib/projects';
+import StartProjectButton from '@/components/StartProjectButton';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
 import type { ListKey, TranslationKey } from '@/lib/i18n/dictionaries';
 
@@ -219,8 +220,9 @@ export default function ProjectDetail({ project }: { project: Project }) {
             {t('detail.ctaBody')}
           </p>
           <div className='flex flex-col sm:flex-row gap-3'>
-            <Link
-              href='/#contact'
+            <StartProjectButton
+              source='project'
+              detail={project.slug}
               className='group inline-flex items-center justify-center gap-2 bg-foreground text-background font-semibold px-6 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200'
             >
               {t('nav.startProject')}
@@ -229,7 +231,7 @@ export default function ProjectDetail({ project }: { project: Project }) {
                 aria-hidden='true'
                 className='group-hover:translate-x-1 transition-transform duration-200'
               />
-            </Link>
+            </StartProjectButton>
             <Link
               href='/work'
               className='inline-flex items-center justify-center gap-2 glow-border bg-secondary hover:bg-accent text-foreground font-semibold px-6 py-3.5 rounded-xl text-sm transition-all duration-200'

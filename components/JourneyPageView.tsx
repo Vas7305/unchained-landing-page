@@ -6,6 +6,7 @@ import PageHeader from '@/components/PageHeader';
 import JourneyTimeline from '@/components/JourneyTimeline';
 import ScrollDepth from '@/components/ScrollDepth';
 import { journeyEntries } from '@/lib/journey';
+import StartProjectButton from '@/components/StartProjectButton';
 import { useTranslation } from '@/lib/i18n/LanguageProvider';
 import type { TranslationKey } from '@/lib/i18n/dictionaries';
 
@@ -123,8 +124,8 @@ export default function JourneyPageView() {
             </p>
           </div>
           <div className='flex flex-col sm:flex-row md:flex-col gap-3 shrink-0'>
-            <Link
-              href='/#contact'
+            <StartProjectButton
+              source='journey'
               className='group inline-flex items-center justify-center gap-2 bg-foreground text-background font-semibold px-6 py-3 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200'
             >
               {t('nav.startProject')}
@@ -133,7 +134,7 @@ export default function JourneyPageView() {
                 aria-hidden='true'
                 className='group-hover:translate-x-1 transition-transform duration-200'
               />
-            </Link>
+            </StartProjectButton>
             <Link
               href='/work'
               className='inline-flex items-center justify-center gap-2 glow-border bg-secondary hover:bg-accent text-foreground font-semibold px-6 py-3 rounded-xl text-sm transition-all duration-200'

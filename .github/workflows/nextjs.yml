@@ -62,6 +62,23 @@ jobs:
         run: pnpm install
       - name: Build with Next.js
         run: pnpm exec next build
+        env:
+          # The site is a static export, so the commercial resolver's location
+          # has to be inlined at build time. Only the ANON key is used, and it
+          # grants EXECUTE on public.resolve_commercial_contact and nothing
+          # else — the four commercial tables deny anon outright through RLS.
+          # It is therefore a repository variable rather than a secret, in the
+          # same sense a public API endpoint is: it ends up in the bundle
+          # either way, and pretending otherwise would only hide it from
+          # review. Unset, the site builds and every inquiry takes the global
+          # fallback path.
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          # Optional global fallback contact — see .env.example.
+          NEXT_PUBLIC_FALLBACK_WHATSAPP: ${{ vars.NEXT_PUBLIC_FALLBACK_WHATSAPP }}
+          NEXT_PUBLIC_FALLBACK_TELEGRAM: ${{ vars.NEXT_PUBLIC_FALLBACK_TELEGRAM }}
+          NEXT_PUBLIC_FALLBACK_EMAIL: ${{ vars.NEXT_PUBLIC_FALLBACK_EMAIL }}
+          NEXT_PUBLIC_FALLBACK_BOOKING_URL: ${{ vars.NEXT_PUBLIC_FALLBACK_BOOKING_URL }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

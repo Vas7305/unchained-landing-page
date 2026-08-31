@@ -461,6 +461,28 @@ export const en = {
   'notFound.backHome': 'Back home',
 
   // ── Footer ────────────────────────────────────────────────────────────────
+  // ── Commercial contact panel ─────────────────────────────────────
+  // What a visitor sees after pressing "Start a Project". Deliberately free of
+  // routing vocabulary (§16): no rule, no priority, no assignment, no region —
+  // the visitor is being introduced to a person, not shown an algorithm.
+  // A representative's name and role are data and arrive from the resolver, so
+  // they are never translated here.
+  'contact.title': 'Let’s build something together.',
+  'contact.subtitle':
+    'Tell us what you’re trying to build. Your regional contact takes it from there.',
+  'contact.regionalContact': 'Your regional business contact',
+  'contact.loading': 'Finding your regional contact…',
+  'contact.whatsapp': 'WhatsApp',
+  'contact.telegram': 'Telegram',
+  'contact.scheduleCall': 'Schedule a Call',
+  'contact.email': 'Email',
+  'contact.unavailable': 'We couldn’t determine a regional contact right now.',
+  'contact.fallback': 'Please contact Unchained Business directly.',
+  'contact.noChannels':
+    'Our contact options are being updated right now. Please try again shortly.',
+  'contact.close': 'Close',
+  'contact.newTab': 'opens in a new tab',
+
   'footer.tagline':
     'Digital infrastructure for growing businesses. Software, automation and growth systems — built one project at a time.',
   'footer.capabilities': 'Capabilities',

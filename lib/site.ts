@@ -4,7 +4,17 @@ export const siteConfig = {
   tagline: 'Digital Infrastructure for Businesses Ready to Grow',
   description:
     'Unchained Business builds digital infrastructure for growing businesses — software, websites, business automation and growth systems. See what we are building.',
-  /** Where every "Start a Project" / booking CTA points. */
+  /**
+   * The company-wide booking link.
+   *
+   * No longer where "Start a Project" points: since Phase 6 that CTA asks the
+   * commercial resolver who should receive the inquiry, and booking is one of
+   * the channels the assigned representative may offer. This URL is now the
+   * global fallback (Phase 6 §22) — the existing public contact mechanism the
+   * panel falls back to when no regional representative can be determined —
+   * and can be overridden per deployment with NEXT_PUBLIC_FALLBACK_BOOKING_URL.
+   * See lib/commercial/config.ts.
+   */
   bookingUrl: 'https://cal.com',
   social: {
     twitter: '#',

@@ -440,6 +440,23 @@ export const fr: Dictionary = {
     'Ce dont, vu notre métier, nous mesurons toute l’ironie. Voici où aller à la place.',
   'notFound.backHome': 'Retour à l’accueil',
 
+  'contact.title': 'Construisons quelque chose ensemble.',
+  'contact.subtitle':
+    'Dites-nous ce que vous voulez construire. Votre contact régional prend le relais.',
+  'contact.regionalContact': 'Votre contact commercial régional',
+  'contact.loading': 'Recherche de votre contact régional…',
+  'contact.whatsapp': 'WhatsApp',
+  'contact.telegram': 'Telegram',
+  'contact.scheduleCall': 'Réserver un appel',
+  'contact.email': 'E-mail',
+  'contact.unavailable':
+    'Nous n’avons pas pu déterminer de contact régional pour le moment.',
+  'contact.fallback': 'Contactez directement Unchained Business.',
+  'contact.noChannels':
+    'Nos moyens de contact sont en cours de mise à jour. Réessayez dans un instant.',
+  'contact.close': 'Fermer',
+  'contact.newTab': 'ouvre un nouvel onglet',
+
   'footer.tagline':
     'Infrastructure numérique pour les entreprises en croissance. Logiciels, automatisation et systèmes de croissance — construits un projet à la fois.',
   'footer.capabilities': 'Compétences',

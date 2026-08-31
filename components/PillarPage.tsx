@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
+import StartProjectButton from '@/components/StartProjectButton';
 import ScrollDepth from '@/components/ScrollDepth';
 import { pillars } from '@/lib/site';
 import type { PillarContent } from '@/lib/pillar-content';
@@ -48,8 +49,9 @@ export default function PillarPage({ content }: { content: PillarContent }) {
         title={t(('pillar.' + content.slug) as TranslationKey)}
         lede={p('lede')}
       >
-        <Link
-          href='/#contact'
+        <StartProjectButton
+          source='pillar'
+          detail={content.slug}
           className='group inline-flex items-center gap-2 bg-foreground text-background font-semibold px-6 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200'
         >
           {t('nav.startProject')}
@@ -58,7 +60,7 @@ export default function PillarPage({ content }: { content: PillarContent }) {
             aria-hidden='true'
             className='group-hover:translate-x-1 transition-transform duration-200'
           />
-        </Link>
+        </StartProjectButton>
       </PageHeader>
 
       {/* What we build */}

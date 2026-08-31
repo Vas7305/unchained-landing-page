@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import { track } from '@/lib/analytics';
+import StartProjectButton from '@/components/StartProjectButton';
 import { useTranslation } from '@/lib/i18n/LanguageProvider';
 import type { TranslationKey } from '@/lib/i18n/dictionaries';
 
@@ -154,9 +155,8 @@ export default function Hero() {
           ref={ctaRef}
           className='flex flex-col sm:flex-row items-center gap-4'
         >
-          <a
-            href='#contact'
-            onClick={() => track('start_project_click', { location: 'hero' })}
+          <StartProjectButton
+            source='hero'
             className='group inline-flex items-center gap-2 bg-foreground text-background font-semibold px-7 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200 shadow-lg'
           >
             {t('nav.startProject')}
@@ -165,7 +165,7 @@ export default function Hero() {
               aria-hidden='true'
               className='group-hover:translate-x-1 transition-transform duration-200'
             />
-          </a>
+          </StartProjectButton>
           <Link
             href='/work'
             onClick={() => track('explore_work_click', { location: 'hero' })}

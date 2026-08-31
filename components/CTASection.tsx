@@ -6,7 +6,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Calendar } from 'lucide-react';
 import { track } from '@/lib/analytics';
-import { siteConfig } from '@/lib/site';
+import StartProjectButton from '@/components/StartProjectButton';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -73,14 +73,12 @@ export default function CTA() {
             </p>
 
             <div className='flex flex-col sm:flex-row items-center gap-4'>
-              <a
-                href={siteConfig.bookingUrl}
-                target='_blank'
-                rel='noopener noreferrer'
-                onClick={() => {
-                  track('start_project_click', { location: 'cta' });
-                  track('booking_cta_click', { location: 'cta' });
-                }}
+              {/* This was the site's one direct link to Cal.com. Booking is
+                  now a channel the assigned representative may or may not
+                  have (10, 21), offered inside the contact panel rather than
+                  assumed for everyone. */}
+              <StartProjectButton
+                source='cta'
                 className='group inline-flex items-center gap-2 bg-foreground text-background font-bold px-8 py-4 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200 shadow-xl'
               >
                 {t('nav.startProject')}
@@ -89,7 +87,7 @@ export default function CTA() {
                   aria-hidden='true'
                   className='group-hover:translate-x-1 transition-transform duration-200'
                 />
-              </a>
+              </StartProjectButton>
               <p className='text-xs text-muted-foreground'>{t('cta.note')}</p>
             </div>
 

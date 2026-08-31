@@ -439,6 +439,22 @@ export const ru: Dictionary = {
     'Иронию чего мы, учитывая наш род занятий, вполне оценили. Вот куда можно перейти вместо этого.',
   'notFound.backHome': 'На главную',
 
+  'contact.title': 'Давайте построим что-то вместе.',
+  'contact.subtitle':
+    'Расскажите, что вы хотите построить. Дальше этим займётся ваш региональный контакт.',
+  'contact.regionalContact': 'Ваш региональный контакт по развитию бизнеса',
+  'contact.loading': 'Определяем ваш региональный контакт…',
+  'contact.whatsapp': 'WhatsApp',
+  'contact.telegram': 'Telegram',
+  'contact.scheduleCall': 'Записаться на звонок',
+  'contact.email': 'Почта',
+  'contact.unavailable': 'Сейчас не удалось определить региональный контакт.',
+  'contact.fallback': 'Свяжитесь с Unchained Business напрямую.',
+  'contact.noChannels':
+    'Мы обновляем способы связи. Пожалуйста, попробуйте чуть позже.',
+  'contact.close': 'Закрыть',
+  'contact.newTab': 'откроется в новой вкладке',
+
   'footer.tagline':
     'Цифровая инфраструктура для растущего бизнеса. Софт, автоматизация и системы роста — проект за проектом.',
   'footer.capabilities': 'Направления',
