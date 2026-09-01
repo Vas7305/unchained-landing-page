@@ -28,6 +28,20 @@ type Visit = {
   trace?: string;
 };
 
+/**
+ * The narrow slice of `Response` that `countrySignal.ts` actually reads.
+ *
+ * Annotating the stub's return type is what keeps `text` from being inferred
+ * circularly (TS7023): without it, TypeScript tries to infer the outer async
+ * function's type from the two object literals it returns, and those literals
+ * contain the very members it is still resolving.
+ */
+type FakeResponse = {
+  ok: boolean;
+  headers: { get: () => string | null };
+  text: () => Promise<string>;
+};
+
 function visit({ stored = {}, languages = ['en-US'], trace }: Visit = {}) {
   const storage = fakeStorage(stored);
   vi.stubGlobal('window', {
@@ -38,7 +52,7 @@ function visit({ stored = {}, languages = ['en-US'], trace }: Visit = {}) {
   vi.stubGlobal('navigator', { languages, language: languages[0] });
   vi.stubGlobal(
     'fetch',
-    vi.fn(async () =>
+    vi.fn(async (): Promise<FakeResponse> =>
       trace === undefined
         ? { ok: false, headers: { get: () => null }, text: async () => '' }
         : {
