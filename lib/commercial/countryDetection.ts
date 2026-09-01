@@ -3,18 +3,17 @@ import { readCountry, requestCountry } from '@/lib/i18n/languageDetection';
 /**
  * Where the visitor's country comes from, for routing purposes only.
  *
- * ─── The constraint this works under (§6) ─────────────────────────────────
- * The site is `output: 'export'` and ships to GitHub Pages. There is no
- * server, no middleware and no edge function, so no request header ever
- * reaches React: `x-vercel-ip-country` and `CF-IPCountry` exist on the wire
- * and are thrown away before any code of ours runs. That is a documented
- * limitation of the current hosting, not a decision — see docs/commercial-
- * routing.md for what changes the day the site moves behind an edge runtime.
+ * ─── Where the signal comes from (§6) ─────────────────────────────────────
+ * The site runs on Vercel, and `proxy.ts` writes `x-vercel-ip-country` into
+ * the `unchained.country` cookie before the document is served, so step 1
+ * below is answered on the ordinary visit. Until 2026-08-31 this was a static
+ * export on GitHub Pages with no request phase at all: every country header
+ * was discarded before our code ran and every visitor fell through to step 3.
+ * See docs/hosting.md.
  *
- * What that leaves is the platform-provided signal that CAN reach a static
- * document, and `lib/i18n/languageDetection/countrySignal.ts` already reads
- * every cheap form of it — an injected global, a `<meta>` the edge rewrote in,
- * a cookie, or Cloudflare's own same-origin `/cdn-cgi/trace`. That module is
+ * `lib/i18n/languageDetection/countrySignal.ts` reads every cheap form the
+ * signal can arrive in — an injected global, a `<meta>` the edge rewrote in,
+ * the cookie, or Cloudflare's own same-origin `/cdn-cgi/trace`. That module is
  * reused here rather than reimplemented: country is detected ONCE per page and
  * the language chooser and the router read the same value, so the two can
  * never disagree about where the visitor is.
@@ -90,6 +89,12 @@ export interface CountryDetection {
  * Timezone, currency and bare browser language are deliberately absent: §7
  * names all three as unreliable country identifiers, and they are. A traveller
  * with a German laptop in Milan is not a German lead, and `en` is not the US.
+ *
+ * Step 3 is a last resort rather than a strategy, and it fails LOUDLY wrong
+ * rather than quietly vague: it returns the first tag that HAS a region, so
+ * `['es', 'en-US', 'en']` — an ordinary Chrome default for a Spanish speaker —
+ * yields US for someone who has never been there. With step 1 answering it
+ * should now be reached only when the edge sent no country at all.
  *
  * Step 4 is a real answer, not a failure. The visitor still starts a project;
  * the resolver simply decides on language and the global fallback (§23).

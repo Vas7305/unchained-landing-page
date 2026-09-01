@@ -10,8 +10,9 @@ import { contactChannels, type Channel, type ChannelSource } from './channels';
  * this file or anywhere else in the repository (§57).
  *
  * ─── Why the anon key is a public value ───────────────────────────────────
- * The site is a static export, so anything it holds is readable by anyone who
- * opens the bundle; there is no "secret" a browser can keep. The Supabase anon
+ * These are `NEXT_PUBLIC_*` values, inlined into the client bundle at build
+ * time, so anything here is readable by anyone who opens it; there is no
+ * "secret" a browser can keep. The Supabase anon
  * key is designed for exactly that, and it is safe HERE specifically because
  * of what Phase 5 did to the database: the four commercial tables carry an
  * `is_super_admin()` RLS policy each and grant anon nothing at all, so this

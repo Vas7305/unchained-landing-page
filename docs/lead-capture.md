@@ -174,9 +174,10 @@ returns, so the endpoint cannot be used to test whether a token exists.
 
 Unchanged from Phase 6 in kind, wider by exactly two functions in extent.
 
-The site is a static export, so anything it holds is readable by anyone who
-opens the bundle. The Supabase anon key is designed for that, and it is safe
-here because of what the database does with it:
+Both Supabase values are `NEXT_PUBLIC_*`, inlined into the client bundle at
+build time, so anything here is readable by anyone who opens it. The Supabase
+anon key is designed for that, and it is safe here because of what the database
+does with it:
 
 | Table | anon grants | anon policies |
 |---|---|---|

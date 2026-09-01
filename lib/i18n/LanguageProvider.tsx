@@ -33,8 +33,9 @@ type LanguageContextValue = {
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 /**
- * The site is a static export, so there is no server-side locale negotiation:
- * every page ships prerendered in `defaultLocale` and switches on the client.
+ * There is no server-side locale negotiation: every page ships prerendered in
+ * `defaultLocale` and switches on the client. `proxy.ts` supplies the
+ * visitor's country, never their language — see docs/hosting.md.
  */
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const locale = useSyncExternalStore(

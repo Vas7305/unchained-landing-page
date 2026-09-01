@@ -41,25 +41,40 @@ this website decides which one is right.
 
 ## 2. Country detection
 
-The site is `output: 'export'` and deploys to GitHub Pages. **There is no
-server, middleware or edge function**, so no request header ever reaches our
-code: `x-vercel-ip-country` and `CF-IPCountry` exist on the wire and are gone
-before React runs. That is the documented limitation §6 asks for, and it is a
-property of the hosting, not a choice about detection.
+The site runs on **Vercel**, and `proxy.ts` reads the country from the request
+before the document is served. That was not always true: until 2026-08-31 this
+was a static export on GitHub Pages with no request phase at all, and rungs 1
+and 2 below answered nothing for anybody. See `docs/hosting.md`.
 
-What remains is the platform signal that can reach a *static document*, and the
-chain in `lib/commercial/countryDetection.ts` takes them in order of trust:
+The chain in `lib/commercial/countryDetection.ts` takes the signals in order of
+trust:
 
-| Order | Signal | Where it comes from |
-| --- | --- | --- |
-| 1 | Edge country on the document | `window.__UNCHAINED_COUNTRY__`, a `<meta>` an edge layer rewrote in (`x-vercel-ip-country`, `cf-ipcountry`, `x-country`), or an `unchained.country` cookie |
-| 2 | Platform country endpoint | Cloudflare's same-origin `/cdn-cgi/trace`, memoised, no third party, no key |
-| 3 | Browser locale **region** | The region subtag of a tag that has one: `en-GB` → `GB` |
-| 4 | No country | `country_code: null` — still a valid inquiry |
+| Order | Signal | Where it comes from | Answers today |
+| --- | --- | --- | --- |
+| 1 | Edge country on the document | `window.__UNCHAINED_COUNTRY__`, a `<meta>` an edge layer rewrote in (`x-vercel-ip-country`, `cf-ipcountry`, `x-country`), or the `unchained.country` cookie | **Yes** — `proxy.ts` writes the cookie from `x-vercel-ip-country` |
+| 2 | Platform country endpoint | Cloudflare's same-origin `/cdn-cgi/trace`, memoised, no third party, no key | No — the site is not behind Cloudflare and Vercel serves an HTML 404 there. `countrySignal.ts` checks `res.ok` and the content type, so it resolves to null instead of parsing a 404 page |
+| 3 | Browser locale **region** | The region subtag of a tag that has one: `en-GB` → `GB` | Last resort only — see below |
+| 4 | No country | `country_code: null` — still a valid inquiry | Yes |
 
 Reading 1 and 2 is `lib/i18n/languageDetection/countrySignal.ts`, which already
 existed for language selection and is **reused rather than reimplemented**, so
 the language chooser and the router can never disagree about where a visitor is.
+
+### Why rung 3 is a fallback and not a strategy
+
+`regionFromLocaleTags` returns the first tag carrying a region, and that is
+frequently the *wrong* country rather than merely a vague one. A Spanish speaker
+in Havana whose browser sends `es,en-US;q=0.9,en;q=0.8` — an ordinary Chrome
+default — has no region on `es`, so `en-US` wins and the inquiry is routed as
+**US**.
+
+That is worse than rung 4, and it is the failure rung 1 exists to prevent. A
+`null` country produces the global fallback, which is honest. A confident `US`
+either routes the inquiry to the wrong desk or, when `US` is unassigned,
+produces the same fallback panel while looking like a lookup that worked —
+which is how this went unnoticed. Rung 3 is kept because a guess beats nothing
+where no edge signal exists at all, but on Vercel it should now be reached only
+by visitors whose country header is absent or `XX`.
 
 Deliberately **not** used, per §7: timezone, currency, and bare browser language.
 `en` is a language, not the United States. `es-419` is a macro-region, not a
@@ -69,10 +84,6 @@ No third-party IP-geolocation API is contacted. The browser Geolocation API is
 never touched, so **no permission prompt is ever shown**. Nothing finer than a
 two-letter country code is read, and the code is not stored, not persisted and
 not sent to analytics (§25).
-
-**When the site moves behind an edge runtime**, nothing in the application has
-to change: have the edge stamp `<meta name="x-vercel-ip-country">` (or set the
-`unchained.country` cookie) and step 1 starts answering.
 
 ---
 
@@ -282,10 +293,11 @@ redeployment of this site** (§55).
 
 ## Remaining work
 
-- **Edge country signal.** Steps 1 and 2 of the chain are wired and tested but
-  currently answer nothing on GitHub Pages, so most visitors are routed on their
-  browser's region subtag. Moving the site behind an edge runtime, or putting
-  Cloudflare in front of it, upgrades detection with no application change.
+- **Country coverage.** As of 2026-08-31 only `RU` and `CU` resolve to a
+  contact; `ES`, `US`, `IT` and an undetermined country all take the global
+  fallback. That is the correct answer for an unassigned region rather than a
+  defect, but it means most visitors still meet the fallback panel. Assignments
+  are Admin Platform data, not code.
 - **Per-IP rate limiting** on the resolver, at whatever edge the site ends up
   behind. See §5 above for why it does not belong in the database function.
 - **A configured global fallback.** `NEXT_PUBLIC_FALLBACK_*` is unset, so the
