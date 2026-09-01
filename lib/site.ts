@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: 'Unchained Business',
-  url: 'https://unchainedbusiness.com',
+  url: 'https://www.unchainedbusiness.com',
   tagline: 'Digital Infrastructure for Businesses Ready to Grow',
   description:
     'Unchained Business builds digital infrastructure for growing businesses — software, websites, business automation and growth systems. See what we are building.',
