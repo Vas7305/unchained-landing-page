@@ -123,7 +123,7 @@ export default function Hero() {
         {/* Badge */}
         <div
           ref={badgeRef}
-          className='inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-medium text-muted-foreground tracking-wide uppercase'
+          className='opacity-0 inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-medium text-muted-foreground tracking-wide uppercase'
         >
           <span
             className='w-1.5 h-1.5 rounded-full bg-foreground/50 animate-pulse'
@@ -135,7 +135,7 @@ export default function Hero() {
         {/* Headline */}
         <h1
           ref={h1Ref}
-          className='text-5xl sm:text-6xl md:text-7xl font-extrabold leading-[1.05] tracking-tight'
+          className='opacity-0 text-5xl sm:text-6xl md:text-7xl font-extrabold leading-[1.05] tracking-tight'
         >
           <span className='gradient-text'>{t('hero.headlineLead')}</span>
           <br />
@@ -145,7 +145,7 @@ export default function Hero() {
         {/* Sub */}
         <p
           ref={descRef}
-          className='max-w-2xl text-lg md:text-xl text-muted-foreground leading-relaxed'
+          className='opacity-0 max-w-2xl text-lg md:text-xl text-muted-foreground leading-relaxed'
         >
           {t('hero.description')}
         </p>
@@ -153,7 +153,7 @@ export default function Hero() {
         {/* CTAs */}
         <div
           ref={ctaRef}
-          className='flex flex-col sm:flex-row items-center gap-4'
+          className='opacity-0 flex flex-col sm:flex-row items-center gap-4'
         >
           <StartProjectButton
             source='hero'
@@ -178,7 +178,7 @@ export default function Hero() {
         {/* Honest stage indicator — capability, not commercial claims */}
         <div
           ref={factsRef}
-          className='flex flex-wrap items-center justify-center gap-x-8 gap-y-4 pt-2'
+          className='opacity-0 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 pt-2'
         >
           {stageFacts.map((f) => (
             <div key={f.key} className='flex items-center gap-2.5'>
@@ -195,7 +195,7 @@ export default function Hero() {
       <div
         ref={scrollRef}
         aria-hidden='true'
-        className='absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-muted-foreground/40'
+        className='opacity-0 absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-muted-foreground/40'
       >
         <span className='text-[10px] uppercase tracking-widest'>
           {t('hero.scroll')}
