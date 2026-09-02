@@ -9,6 +9,8 @@ import { CommercialRoutingProvider } from '@/lib/commercial/RoutingProvider';
 import CommercialContactPanel from '@/components/CommercialContactPanel';
 import { defaultLocale } from '@/lib/i18n/config';
 import { siteConfig } from '@/lib/site';
+import JsonLd from '@/components/JsonLd';
+import { organizationSchema } from '@/lib/structured-data';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -16,6 +18,19 @@ const inter = Inter({
   weight: ['300', '400', '500', '600', '700', '800'],
 });
 
+/**
+ * Site-wide defaults only.
+ *
+ * The homepage's Open Graph block, canonical and Twitter card used to live
+ * here, which is why every other route advertised itself socially as the
+ * homepage: Next.js replaces `openGraph` wholesale per segment, so a page that
+ * declared none inherited the homepage's. Those values now sit on the homepage
+ * itself (app/page.tsx) and every indexable route builds its own through
+ * `buildPageMetadata` (lib/metadata.ts).
+ *
+ * `metadataBase` stays here: it is what resolves every relative canonical and
+ * image below onto the canonical host, from the single URL in siteConfig.
+ */
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
@@ -34,21 +49,6 @@ export const metadata: Metadata = {
     'custom software',
     'SaaS development',
   ],
-  openGraph: {
-    title: `${siteConfig.name} — ${siteConfig.tagline}`,
-    description: siteConfig.description,
-    url: siteConfig.url,
-    siteName: siteConfig.name,
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: `${siteConfig.name} — ${siteConfig.tagline}`,
-    description: siteConfig.description,
-  },
-  alternates: {
-    canonical: '/',
-  },
 };
 
 export default function RootLayout({
@@ -61,6 +61,10 @@ export default function RootLayout({
     // client whenever the visitor picks another language.
     <html lang={defaultLocale} className='dark'>
       <body className={`${inter.variable} antialiased`}>
+        {/* The site's one Organization entity, emitted once from the layout so
+            every page carries the same identity and no page declares a second
+            one. Article `publisher`/`author` reference it by `@id`. */}
+        <JsonLd data={organizationSchema()} />
         <LanguageProvider>
           {/* Inside LanguageProvider: routing sends the active locale as the
               inquiry's language, so it has to be able to read it (§8). The

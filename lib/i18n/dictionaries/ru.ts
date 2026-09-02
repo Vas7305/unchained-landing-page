@@ -5,6 +5,8 @@ export const ru: Dictionary = {
   'common.homeAlt': 'Unchained Business — главная',
   'common.exploreOurWork': 'Посмотреть Наши Работы',
   'common.followTheJourney': 'Следить за Путём',
+  'breadcrumb.home': 'Главная',
+  'breadcrumb.label': 'Навигационная цепочка',
 
   'nav.whatWeBuild': 'Что Мы Создаём',
   'nav.ourWork': 'Наши Работы',

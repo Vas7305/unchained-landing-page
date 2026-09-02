@@ -5,6 +5,8 @@ export const it: Dictionary = {
   'common.homeAlt': 'Unchained Business — home',
   'common.exploreOurWork': 'Esplora i Nostri Lavori',
   'common.followTheJourney': 'Segui il Percorso',
+  'breadcrumb.home': 'Home',
+  'breadcrumb.label': 'Percorso di navigazione',
 
   'nav.whatWeBuild': 'Cosa Costruiamo',
   'nav.ourWork': 'I Nostri Lavori',

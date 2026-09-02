@@ -1,11 +1,14 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import InsightArticleView from '@/components/InsightArticleView';
+import JsonLd from '@/components/JsonLd';
 import {
   buildInsightMetadata,
   getPublishedInsight,
+  insightPath,
   publishedInsights,
 } from '@/lib/insights';
+import { articleSchema, breadcrumbSchema } from '@/lib/structured-data';
 
 type Params = { slug: string };
 
@@ -44,5 +47,21 @@ export default async function InsightPage({
 
   if (!article) notFound();
 
-  return <InsightArticleView article={article} />;
+  return (
+    <>
+      {/* Both entities describe this page and agree with each other: the
+          Article's publisher and author resolve by `@id` to the one
+          Organization the root layout emits, and the trail is the one the
+          page shows above the headline. */}
+      <JsonLd data={articleSchema(article)} />
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: 'Home', path: '/' },
+          { name: 'Insights', path: '/insights' },
+          { name: article.title, path: insightPath(article.slug) },
+        ])}
+      />
+      <InsightArticleView article={article} />
+    </>
+  );
 }

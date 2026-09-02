@@ -5,19 +5,11 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Plus, Minus } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n/LanguageProvider';
-import type { TranslationKey } from '@/lib/i18n/dictionaries';
+// The list lives in lib/faq.ts so the homepage's FAQPage JSON-LD is generated
+// from the same questions this section renders, and the two cannot drift.
+import { faqItems } from '@/lib/faq';
 
 gsap.registerPlugin(ScrollTrigger);
-
-const faqs: { q: TranslationKey; a: TranslationKey }[] = [
-  { q: 'faq.q1', a: 'faq.a1' },
-  { q: 'faq.q2', a: 'faq.a2' },
-  { q: 'faq.q3', a: 'faq.a3' },
-  { q: 'faq.q4', a: 'faq.a4' },
-  { q: 'faq.q5', a: 'faq.a5' },
-  { q: 'faq.q6', a: 'faq.a6' },
-  { q: 'faq.q7', a: 'faq.a7' },
-];
 
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
@@ -121,7 +113,7 @@ export default function FAQ() {
         </div>
 
         <div className='faq-inner glow-border rounded-2xl bg-card px-6 md:px-10 py-2'>
-          {faqs.map((f) => (
+          {faqItems.map((f) => (
             <FAQItem key={f.q} q={t(f.q)} a={t(f.a)} />
           ))}
         </div>

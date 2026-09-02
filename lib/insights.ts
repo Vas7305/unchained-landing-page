@@ -19,7 +19,8 @@
  */
 
 import type { Metadata } from 'next';
-import { siteConfig, type PillarSlug } from '@/lib/site';
+import { buildPageMetadata, SITE_OG_IMAGE } from '@/lib/metadata';
+import type { PillarSlug } from '@/lib/site';
 
 /** One `<h2>` section of an article body. */
 export type InsightSection = {
@@ -115,46 +116,29 @@ export function insightsForPillar(
 }
 
 /**
- * The site-wide OG image, served by the root `app/opengraph-image.tsx` file
- * convention. Declaring an `openGraph` block on a route opts it out of that
- * convention, so an article has to name the image explicitly to keep one.
- */
-const SITE_OG_IMAGE = '/opengraph-image';
-
-/**
  * Article metadata, derived entirely from the article's own data.
  *
- * Every value the root layout would otherwise supply from the homepage —
- * title, description, canonical, and the whole Open Graph block — is
- * overridden here, so no article ever ships with the homepage's share preview.
+ * Every value the root layout would otherwise supply — title, description,
+ * canonical, and the whole Open Graph block — is overridden here through the
+ * site's one metadata builder, so no article ever ships with the homepage's
+ * share preview.
  */
 export function buildInsightMetadata(article: InsightArticle): Metadata {
-  const path = insightPath(article.slug);
-  const socialTitle = `${article.title} — ${siteConfig.name}`;
-
-  return {
+  return buildPageMetadata({
     title: article.title,
     description: article.description,
-    alternates: { canonical: path },
-    openGraph: {
-      title: socialTitle,
-      description: article.description,
-      url: `${siteConfig.url}${path}`,
-      siteName: siteConfig.name,
-      type: 'article',
-      publishedTime: article.publishedAt,
-      ...(article.updatedAt ? { modifiedTime: article.updatedAt } : {}),
-      images: [article.ogImage ?? SITE_OG_IMAGE],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: socialTitle,
-      description: article.description,
-    },
+    path: insightPath(article.slug),
+    type: 'article',
+    // An article with no image of its own still gets a valid one: declaring
+    // `openGraph` opts a route out of the root opengraph-image file
+    // convention, so the site image has to be named explicitly.
+    image: article.ogImage ?? SITE_OG_IMAGE,
+    publishedTime: article.publishedAt,
+    modifiedTime: article.updatedAt,
     // Belt and braces: the route only generates published slugs, but a draft
     // that somehow reached a renderer must not be indexable.
     ...(article.draft ? { robots: { index: false, follow: false } } : {}),
-  };
+  });
 }
 
 /**

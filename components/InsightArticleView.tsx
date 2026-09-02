@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import ScrollDepth from '@/components/ScrollDepth';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import StartProjectButton from '@/components/StartProjectButton';
 import {
   formatInsightDate,
@@ -46,13 +47,19 @@ export default function InsightArticleView({
         <div className='absolute inset-0 blueprint-grid' aria-hidden='true' />
 
         <div className='relative max-w-3xl mx-auto'>
-          <Link
-            href='/insights'
-            className='inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200'
-          >
-            <ArrowLeft size={14} aria-hidden='true' />
-            {t('article.allInsights')}
-          </Link>
+          {/* Home / Insights / this article. Replaces the single "All
+              insights" back-link that stood here: same destination, plus the
+              two steps above it, and it matches the BreadcrumbList the route
+              publishes. The article is still one click from the index, and
+              the closing section keeps its "All insights" button. */}
+          <Breadcrumbs
+            label={t('breadcrumb.label')}
+            items={[
+              { name: t('breadcrumb.home'), href: '/' },
+              { name: t('nav.insights'), href: '/insights' },
+              { name: article.title },
+            ]}
+          />
 
           <div className='mt-8 flex flex-wrap items-center gap-3'>
             <Link

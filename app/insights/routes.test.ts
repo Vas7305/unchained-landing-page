@@ -22,6 +22,19 @@ describe('/insights', () => {
     expect(indexMetadata.alternates?.canonical).toBe('/insights');
   });
 
+  it('carries its own Open Graph block rather than the homepage’s', () => {
+    const og = indexMetadata.openGraph as {
+      title?: unknown;
+      description?: unknown;
+      url?: unknown;
+      images?: unknown;
+    };
+    expect(og.title).toBe(`Insights — ${siteConfig.name}`);
+    expect(og.description).toBe(indexMetadata.description);
+    expect(og.url).toBe(`${siteConfig.url}/insights`);
+    expect(og.images).toEqual(['/opengraph-image']);
+  });
+
   it('is left indexable', () => {
     expect(indexMetadata.robots).toBeUndefined();
   });

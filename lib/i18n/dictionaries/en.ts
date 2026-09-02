@@ -15,6 +15,8 @@ export const en = {
   'common.homeAlt': 'Unchained Business — home',
   'common.exploreOurWork': 'Explore Our Work',
   'common.followTheJourney': 'Follow the Journey',
+  'breadcrumb.home': 'Home',
+  'breadcrumb.label': 'Breadcrumb',
 
   'nav.whatWeBuild': 'What We Build',
   'nav.ourWork': 'Our Work',
