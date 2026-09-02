@@ -63,7 +63,7 @@ export default function Capabilities() {
               <Link
                 key={pillar.slug}
                 href={`/${pillar.slug}`}
-                className='pillar-card group glow-border rounded-2xl bg-card p-8 flex flex-col gap-6 hover:border-foreground/25 hover:bg-accent/25 transition-all duration-300'
+                className='pillar-card group glow-border rounded-2xl bg-card p-8 flex flex-col gap-6 hover:border-foreground/25 hover:bg-accent/25 transition-colors duration-300'
               >
                 <div className='flex items-center justify-between'>
                   <div className='w-11 h-11 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-accent transition-colors duration-300'>

@@ -139,7 +139,7 @@ export default function HowItWorks() {
                 >
                   {/* Icon circle */}
                   <div className='relative shrink-0'>
-                    <div className='w-20 h-20 rounded-2xl bg-secondary glow-border flex items-center justify-center group-hover:bg-accent transition-all duration-300'>
+                    <div className='w-20 h-20 rounded-2xl bg-secondary glow-border flex items-center justify-center group-hover:bg-accent transition-colors duration-300'>
                       <Icon
                         size={26}
                         className='text-muted-foreground group-hover:text-foreground transition-colors'

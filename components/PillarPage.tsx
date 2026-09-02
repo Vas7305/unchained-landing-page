@@ -52,7 +52,7 @@ export default function PillarPage({ content }: { content: PillarContent }) {
         <StartProjectButton
           source='pillar'
           detail={content.slug}
-          className='group inline-flex items-center gap-2 bg-foreground text-background font-semibold px-6 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200'
+          className='group inline-flex items-center gap-2 bg-foreground text-background font-semibold px-6 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-colors duration-200'
         >
           {t('nav.startProject')}
           <ArrowRight
@@ -195,7 +195,7 @@ export default function PillarPage({ content }: { content: PillarContent }) {
               <Link
                 key={sibling.slug}
                 href={`/${sibling.slug}`}
-                className='group glow-border rounded-2xl bg-card p-7 hover:border-foreground/25 hover:bg-accent/25 transition-all duration-300'
+                className='group glow-border rounded-2xl bg-card p-7 hover:border-foreground/25 hover:bg-accent/25 transition-colors duration-300'
               >
                 <span className='text-xs font-bold tracking-widest text-muted-foreground/40 tabular-nums'>
                   {sibling.number}

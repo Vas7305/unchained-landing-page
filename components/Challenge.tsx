@@ -139,7 +139,7 @@ export default function Challenge() {
               onClick={() =>
                 track('follow_journey_click', { location: 'challenge' })
               }
-              className='group inline-flex items-center gap-2 bg-foreground text-background font-semibold px-6 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200'
+              className='group inline-flex items-center gap-2 bg-foreground text-background font-semibold px-6 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-colors duration-200'
             >
               {t('common.followTheJourney')}
               <ArrowRight

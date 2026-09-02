@@ -91,7 +91,7 @@ export default function PainPoints() {
             return (
               <div
                 key={p.title}
-                className='pain-card glow-border rounded-2xl p-7 bg-card transition-all duration-300 hover:border-foreground/15 group'
+                className='pain-card glow-border rounded-2xl p-7 bg-card transition-colors duration-300 hover:border-foreground/15 group'
               >
                 <div className='w-10 h-10 rounded-lg bg-secondary flex items-center justify-center mb-5 group-hover:bg-accent transition-colors duration-300'>
                   <Icon

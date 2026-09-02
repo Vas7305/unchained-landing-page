@@ -80,7 +80,7 @@ export default function Navbar() {
           <LanguageSwitcher />
           <StartProjectButton
             source='navbar'
-            className='text-sm bg-foreground text-background font-semibold px-5 py-2.5 rounded-lg hover:bg-foreground/90 transition-all duration-200'
+            className='text-sm bg-foreground text-background font-semibold px-5 py-2.5 rounded-lg hover:bg-foreground/90 transition-colors duration-200'
           />
         </div>
 

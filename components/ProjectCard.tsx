@@ -45,7 +45,7 @@ function CardBody({ project }: { project: Project }) {
             <ArrowUpRight
               size={15}
               aria-hidden='true'
-              className='text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200'
+              className='text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-[color,transform] duration-200'
             />
           )}
         </h3>

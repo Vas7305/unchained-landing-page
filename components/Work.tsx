@@ -81,7 +81,7 @@ export default function Work() {
           <Link
             href='/work'
             onClick={() => track('explore_work_click', { location: 'work' })}
-            className='group inline-flex items-center gap-2 glow-border bg-card hover:border-foreground/25 text-foreground font-semibold px-6 py-3 rounded-xl text-sm transition-all duration-200'
+            className='group inline-flex items-center gap-2 glow-border bg-card hover:border-foreground/25 text-foreground font-semibold px-6 py-3 rounded-xl text-sm transition-colors duration-200'
           >
             {t('work.exploreAll')}
             <ArrowRight

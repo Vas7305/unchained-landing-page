@@ -80,7 +80,7 @@ export default function ProjectDetail({ project }: { project: Project }) {
               href={project.externalUrl}
               target='_blank'
               rel='noopener noreferrer'
-              className='group mt-8 inline-flex items-center gap-2 bg-foreground text-background font-semibold px-6 py-3 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200'
+              className='group mt-8 inline-flex items-center gap-2 bg-foreground text-background font-semibold px-6 py-3 rounded-xl text-sm hover:bg-foreground/90 transition-colors duration-200'
             >
               {t('detail.visitLive')}
               <ExternalLink size={14} aria-hidden='true' />
@@ -223,7 +223,7 @@ export default function ProjectDetail({ project }: { project: Project }) {
             <StartProjectButton
               source='project'
               detail={project.slug}
-              className='group inline-flex items-center justify-center gap-2 bg-foreground text-background font-semibold px-6 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200'
+              className='group inline-flex items-center justify-center gap-2 bg-foreground text-background font-semibold px-6 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-colors duration-200'
             >
               {t('nav.startProject')}
               <ArrowRight
@@ -234,7 +234,7 @@ export default function ProjectDetail({ project }: { project: Project }) {
             </StartProjectButton>
             <Link
               href='/work'
-              className='inline-flex items-center justify-center gap-2 glow-border bg-secondary hover:bg-accent text-foreground font-semibold px-6 py-3.5 rounded-xl text-sm transition-all duration-200'
+              className='inline-flex items-center justify-center gap-2 glow-border bg-secondary hover:bg-accent text-foreground font-semibold px-6 py-3.5 rounded-xl text-sm transition-colors duration-200'
             >
               {t('detail.seeRest')}
             </Link>

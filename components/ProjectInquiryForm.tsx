@@ -9,9 +9,12 @@ import {
   validateInquiry,
   type InquiryDraft,
   type InquiryField,
+  type InquiryResult,
 } from '@/lib/commercial/leads';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
 import type { TranslationKey } from '@/lib/i18n/dictionaries';
+
+type Translate = (key: TranslationKey) => string;
 
 /**
  * "Tell us briefly about your project." — the optional half of the panel.
@@ -60,6 +63,75 @@ const fieldClass =
   'w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground ' +
   'placeholder:text-muted-foreground transition-colors duration-200 ' +
   'focus:border-foreground/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
+
+/** Whether an email/phone field should show as invalid — matching either
+ *  its own error or the shared "give us one or the other" contact error. */
+function contactFieldInvalid(
+  field: 'email' | 'phone',
+  invalidField: InquiryField | null,
+): boolean {
+  return invalidField === field || invalidField === 'contact';
+}
+
+function inquiryErrorMessage(
+  invalidField: InquiryField | null,
+  failure: InquiryResult['kind'] | null,
+  t: Translate,
+): string | null {
+  if (invalidField) return t(FIELD_ERROR[invalidField]);
+  if (!failure) return null;
+  if (failure === 'rate_limited') return t('inquiry.error.rateLimited');
+  if (failure === 'invalid') return t('inquiry.error.invalid');
+  return t('inquiry.error.unavailable');
+}
+
+/** The acknowledgement shown in place of the form once a message is sent (§54). */
+function SentAcknowledgement({ t }: { t: Translate }) {
+  return (
+    <div
+      className='flex items-start gap-3 rounded-2xl bg-secondary/60 p-4 text-left'
+      role='status'
+    >
+      <CheckCircle2
+        size={18}
+        aria-hidden='true'
+        className='mt-0.5 shrink-0 text-foreground'
+      />
+      <div className='flex flex-col gap-1'>
+        <span className='text-sm font-semibold text-foreground'>
+          {t('inquiry.sentTitle')}
+        </span>
+        <span className='text-sm text-muted-foreground'>
+          {t('inquiry.sentBody')}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** The closed-by-default disclosure trigger (§11/§10 — see file header). */
+function InquiryToggle({
+  formId,
+  onOpen,
+  t,
+}: {
+  formId: string;
+  onOpen: () => void;
+  t: Translate;
+}) {
+  return (
+    <button
+      type='button'
+      onClick={onOpen}
+      aria-expanded={false}
+      aria-controls={formId}
+      className='inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-1 text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground'
+    >
+      {t('inquiry.toggle')}
+      <ChevronDown size={15} aria-hidden='true' />
+    </button>
+  );
+}
 
 function Field({
   id,
@@ -122,40 +194,12 @@ export default function ProjectInquiryForm() {
   // sent again. The channels above stay live — someone who wrote and then
   // decided to send a WhatsApp too should not be stopped.
   if (inquiry.status === 'sent') {
-    return (
-      <div
-        className='flex items-start gap-3 rounded-2xl bg-secondary/60 p-4 text-left'
-        role='status'
-      >
-        <CheckCircle2
-          size={18}
-          aria-hidden='true'
-          className='mt-0.5 shrink-0 text-foreground'
-        />
-        <div className='flex flex-col gap-1'>
-          <span className='text-sm font-semibold text-foreground'>
-            {t('inquiry.sentTitle')}
-          </span>
-          <span className='text-sm text-muted-foreground'>
-            {t('inquiry.sentBody')}
-          </span>
-        </div>
-      </div>
-    );
+    return <SentAcknowledgement t={t} />;
   }
 
   if (!open) {
     return (
-      <button
-        type='button'
-        onClick={() => setOpen(true)}
-        aria-expanded={false}
-        aria-controls={formId}
-        className='inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-1 text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground'
-      >
-        {t('inquiry.toggle')}
-        <ChevronDown size={15} aria-hidden='true' />
-      </button>
+      <InquiryToggle formId={formId} onOpen={() => setOpen(true)} t={t} />
     );
   }
 
@@ -197,9 +241,7 @@ export default function ProjectInquiryForm() {
             onChange={(e) => set('email', e.target.value)}
             maxLength={200}
             autoComplete='email'
-            aria-invalid={
-              invalidField === 'email' || invalidField === 'contact' || undefined
-            }
+            aria-invalid={contactFieldInvalid('email', invalidField) || undefined}
             className={fieldClass}
           />
         </Field>
@@ -214,9 +256,7 @@ export default function ProjectInquiryForm() {
             onChange={(e) => set('phone', e.target.value)}
             maxLength={32}
             autoComplete='tel'
-            aria-invalid={
-              invalidField === 'phone' || invalidField === 'contact' || undefined
-            }
+            aria-invalid={contactFieldInvalid('phone', invalidField) || undefined}
             className={fieldClass}
           />
         </Field>
@@ -302,13 +342,7 @@ export default function ProjectInquiryForm() {
 
       {(invalidField || failure) && (
         <p role='alert' className='text-sm text-destructive'>
-          {invalidField
-            ? t(FIELD_ERROR[invalidField])
-            : failure === 'rate_limited'
-              ? t('inquiry.error.rateLimited')
-              : failure === 'invalid'
-                ? t('inquiry.error.invalid')
-                : t('inquiry.error.unavailable')}
+          {inquiryErrorMessage(invalidField, failure, t)}
         </p>
       )}
 

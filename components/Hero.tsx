@@ -157,7 +157,7 @@ export default function Hero() {
         >
           <StartProjectButton
             source='hero'
-            className='group inline-flex items-center gap-2 bg-foreground text-background font-semibold px-7 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200 shadow-lg'
+            className='group inline-flex items-center gap-2 bg-foreground text-background font-semibold px-7 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-colors duration-200 shadow-lg'
           >
             {t('nav.startProject')}
             <ArrowRight

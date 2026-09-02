@@ -88,7 +88,7 @@ export default function WorkPageView() {
           <div className='flex flex-col sm:flex-row md:flex-col gap-3 shrink-0'>
             <StartProjectButton
               source='work'
-              className='group inline-flex items-center justify-center gap-2 bg-foreground text-background font-semibold px-6 py-3 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200'
+              className='group inline-flex items-center justify-center gap-2 bg-foreground text-background font-semibold px-6 py-3 rounded-xl text-sm hover:bg-foreground/90 transition-colors duration-200'
             >
               {t('nav.startProject')}
               <ArrowRight
@@ -99,7 +99,7 @@ export default function WorkPageView() {
             </StartProjectButton>
             <Link
               href='/journey'
-              className='inline-flex items-center justify-center gap-2 glow-border bg-secondary hover:bg-accent text-foreground font-semibold px-6 py-3 rounded-xl text-sm transition-all duration-200'
+              className='inline-flex items-center justify-center gap-2 glow-border bg-secondary hover:bg-accent text-foreground font-semibold px-6 py-3 rounded-xl text-sm transition-colors duration-200'
             >
               {t('common.followTheJourney')}
             </Link>

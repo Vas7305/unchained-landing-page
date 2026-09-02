@@ -61,7 +61,7 @@ export default function FlagshipProject({ project }: { project: Project }) {
             <Link
               href={`/work/${project.slug}`}
               onClick={() => track('project_click', { project: project.slug })}
-              className='group inline-flex items-center justify-center gap-2 bg-foreground text-background font-semibold px-6 py-3 rounded-xl text-sm hover:bg-foreground/90 transition-all duration-200'
+              className='group inline-flex items-center justify-center gap-2 bg-foreground text-background font-semibold px-6 py-3 rounded-xl text-sm hover:bg-foreground/90 transition-colors duration-200'
             >
               {t('flagship.view')}
               <ArrowRight
