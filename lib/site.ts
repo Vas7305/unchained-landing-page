@@ -68,3 +68,17 @@ export const pillars = [
 ] as const;
 
 export type Pillar = (typeof pillars)[number];
+
+/** A pillar's slug — the site's only pillar taxonomy, reused by every layer. */
+export type PillarSlug = Pillar['slug'];
+
+/**
+ * The pillar a slug names. Throws rather than returning undefined: `PillarSlug`
+ * already guarantees the entry exists, so a miss here means `pillars` and the
+ * type went out of sync, which is a bug and not a rendering condition.
+ */
+export function getPillar(slug: PillarSlug): Pillar {
+  const pillar = pillars.find((p) => p.slug === slug);
+  if (!pillar) throw new Error(`Unknown pillar: ${slug}`);
+  return pillar;
+}

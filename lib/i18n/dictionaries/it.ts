@@ -9,6 +9,7 @@ export const it: Dictionary = {
   'nav.whatWeBuild': 'Cosa Costruiamo',
   'nav.ourWork': 'I Nostri Lavori',
   'nav.journey': 'Percorso',
+  'nav.insights': 'Prospettive',
   'nav.howWeWork': 'Come Lavoriamo',
   'nav.faq': 'FAQ',
   'nav.startProject': 'Avvia un Progetto',
@@ -432,6 +433,30 @@ export const it: Dictionary = {
     'Strumentiamo il funnel perché i numeri descrivano la realtà, anche quando non è lusinghiera. Un sistema che segnala il proprio punto debole vale più di uno che riporta un totale dall’aspetto rassicurante.',
   'gs.proof':
     'I sistemi di acquisizione clienti sono il punto da cui Unchained Business è partita, e restano una competenza centrale. Li stiamo applicando prima di tutto alla nostra azienda — questo sito, la sua strumentazione e il diario di percorso sono quel sistema che gira su noi stessi, in pubblico.',
+
+  'insightsPage.eyebrow': 'Prospettive',
+  'insightsPage.title': 'Come Ragioniamo',
+  'insightsPage.titleAccent': 'Quando Costruiamo.',
+  'insightsPage.lede':
+    'Scriviamo di software, automazione dei processi e sistemi di crescita — le decisioni, i compromessi e il ragionamento dietro l’infrastruttura che costruiamo per le aziende.',
+  'insightsPage.articles': 'Articoli',
+  'insightsPage.empty.title': 'Qui non abbiamo ancora pubblicato nulla.',
+  'insightsPage.empty.body':
+    'Qui scriveremo delle decisioni dietro i sistemi che costruiamo — i compromessi, le cose che non hanno funzionato e il ragionamento che vorremmo leggere prima di affidare a qualcuno lo sviluppo del nostro software. La sezione esiste prima dei testi, ed è voluto: preferiamo non pubblicare nulla piuttosto che pubblicare riempitivo.',
+  'insightsPage.empty.journey':
+    'Nel frattempo, il diario del percorso registra ciò che stiamo costruendo mentre accade, e il portfolio mostra ciò che è già stato costruito.',
+  'insightsPage.pillarsHeading': 'Di cosa scriviamo',
+
+  'article.allInsights': 'Tutte le prospettive',
+  'article.published': 'Pubblicato',
+  'article.updated': 'Aggiornato',
+  'article.pillarHeading': 'Dove si colloca in ciò che costruiamo',
+  'article.caseStudy': 'Il caso studio dietro tutto questo',
+  'article.relatedReading': 'Letture correlate',
+  'article.ctaTitle': 'Riconosci questo problema',
+  'article.ctaAccent': 'nella tua azienda?',
+  'article.ctaBody':
+    'Raccontaci cosa non funziona. Se possiamo aiutarti, ti diremo come — partendo da un lavoro di discovery e architettura a perimetro fisso. Se non possiamo, te lo diremo lo stesso.',
 
   'notFound.title': 'Questa pagina non è',
   'notFound.titleAccent': 'ancora stata costruita.',

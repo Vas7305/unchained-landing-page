@@ -23,6 +23,7 @@ const footerColumns: {
     heading: 'footer.company',
     links: [
       { key: 'nav.ourWork', href: '/work' },
+      { key: 'nav.insights', href: '/insights' },
       { key: 'footer.theJourney', href: '/journey' },
       { key: 'nav.howWeWork', href: '/#how-we-work' },
       { key: 'nav.faq', href: '/#faq' },

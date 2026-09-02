@@ -19,6 +19,7 @@ export const en = {
   'nav.whatWeBuild': 'What We Build',
   'nav.ourWork': 'Our Work',
   'nav.journey': 'Journey',
+  'nav.insights': 'Insights',
   'nav.howWeWork': 'How We Work',
   'nav.faq': 'FAQ',
   'nav.startProject': 'Start a Project',
@@ -452,6 +453,32 @@ export const en = {
     'We instrument the funnel so the numbers describe reality, including when they are unflattering. A system that reports its own weak point is more valuable than one that reports a good-looking total.',
   'gs.proof':
     'Client acquisition systems are where Unchained Business started, and they remain a core capability. We are applying them to our own company first — this site, its instrumentation and the journey log are that system running on ourselves, in public.',
+
+  // ── /insights ─────────────────────────────────────────────────────────────
+  'insightsPage.eyebrow': 'Insights',
+  'insightsPage.title': 'How We Think',
+  'insightsPage.titleAccent': 'About Building.',
+  'insightsPage.lede':
+    'Writing on software, business automation and growth systems — the decisions, trade-offs and reasoning behind the infrastructure we build for businesses.',
+  'insightsPage.articles': 'Articles',
+  'insightsPage.empty.title': 'Nothing published here yet.',
+  'insightsPage.empty.body':
+    'This is where we will write about the decisions behind the systems we build — the trade-offs, the things that did not work, and the reasoning we would want to read before hiring someone to build software for us. The section exists before the writing does, deliberately: we would rather publish nothing than publish filler.',
+  'insightsPage.empty.journey':
+    'In the meantime, the journey log records what we are building as it happens, and the portfolio shows what has been built so far.',
+  'insightsPage.pillarsHeading': 'What we write about',
+
+  // ── /insights/[slug] ──────────────────────────────────────────────────────
+  'article.allInsights': 'All insights',
+  'article.published': 'Published',
+  'article.updated': 'Updated',
+  'article.pillarHeading': 'Where this fits in what we build',
+  'article.caseStudy': 'The case study behind this',
+  'article.relatedReading': 'Related reading',
+  'article.ctaTitle': 'Recognise this problem',
+  'article.ctaAccent': 'in your own business?',
+  'article.ctaBody':
+    'Tell us what is not working. If we can help, we will say how — starting with a fixed-scope discovery and architecture engagement. If we cannot, we will say that too.',
 
   // ── 404 ───────────────────────────────────────────────────────────────────
   'notFound.title': 'This page hasn’t',

@@ -9,6 +9,7 @@ export const de: Dictionary = {
   'nav.whatWeBuild': 'Was Wir Bauen',
   'nav.ourWork': 'Unsere Arbeiten',
   'nav.journey': 'Weg',
+  'nav.insights': 'Einblicke',
   'nav.howWeWork': 'Wie Wir Arbeiten',
   'nav.faq': 'FAQ',
   'nav.startProject': 'Projekt Starten',
@@ -434,6 +435,30 @@ export const de: Dictionary = {
     'Wir instrumentieren den Funnel so, dass die Zahlen die Realität beschreiben — auch dann, wenn sie unvorteilhaft ist. Ein System, das seine eigene Schwachstelle meldet, ist mehr wert als eines, das eine gut aussehende Gesamtsumme ausweist.',
   'gs.proof':
     'Systeme zur Kundengewinnung sind der Ausgangspunkt von Unchained Business und bleiben eine Kernkompetenz. Wir wenden sie zuerst auf das eigene Unternehmen an — diese Website, ihre Instrumentierung und das Wegprotokoll sind genau dieses System, das öffentlich auf uns selbst läuft.',
+
+  'insightsPage.eyebrow': 'Einblicke',
+  'insightsPage.title': 'Wie Wir Über',
+  'insightsPage.titleAccent': 'Das Bauen Denken.',
+  'insightsPage.lede':
+    'Texte über Softwareentwicklung, Prozessautomatisierung und Wachstumssysteme — die Entscheidungen, Abwägungen und Überlegungen hinter der Infrastruktur, die wir für Unternehmen bauen.',
+  'insightsPage.articles': 'Artikel',
+  'insightsPage.empty.title': 'Hier ist noch nichts veröffentlicht.',
+  'insightsPage.empty.body':
+    'Hier werden wir über die Entscheidungen hinter den Systemen schreiben, die wir bauen — über Abwägungen, über das, was nicht funktioniert hat, und über die Überlegungen, die wir selbst lesen wollen würden, bevor wir jemanden mit unserer Software beauftragen. Der Bereich existiert vor den Texten, und das ist Absicht: Lieber veröffentlichen wir nichts als Füllmaterial.',
+  'insightsPage.empty.journey':
+    'Bis dahin hält das Journey-Log fest, was wir gerade bauen, und das Portfolio zeigt, was bereits gebaut ist.',
+  'insightsPage.pillarsHeading': 'Worüber wir schreiben',
+
+  'article.allInsights': 'Alle Einblicke',
+  'article.published': 'Veröffentlicht am',
+  'article.updated': 'Aktualisiert am',
+  'article.pillarHeading': 'Wo das in unsere Arbeit gehört',
+  'article.caseStudy': 'Die Fallstudie dahinter',
+  'article.relatedReading': 'Weiterlesen',
+  'article.ctaTitle': 'Kommt Ihnen dieses Problem',
+  'article.ctaAccent': 'aus Ihrem Unternehmen bekannt?',
+  'article.ctaBody':
+    'Sagen Sie uns, was nicht funktioniert. Wenn wir helfen können, sagen wir wie — beginnend mit einem Discovery- und Architektur-Auftrag mit festem Umfang. Wenn nicht, sagen wir auch das.',
 
   'notFound.title': 'Diese Seite wurde',
   'notFound.titleAccent': 'noch nicht gebaut.',

@@ -74,7 +74,8 @@ export type CtaSource =
   | 'pillar'
   | 'journey'
   | 'work'
-  | 'project';
+  | 'project'
+  | 'insight';
 
 /** Where the optional inquiry form is in its life. */
 export type InquiryState =

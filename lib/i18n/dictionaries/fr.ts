@@ -9,6 +9,7 @@ export const fr: Dictionary = {
   'nav.whatWeBuild': 'Ce Que Nous Construisons',
   'nav.ourWork': 'Nos Réalisations',
   'nav.journey': 'Parcours',
+  'nav.insights': 'Perspectives',
   'nav.howWeWork': 'Notre Méthode',
   'nav.faq': 'FAQ',
   'nav.startProject': 'Démarrer un Projet',
@@ -433,6 +434,30 @@ export const fr: Dictionary = {
     'Nous instrumentons le tunnel pour que les chiffres décrivent la réalité, y compris quand elle n’est pas flatteuse. Un système qui signale son propre point faible vaut mieux qu’un système qui affiche un joli total.',
   'gs.proof':
     'Les systèmes d’acquisition client sont le point de départ d’Unchained Business, et ils restent une compétence centrale. Nous les appliquons d’abord à notre propre entreprise — ce site, son instrumentation et le journal de parcours sont ce système tournant sur nous-mêmes, en public.',
+
+  'insightsPage.eyebrow': 'Perspectives',
+  'insightsPage.title': 'Notre Façon',
+  'insightsPage.titleAccent': 'de Construire.',
+  'insightsPage.lede':
+    'Nous écrivons sur le développement logiciel, l’automatisation des processus et les systèmes de croissance — les décisions, les arbitrages et le raisonnement derrière l’infrastructure que nous construisons pour les entreprises.',
+  'insightsPage.articles': 'Articles',
+  'insightsPage.empty.title': 'Rien n’est encore publié ici.',
+  'insightsPage.empty.body':
+    'C’est ici que nous écrirons sur les décisions derrière les systèmes que nous construisons — les arbitrages, ce qui n’a pas fonctionné, et le raisonnement que nous aimerions lire avant de confier notre logiciel à quelqu’un. La section existe avant les textes, et c’est délibéré : nous préférons ne rien publier plutôt que publier du remplissage.',
+  'insightsPage.empty.journey':
+    'En attendant, le journal de parcours consigne ce que nous construisons à mesure que cela se passe, et le portfolio montre ce qui est déjà construit.',
+  'insightsPage.pillarsHeading': 'Ce sur quoi nous écrivons',
+
+  'article.allInsights': 'Toutes les perspectives',
+  'article.published': 'Publié le',
+  'article.updated': 'Mis à jour le',
+  'article.pillarHeading': 'Où cela s’inscrit dans ce que nous construisons',
+  'article.caseStudy': 'L’étude de cas derrière cet article',
+  'article.relatedReading': 'À lire ensuite',
+  'article.ctaTitle': 'Vous reconnaissez ce problème',
+  'article.ctaAccent': 'dans votre entreprise ?',
+  'article.ctaBody':
+    'Dites-nous ce qui ne fonctionne pas. Si nous pouvons aider, nous vous dirons comment — en commençant par une mission de cadrage et d’architecture à périmètre fixe. Sinon, nous vous le dirons aussi.',
 
   'notFound.title': 'Cette page n’a pas',
   'notFound.titleAccent': 'encore été construite.',

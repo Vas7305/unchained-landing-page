@@ -9,6 +9,7 @@ export const es: Dictionary = {
   'nav.whatWeBuild': 'Lo Que Construimos',
   'nav.ourWork': 'Nuestro Trabajo',
   'nav.journey': 'Trayectoria',
+  'nav.insights': 'Perspectivas',
   'nav.howWeWork': 'Cómo Trabajamos',
   'nav.faq': 'Preguntas Frecuentes',
   'nav.startProject': 'Iniciar un Proyecto',
@@ -432,6 +433,30 @@ export const es: Dictionary = {
     'Instrumentamos el embudo para que los números describan la realidad, incluso cuando no favorecen. Un sistema que informa de su propio punto débil vale más que uno que informa de un total con buen aspecto.',
   'gs.proof':
     'Los sistemas de captación de clientes son el origen de Unchained Business y siguen siendo una capacidad central. Los estamos aplicando primero a nuestra propia empresa — este sitio, su instrumentación y el registro de trayectoria son ese sistema funcionando sobre nosotros mismos, en público.',
+
+  'insightsPage.eyebrow': 'Perspectivas',
+  'insightsPage.title': 'Cómo Pensamos',
+  'insightsPage.titleAccent': 'Sobre Construir.',
+  'insightsPage.lede':
+    'Escribimos sobre software, automatización de negocio y sistemas de crecimiento — las decisiones, los compromisos y el razonamiento detrás de la infraestructura que construimos para las empresas.',
+  'insightsPage.articles': 'Artículos',
+  'insightsPage.empty.title': 'Todavía no hemos publicado nada aquí.',
+  'insightsPage.empty.body':
+    'Aquí escribiremos sobre las decisiones detrás de los sistemas que construimos — los compromisos, lo que no funcionó y el razonamiento que nos gustaría leer antes de contratar a alguien para que nos construyera software. La sección existe antes que los textos, y es deliberado: preferimos no publicar nada a publicar relleno.',
+  'insightsPage.empty.journey':
+    'Mientras tanto, el registro de trayectoria recoge lo que estamos construyendo a medida que ocurre, y el portafolio muestra lo que ya está construido.',
+  'insightsPage.pillarsHeading': 'Sobre lo que escribimos',
+
+  'article.allInsights': 'Todas las perspectivas',
+  'article.published': 'Publicado',
+  'article.updated': 'Actualizado',
+  'article.pillarHeading': 'Dónde encaja esto en lo que construimos',
+  'article.caseStudy': 'El caso que hay detrás',
+  'article.relatedReading': 'Lecturas relacionadas',
+  'article.ctaTitle': '¿Reconoces este problema',
+  'article.ctaAccent': 'en tu propia empresa?',
+  'article.ctaBody':
+    'Cuéntanos qué no está funcionando. Si podemos ayudar, te diremos cómo — empezando por un encargo de descubrimiento y arquitectura de alcance cerrado. Si no podemos, también te lo diremos.',
 
   'notFound.title': 'Esta página aún no',
   'notFound.titleAccent': 'se ha construido.',
