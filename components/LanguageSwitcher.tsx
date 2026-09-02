@@ -63,7 +63,13 @@ export default function LanguageSwitcher({
           <Globe size={14} aria-hidden='true' />
           {t('language.label')}
         </span>
-        <div role='group' aria-label={t('language.select')} className='flex flex-wrap gap-2'>
+        <div
+          role='group'
+          aria-label={t('language.select')}
+          /* One row inside the frame: the six chips share the width of the
+             CTA above them, so the block reads as a single control. */
+          className='flex flex-wrap gap-2 md:flex-nowrap'
+        >
           {locales.map((l) => (
             <button
               key={l.code}
@@ -71,13 +77,24 @@ export default function LanguageSwitcher({
               lang={l.code}
               onClick={() => choose(l.code)}
               aria-current={l.code === locale ? 'true' : undefined}
-              className={`text-sm px-3 py-1.5 rounded-lg border transition-colors duration-200 ${
+              /* The accessible name stays the language's own name even where
+                 the chip only shows its code. */
+              aria-label={l.label}
+              className={`text-sm px-3 py-1.5 md:flex-1 md:min-w-0 md:px-1 md:text-center rounded-lg border transition-colors duration-200 ${
                 l.code === locale
                   ? 'border-foreground/40 bg-secondary text-foreground'
                   : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/20'
               }`}
             >
-              {l.label}
+              <span aria-hidden='true' className='md:hidden'>
+                {l.label}
+              </span>
+              <span
+                aria-hidden='true'
+                className='hidden md:inline uppercase font-medium tracking-wide'
+              >
+                {l.code}
+              </span>
             </button>
           ))}
         </div>
