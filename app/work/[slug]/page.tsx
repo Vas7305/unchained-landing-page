@@ -27,7 +27,18 @@ export async function generateMetadata({
       title: `${project.title} — Unchained Business`,
       description: project.summary ?? project.description,
       type: 'article',
+      // Defining `openGraph` here opts this route out of the root
+      // opengraph-image file convention, so it needs its own image — the
+      // project's real screenshot is more useful for a share preview than
+      // the generic site image anyway.
+      ...((project.heroImage ?? project.thumbnail)
+        ? { images: [project.heroImage ?? project.thumbnail!] }
+        : {}),
     },
+    // Only projects with `detailed: true` have enough published content to
+    // warrant a public SEO landing page (lib/projects.ts). Others still
+    // render normally for direct access, but are kept out of the index.
+    ...(project.detailed ? {} : { robots: { index: false, follow: true } }),
   };
 }
 

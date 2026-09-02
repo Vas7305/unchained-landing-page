@@ -12,9 +12,14 @@ import type { TranslationKey } from '@/lib/i18n/dictionaries';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 // Absolute paths so the nav behaves identically from every route,
-// including the anchored homepage sections.
+// including the anchored homepage sections. The three pillar pages replace
+// the old single "What We Build" anchor link so each is a direct, crawlable
+// destination rather than a scroll target on the homepage — the homepage
+// section itself (Capabilities, id="what-we-build") is unchanged.
 const navLinks: { key: TranslationKey; href: string }[] = [
-  { key: 'nav.whatWeBuild', href: '/#what-we-build' },
+  { key: 'pillar.software-development', href: '/software-development' },
+  { key: 'pillar.business-automation', href: '/business-automation' },
+  { key: 'pillar.growth-systems', href: '/growth-systems' },
   { key: 'nav.ourWork', href: '/work' },
   { key: 'nav.journey', href: '/journey' },
   { key: 'nav.howWeWork', href: '/#how-we-work' },
