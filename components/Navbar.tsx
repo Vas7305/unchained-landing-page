@@ -29,12 +29,27 @@ const navLinks: { key: TranslationKey; href: string }[] = [
 export default function Navbar() {
   const navRef = useRef<HTMLElement>(null);
   const panelRef = useRef<HTMLElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   // The frame outlives `menuOpen` by the length of its closing tween, so the
   // menu can animate out instead of vanishing on the state change.
   const [menuMounted, setMenuMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // Desktop only: the bar and the frame take the screen in turn rather than
+  // together. `sequencing` stays true from the opening click until the bar has
+  // faded back in, so the bar's chrome is timed to the handover instead of
+  // drifting through it on its usual half-second transition.
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [sequencing, setSequencing] = useState(false);
   const t = useTranslation();
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const sync = () => setIsDesktop(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
   useEffect(() => {
     gsap.fromTo(
@@ -51,9 +66,54 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handler);
   }, []);
 
+  // Desktop hands the screen over one element at a time: the bar's controls
+  // fade out before the frame is mounted, and only come back once the frame's
+  // closing tween has finished (it unmounts, flipping `menuMounted`). On phones
+  // the bar keeps its controls throughout, so it is never touched.
   useEffect(() => {
-    if (menuOpen) setMenuMounted(true);
-  }, [menuOpen]);
+    const bar = barRef.current;
+    if (!bar) return;
+
+    // Phones keep the bar and its controls throughout, so nothing here applies
+    // — and a layout change back down to phone width must not strand the
+    // controls behind a desktop fade-out.
+    if (!isDesktop) {
+      gsap.set(bar, { clearProps: 'opacity,visibility' });
+      return;
+    }
+
+    const reduced = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+
+    if (menuOpen) {
+      if (menuMounted) return;
+      // Step one of opening: the bar empties out. The frame is not mounted —
+      // and so cannot start its own tween — until this has finished.
+      const tween = gsap.to(bar, {
+        autoAlpha: 0,
+        duration: reduced ? 0.01 : 0.22,
+        ease: 'power2.in',
+        onComplete: () => setMenuMounted(true),
+      });
+      return () => {
+        tween.kill();
+      };
+    }
+
+    // Closed: while the frame is still mounted it is animating out, so the bar
+    // waits. Step two of closing runs once the frame has unmounted.
+    if (menuMounted || !sequencing) return;
+    const tween = gsap.to(bar, {
+      autoAlpha: 1,
+      duration: reduced ? 0.01 : 0.24,
+      ease: 'power2.out',
+      onComplete: () => setSequencing(false),
+    });
+    return () => {
+      tween.kill();
+    };
+  }, [menuOpen, menuMounted, isDesktop, sequencing]);
 
   // With no close button on desktop, a click anywhere off the nav closes the
   // menu — as does Escape, so the keyboard is not left without a way out.
@@ -122,6 +182,14 @@ export default function Navbar() {
   return (
     <header
       ref={navRef}
+      // The bar's own chrome is part of what has to clear the screen before
+      // the frame arrives, so during the handover it drops its half-second
+      // transition and moves at the pace of the two steps around it.
+      style={
+        isDesktop && (menuOpen || menuMounted || sequencing)
+          ? { transitionDuration: '200ms' }
+          : undefined
+      }
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
           ? 'backdrop-blur-md bg-background/70 border-b border-border'
@@ -129,7 +197,10 @@ export default function Navbar() {
       } ${
         // Open on desktop the frame carries its own surface, so the bar's
         // chrome would only draw a stray line across the rest of the screen.
-        menuOpen ? 'md:bg-transparent md:backdrop-blur-none md:border-b-0' : ''
+        // It stays suppressed until the frame has finished animating out.
+        menuOpen || menuMounted
+          ? 'md:bg-transparent md:backdrop-blur-none md:border-b-0'
+          : ''
       }`}
     >
       {/* Bar — full width on desktop so the logo and the trigger sit 1cm off
@@ -155,13 +226,19 @@ export default function Navbar() {
             open on desktop it carries its own language row, so the bar is left
             with nothing but the logo — no duplicate switcher, no close button.
             */}
-        <div
-          className={`flex items-center gap-1 ${menuOpen ? 'md:hidden' : ''}`}
-        >
+        <div ref={barRef} className='flex items-center gap-1'>
           <LanguageSwitcher />
           <button
             type='button'
-            onClick={() => setMenuOpen(!menuOpen)}
+            onClick={() => {
+              if (!menuOpen) {
+                // Phones show the frame straight away; desktop opens it only
+                // after the bar has faded, which the sequencing effect drives.
+                if (isDesktop) setSequencing(true);
+                else setMenuMounted(true);
+              }
+              setMenuOpen(!menuOpen);
+            }}
             className='text-foreground p-1 shrink-0'
             aria-label={menuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
             aria-expanded={menuOpen}
@@ -185,10 +262,12 @@ export default function Navbar() {
           // Hidden until the opening tween takes over, so the frame never
           // flashes at full opacity before the first animated frame.
           style={{ opacity: 0 }}
-          className='glass border-t border-border w-full md:absolute md:top-0 md:left-0 md:w-1/4 md:border-t-0 md:border-r md:rounded-br-2xl'
+          className='glass border-t border-border w-full md:absolute md:top-0 md:left-0 md:w-1/4 md:h-screen md:border-t-0 md:border-r'
         >
-          {/* On desktop the frame reaches the top edge of the screen and the
-              bar rides on top of it, so the links clear the bar's 72px row. */}
+          {/* On desktop the frame runs the full height of the screen, from the
+              top edge — where the bar rides on top of it, so the links clear
+              the bar's 72px row — down to a square bottom at the viewport's
+              lower edge. */}
           <div className='px-6 md:px-[1cm] py-6 md:pt-20 flex flex-col gap-5'>
             {navLinks.map((link) => (
               <Link
