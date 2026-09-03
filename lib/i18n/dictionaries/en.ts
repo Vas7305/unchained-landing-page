@@ -368,6 +368,7 @@ export const en = {
   'pillarPage.whereWeAre': 'Where we are with this',
   'pillarPage.seeOurWork': 'See our work',
   'pillarPage.otherPillars': 'The other pillars',
+  'pillarPage.furtherReading': 'Further reading',
 
   // Software Development
   'sd.eyebrow': 'Capability 01',

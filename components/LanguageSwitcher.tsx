@@ -59,7 +59,7 @@ export default function LanguageSwitcher({
   if (variant === 'inline') {
     return (
       <div className='flex flex-col gap-3'>
-        <span className='flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-foreground/60'>
+        <span className='md:hidden flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-foreground/60'>
           <Globe size={14} aria-hidden='true' />
           {t('language.label')}
         </span>

@@ -5,6 +5,19 @@ import ArticlePage, {
   generateMetadata,
   generateStaticParams,
 } from './[slug]/page';
+import sitemap from '@/app/sitemap';
+import {
+  getPublishedInsight,
+  insightPath,
+  publishedInsights,
+} from '@/lib/insights';
+import { SITE_OG_IMAGE, absoluteUrl } from '@/lib/metadata';
+import {
+  ORGANIZATION_ID,
+  articleSchema,
+  breadcrumbSchema,
+  organizationSchema,
+} from '@/lib/structured-data';
 import { siteConfig } from '@/lib/site';
 
 /**
@@ -42,8 +55,12 @@ describe('/insights', () => {
 
 describe('/insights/[slug]', () => {
   it('generates a route for every published article and nothing else', () => {
-    // Empty today, because nothing is published yet.
-    expect(generateStaticParams()).toEqual([]);
+    expect(generateStaticParams()).toEqual(
+      publishedInsights.map((a) => ({ slug: a.slug })),
+    );
+    expect(generateStaticParams()).toContainEqual({
+      slug: 'custom-software-or-saas',
+    });
   });
 
   it('refuses slugs it did not generate', () => {
@@ -65,5 +82,95 @@ describe('/insights/[slug]', () => {
     expect(meta.title).toBe('Article not found');
     expect(meta.alternates?.canonical).toBeUndefined();
     expect(meta.openGraph).toBeUndefined();
+  });
+});
+
+/**
+ * The first published article, as the route actually serves it: the metadata
+ * Next.js emits, the two JSON-LD entities the page renders, and the sitemap
+ * entry. Everything here comes from the Module 3 builders — the route adds no
+ * metadata or schema of its own.
+ */
+describe('/insights/custom-software-or-saas', () => {
+  const slug = 'custom-software-or-saas';
+  const article = getPublishedInsight(slug)!;
+  const path = insightPath(slug);
+
+  it('emits the article’s own metadata', async () => {
+    const meta = await generateMetadata({ params: Promise.resolve({ slug }) });
+    const og = meta.openGraph as {
+      title?: unknown;
+      description?: unknown;
+      url?: unknown;
+      images?: unknown;
+      type?: unknown;
+      publishedTime?: unknown;
+    };
+
+    expect(meta.title).toBe(article.title);
+    expect(meta.description).toBe(article.description);
+    expect(meta.alternates?.canonical).toBe(path);
+    expect(og.title).toBe(`${article.title} — ${siteConfig.name}`);
+    expect(og.description).toBe(article.description);
+    expect(og.url).toBe(`${siteConfig.url}${path}`);
+    expect(og.images).toEqual([SITE_OG_IMAGE]);
+    expect(og.type).toBe('article');
+    expect(og.publishedTime).toBe(article.publishedAt);
+    expect((meta.twitter as { card?: string }).card).toBe(
+      'summary_large_image',
+    );
+    expect(meta.twitter?.title).toBe(og.title);
+    expect(meta.twitter?.description).toBe(article.description);
+    expect(meta.robots).toBeUndefined();
+  });
+
+  it('describes itself as one Article, published by the one Organization', () => {
+    const schema = articleSchema(article);
+
+    expect(schema['@type']).toBe('Article');
+    expect(schema.headline).toBe(article.title);
+    expect(schema.description).toBe(article.description);
+    expect(schema.datePublished).toBe(article.publishedAt);
+    expect(schema.dateModified).toBe(article.publishedAt);
+    expect(schema.url).toBe(`${siteConfig.url}${path}`);
+    expect(schema.image).toBe(absoluteUrl(SITE_OG_IMAGE));
+
+    // Publisher and author resolve to the site's single Organization node —
+    // no second organization, and no invented person.
+    for (const entity of [schema.publisher, schema.author]) {
+      expect(entity).toMatchObject({
+        '@type': 'Organization',
+        '@id': ORGANIZATION_ID,
+      });
+    }
+    expect(organizationSchema()['@id']).toBe(ORGANIZATION_ID);
+    expect(schema.person).toBeUndefined();
+  });
+
+  it('publishes a Home → Insights → Article trail', () => {
+    const crumbs = breadcrumbSchema([
+      { name: 'Home', path: '/' },
+      { name: 'Insights', path: '/insights' },
+      { name: article.title, path },
+    ]);
+    const items = crumbs.itemListElement as Record<string, unknown>[];
+
+    expect(items.map((i) => i.name)).toEqual([
+      'Home',
+      'Insights',
+      article.title,
+    ]);
+    expect(items.map((i) => i.item)).toEqual([
+      `${siteConfig.url}/`,
+      `${siteConfig.url}/insights`,
+      `${siteConfig.url}${path}`,
+    ]);
+  });
+
+  it('is submitted for indexing', () => {
+    const urls = sitemap().map((entry) => entry.url);
+    expect(urls).toContain(`${siteConfig.url}${path}`);
+    expect(urls).toContain(`${siteConfig.url}/insights`);
+    expect(urls).toContain(`${siteConfig.url}/software-development`);
   });
 });

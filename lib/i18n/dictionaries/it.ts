@@ -349,6 +349,7 @@ export const it: Dictionary = {
   'pillarPage.whereWeAre': 'A che punto siamo',
   'pillarPage.seeOurWork': 'Vedi i nostri lavori',
   'pillarPage.otherPillars': 'Gli altri pilastri',
+  'pillarPage.furtherReading': 'Per approfondire',
 
   'sd.eyebrow': 'Competenza 01',
   'sd.lede':

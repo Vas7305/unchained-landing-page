@@ -349,6 +349,7 @@ export const ru: Dictionary = {
   'pillarPage.whereWeAre': 'Где мы сейчас в этом направлении',
   'pillarPage.seeOurWork': 'Посмотреть наши работы',
   'pillarPage.otherPillars': 'Другие направления',
+  'pillarPage.furtherReading': 'Что читать дальше',
 
   'sd.eyebrow': 'Направление 01',
   'sd.lede':

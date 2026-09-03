@@ -28,7 +28,11 @@ const navLinks: { key: TranslationKey; href: string }[] = [
 
 export default function Navbar() {
   const navRef = useRef<HTMLElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  // The frame outlives `menuOpen` by the length of its closing tween, so the
+  // menu can animate out instead of vanishing on the state change.
+  const [menuMounted, setMenuMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const t = useTranslation();
 
@@ -46,6 +50,74 @@ export default function Navbar() {
     handler();
     return () => window.removeEventListener('scroll', handler);
   }, []);
+
+  useEffect(() => {
+    if (menuOpen) setMenuMounted(true);
+  }, [menuOpen]);
+
+  // With no close button on desktop, a click anywhere off the nav closes the
+  // menu — as does Escape, so the keyboard is not left without a way out.
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const onPointerDown = (e: MouseEvent | TouchEvent) => {
+      if (!navRef.current?.contains(e.target as Node)) setMenuOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('touchstart', onPointerDown, { passive: true });
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('touchstart', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!menuMounted || !panel) return;
+
+    const reduced = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+    const items = panel.querySelectorAll<HTMLElement>('[data-menu-item]');
+
+    // Opening: the frame drops out from under the bar, its rows following in a
+    // short stagger. Closing: it lifts straight back up, quicker than it came.
+    const tl = menuOpen
+      ? gsap
+          .timeline({ defaults: { ease: 'power3.out' } })
+          .fromTo(
+            panel,
+            { opacity: 0, y: -18 },
+            { opacity: 1, y: 0, duration: reduced ? 0.01 : 0.45 },
+          )
+          .fromTo(
+            items,
+            { opacity: 0, y: -10 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: reduced ? 0.01 : 0.4,
+              stagger: reduced ? 0 : 0.045,
+            },
+            reduced ? '<' : '-=0.3',
+          )
+      : gsap.timeline({ onComplete: () => setMenuMounted(false) }).to(panel, {
+          opacity: 0,
+          y: -14,
+          duration: reduced ? 0.01 : 0.26,
+          ease: 'power2.in',
+        });
+
+    return () => {
+      tl.kill();
+    };
+  }, [menuOpen, menuMounted]);
 
   return (
     <header
@@ -79,8 +151,13 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* Language stays reachable without opening the menu */}
-        <div className='flex items-center gap-1'>
+        {/* Language stays reachable without opening the menu. Once the frame is
+            open on desktop it carries its own language row, so the bar is left
+            with nothing but the logo — no duplicate switcher, no close button.
+            */}
+        <div
+          className={`flex items-center gap-1 ${menuOpen ? 'md:hidden' : ''}`}
+        >
           <LanguageSwitcher />
           <button
             type='button'
@@ -100,10 +177,14 @@ export default function Navbar() {
       </div>
 
       {/* Menu */}
-      {menuOpen && (
+      {menuMounted && (
         <nav
+          ref={panelRef}
           id='primary-menu'
           aria-label={t('nav.mainNav')}
+          // Hidden until the opening tween takes over, so the frame never
+          // flashes at full opacity before the first animated frame.
+          style={{ opacity: 0 }}
           className='glass border-t border-border w-full md:absolute md:top-0 md:left-0 md:w-1/4 md:border-t-0 md:border-r md:rounded-br-2xl'
         >
           {/* On desktop the frame reaches the top edge of the screen and the
@@ -113,19 +194,22 @@ export default function Navbar() {
               <Link
                 key={link.key}
                 href={link.href}
+                data-menu-item
                 onClick={() => setMenuOpen(false)}
                 className='text-base text-muted-foreground hover:text-foreground transition-colors py-1'
               >
                 {t(link.key)}
               </Link>
             ))}
-            <StartProjectButton
-              source='navbar'
-              onOpened={() => setMenuOpen(false)}
-              className='text-sm bg-foreground text-background font-semibold px-5 py-3 rounded-lg text-center mt-1'
-            />
+            <div data-menu-item className='flex flex-col'>
+              <StartProjectButton
+                source='navbar'
+                onOpened={() => setMenuOpen(false)}
+                className='text-sm bg-foreground text-background font-semibold px-5 py-3 rounded-lg text-center mt-1'
+              />
+            </div>
 
-            <div className='pt-5 mt-1 border-t border-border'>
+            <div data-menu-item className='pt-5 mt-1 border-t border-border'>
               <LanguageSwitcher
                 variant='inline'
                 onSelected={() => setMenuOpen(false)}

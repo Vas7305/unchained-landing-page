@@ -11,15 +11,16 @@ import {
   resolveRelated,
   type InsightArticle,
 } from './insights';
+import { getProject } from './projects';
 import { getPillar, pillars, siteConfig } from './site';
 
 /**
- * The collection is empty at this stage, so the checks that guard the content
- * itself (unique slugs, real pillar references) pass vacuously today and start
- * doing work the moment the first article is written. Everything with
- * behaviour to verify now — the publishing gate, slug resolution, the related
- * links, the metadata — is exercised against fixtures declared here. These are
- * test data, not content: nothing below is rendered, indexed or published.
+ * Two kinds of check live here. The collection-wide invariants (unique slugs,
+ * real pillar references, curated links that resolve) run over the published
+ * content itself. The behavioural checks — the publishing gate, slug
+ * resolution, the metadata builder — run against fixtures declared below,
+ * which are test data rather than content: nothing in `fixture()` is
+ * rendered, indexed or published.
  */
 
 const pillarSlugs = pillars.map((p) => p.slug) as string[];
@@ -38,9 +39,9 @@ function fixture(overrides: Partial<InsightArticle> = {}): InsightArticle {
 }
 
 describe('the insights collection', () => {
-  it('is empty until the first article is actually written', () => {
-    // Module 2 builds the architecture; publishing is a content decision.
-    expect(insights).toHaveLength(0);
+  it('holds the articles that have actually been written', () => {
+    // Publishing is a content decision; the architecture just carries it.
+    expect(insights.length).toBeGreaterThan(0);
   });
 
   it('has unique slugs', () => {
@@ -72,8 +73,89 @@ describe('the insights collection', () => {
     }
   });
 
-  it('publishes nothing, so /insights renders its empty state', () => {
-    expect(publishedInsights).toHaveLength(0);
+  it('gives /insights something to render, newest first', () => {
+    // InsightsIndex maps over exactly this list, so a published article
+    // reaches the index without anything being registered by hand.
+    expect(publishedInsights.length).toBe(insights.filter(isPublished).length);
+    const dates = publishedInsights.map((a) => a.publishedAt);
+    expect([...dates].sort().reverse()).toEqual(dates);
+  });
+
+  it('names only case studies that exist', () => {
+    for (const article of insights) {
+      if (article.caseStudySlug) {
+        expect(getProject(article.caseStudySlug)).toBeDefined();
+      }
+    }
+  });
+});
+
+/**
+ * The first published article. These assert the content, not the plumbing:
+ * that the piece is complete enough to publish and points where it claims to.
+ */
+describe('Custom Software or SaaS? A Framework for Deciding', () => {
+  const article = getPublishedInsight('custom-software-or-saas')!;
+
+  it('resolves from its slug', () => {
+    expect(article).toBeDefined();
+    expect(article.slug).toBe('custom-software-or-saas');
+    expect(insightPath(article.slug)).toBe('/insights/custom-software-or-saas');
+  });
+
+  it('is published, not a draft', () => {
+    expect(article.draft).toBeUndefined();
+    expect(isPublished(article)).toBe(true);
+  });
+
+  it('sits under the software development pillar', () => {
+    expect(article.pillar).toBe('software-development');
+    expect(getPillar(article.pillar).title).toBe('Software Development');
+    expect(insightsForPillar('software-development')).toContain(article);
+  });
+
+  it('populates every field the page and the schema read', () => {
+    expect(article.title).toBe('Custom Software or SaaS? A Framework for Deciding');
+    expect(article.description.length).toBeGreaterThan(80);
+    expect(article.lede.length).toBeGreaterThan(80);
+    expect(article.publishedAt).toBe('2026-09-02');
+    // Never revised, so no modification date is claimed.
+    expect(article.updatedAt).toBeUndefined();
+  });
+
+  it('carries an argument rather than a stub', () => {
+    expect(article.sections.length).toBeGreaterThanOrEqual(7);
+    for (const section of article.sections) {
+      expect(section.heading.length).toBeGreaterThan(10);
+      expect(section.body.length).toBeGreaterThan(0);
+      for (const paragraph of section.body) {
+        expect(paragraph.split(' ').length).toBeGreaterThan(20);
+      }
+    }
+
+    const words = article.sections
+      .flatMap((s) => [...s.body, ...(s.points ?? [])])
+      .join(' ')
+      .split(/\s+/).length;
+    expect(words).toBeGreaterThan(1800);
+    expect(words).toBeLessThan(2800);
+  });
+
+  it('rests on a case study that exists and is published', () => {
+    expect(article.caseStudySlug).toBe('tancerca');
+    expect(getProject('tancerca')?.detailed).toBe(true);
+  });
+
+  it('curates no further reading while it is the only article', () => {
+    // A related list is editorial. There is nothing honest to put in it yet.
+    expect(resolveRelated(article)).toEqual([]);
+  });
+
+  it('takes the site OG image rather than inventing an asset', () => {
+    expect(article.ogImage).toBeUndefined();
+    expect(buildInsightMetadata(article).openGraph?.images).toEqual([
+      '/opengraph-image',
+    ]);
   });
 });
 
@@ -117,6 +199,15 @@ describe('resolveRelated', () => {
 });
 
 describe('insightsForPillar', () => {
+  it('gives the pillar page its reading list', () => {
+    // What PillarPage renders: the relationship is the article's `pillar`
+    // field, not a list maintained on the page.
+    expect(insightsForPillar('software-development').map((a) => a.slug)).toContain(
+      'custom-software-or-saas',
+    );
+    expect(insightsForPillar('growth-systems')).toEqual([]);
+  });
+
   it('selects by the article’s primary pillar', () => {
     const pool = [
       fixture({ slug: 'a', pillar: 'software-development' }),

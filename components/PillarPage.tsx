@@ -6,6 +6,7 @@ import PageHeader from '@/components/PageHeader';
 import StartProjectButton from '@/components/StartProjectButton';
 import ScrollDepth from '@/components/ScrollDepth';
 import { pillars } from '@/lib/site';
+import { insightPath, insightsForPillar } from '@/lib/insights';
 import type { PillarContent } from '@/lib/pillar-content';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
 import type { ListKey, TranslationKey } from '@/lib/i18n/dictionaries';
@@ -36,6 +37,9 @@ export default function PillarPage({ content }: { content: PillarContent }) {
   const { t, tList } = useLanguage();
   const siblings = pillars.filter((p) => p.slug !== content.slug);
   const { prefix, offerings } = PILLAR_KEYS[content.slug];
+  // Articles find their pillar page through the model, not through a list
+  // maintained here: `pillar` on the article is the only relationship.
+  const articles = insightsForPillar(content.slug);
 
   /** Shorthand for this pillar's own namespace. */
   const p = (suffix: string) => t((prefix + '.' + suffix) as TranslationKey);
@@ -177,6 +181,46 @@ export default function PillarPage({ content }: { content: PillarContent }) {
           </div>
         </div>
       </section>
+
+      {/* Writing under this pillar. Rendered only when something is
+          published, so the page never advertises an empty reading list. */}
+      {articles.length > 0 && (
+        <section
+          className='px-6 pb-16'
+          aria-labelledby='pillar-reading-heading'
+        >
+          <div className='max-w-5xl mx-auto'>
+            <h2
+              id='pillar-reading-heading'
+              className='text-xs uppercase tracking-widest text-muted-foreground mb-6 font-medium'
+            >
+              {t('pillarPage.furtherReading')}
+            </h2>
+            <ul className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
+              {articles.map((article) => (
+                <li key={article.slug}>
+                  <Link
+                    href={insightPath(article.slug)}
+                    className='group glow-border rounded-2xl bg-card p-6 flex flex-col gap-2 h-full hover:border-foreground/25 hover:bg-accent/25 transition-colors duration-300'
+                  >
+                    <span className='text-base font-semibold text-foreground flex items-start gap-2'>
+                      {article.title}
+                      <ArrowRight
+                        size={14}
+                        aria-hidden='true'
+                        className='mt-1 shrink-0 text-muted-foreground group-hover:translate-x-1 transition-transform duration-200'
+                      />
+                    </span>
+                    <span className='text-sm text-muted-foreground leading-relaxed'>
+                      {article.description}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
 
       {/* Sibling pillars */}
       <section
