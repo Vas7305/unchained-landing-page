@@ -30,5 +30,15 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "//exclude": [
+    "supabase/functions holds Deno code, not Next.js code. It imports from",
+    "https:// URLs and calls the Deno global, neither of which resolves under",
+    "this tsconfig — `next build` runs tsc over **/*.ts and failed with",
+    "\"Cannot find name 'Deno'\" the moment the edge function landed in this",
+    "repo. It is deployed by the Supabase CLI, which type-checks it with Deno's",
+    "own toolchain, so excluding it here removes a false failure rather than a",
+    "real check.",
+    "out/ is build output that can contain emitted .ts from a previous run."
+  ],
+  "exclude": ["node_modules", "supabase/functions", "out"]
 }

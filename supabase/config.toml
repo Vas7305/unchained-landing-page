@@ -1,0 +1,127 @@
+# Supabase configuration for Unchained Business.
+#
+# This directory is a Supabase project that belongs to Unchained Business and
+# to nothing else. It is not a copy of TanCerca's config and must not become
+# one: the whole point of the separation is that changing an auth setting here
+# cannot change one over there.
+#
+# `project_id` is the local/dev identifier the CLI uses for container names —
+# it is NOT the remote project ref. The remote ref is established once with
+#
+#     supabase link --project-ref <the-new-ref>
+#
+# and then lives in supabase/.temp/, which .gitignore keeps out of the repo.
+project_id = "unchained-business"
+
+[db]
+# Matches the platform version Supabase is provisioning — TanCerca's project
+# reports 17.6.1.105, and a project created now gets the same major. Verify in
+# Studio under Project Settings -> Database -> Infrastructure and correct this
+# line if it differs; `supabase start` builds a local database from it, and a
+# mismatch means local and remote disagree about what the SQL means.
+major_version = 17
+
+[auth]
+# Where an invite or a password-reset link is allowed to land. GoTrue refuses
+# any redirect that does not match, so an invite mail that points somewhere
+# unlisted silently dead-ends on /login with no token.
+#
+# site_url is the PANEL, not the marketing site: every email this project sends
+# is an ACCESS email for a commercial or a specialist. The public site never
+# authenticates anybody — it calls three RPCs with the anon key and that is the
+# entire surface it has.
+#
+# ─── One panel, many databases ────────────────────────────────────────────
+# The panel these links point at is the SHARED command centre — the one admin
+# app that fronts every property. Its source is D:\Tancerca\admin-panel (a
+# historical address; the code is cross-property and the directory is not). It
+# is not an Unchained-only build and deliberately never was: see
+# docs/database-isolation.md §5.
+#
+# It moved from admin.tancercadeti.com to admin.unchainedbusiness.com on
+# 2026-09-05 — a command centre for three businesses should not carry one of
+# their names, and Unchained is the agency that administers the other two, so
+# its domain is the coherent home for the operator's console.
+#
+# The OLD hostname must keep resolving to the same deployment. TanCerca's own
+# password recovery and its create-affiliate invitations still name it, and
+# both land on this panel; retiring the old domain before those are repointed
+# would break TanCerca silently.
+#
+# That the panel is shared is not a hole in the isolation. It holds a separate
+# Supabase client per property, each with its own session under its own
+# localStorage key (supabase-js derives `sb-<project-ref>-auth-token` from the
+# URL, so the two never collide). No server anywhere holds a key that spans two
+# properties. What is shared is the application code and the browser tab — not
+# the data, and not the credentials.
+#
+# ─── The list must cover the QUERY STRING, not just the path ──────────────
+# create-unchained-member sends people to `/login?property=unchained` — the
+# parameter is what tells the panel which project minted the token, and without
+# it the wrong Supabase client races to redeem a single-use invite (see
+# admin-panel/src/platform/connections.ts).
+#
+# GoTrue matches a redirect against these entries and refuses anything that
+# does not match, falling back to site_url. An entry of `.../login` alone does
+# NOT cover `.../login?property=unchained`, so the invitation would silently
+# land on the wrong page with no token. The `/**` wildcards below cover the
+# panel's own routes with their parameters; the bare paths are kept so that
+# links sent before this existed still resolve.
+site_url = "https://admin.unchainedbusiness.com"
+additional_redirect_urls = [
+  "https://admin.unchainedbusiness.com/**",
+  "https://admin.unchainedbusiness.com/login",
+  "https://admin.unchainedbusiness.com/reset-password",
+  "http://localhost:5173/**",
+  "http://localhost:5173/login",
+  "http://localhost:5173/reset-password",
+]
+
+# How long an ACCESS TOKEN lives — one hour, which is Supabase's default and is
+# about how long a session stays valid before the refresh token renews it.
+#
+# This is NOT the lifetime of an invitation link, and an earlier comment here
+# claimed it was ("24 hours, matching what the invitation email tells the
+# recipient"). That was wrong twice over: 3600 seconds is one hour, not a day,
+# and the setting governs sessions rather than emailed links. Anybody who
+# trusted it would have come here to change the wrong number.
+#
+# The invitation link's lifetime is the Email OTP Expiration, a separate
+# setting (Authentication -> Emails in the dashboard). Its default is 24 hours,
+# which is what create-unchained-member's email already promises — "Este enlace
+# caduca en 24 horas" — so the two agree as shipped. If that default is ever
+# shortened, change the sentence in the function to match.
+jwt_expiry = 3600
+enable_signup = false
+
+[auth.email]
+# Signup is closed and stays closed. Every account in this project is created
+# by create-unchained-member under a super_admin, so there is no path where a
+# stranger signs themselves up as a specialist.
+enable_signup = false
+enable_confirmations = true
+double_confirm_changes = true
+
+# ─── Sending mail ──────────────────────────────────────────────────────────
+# Unchained's own sender, on Unchained's own domain, through Unchained's own
+# API key. This is as much a part of the isolation as the schema: an access
+# link for an Unchained specialist arriving from a tancerca.com address tells
+# the recipient the two businesses are one system, which is the thing being
+# undone.
+#
+# Configure the SMTP credentials in the dashboard rather than here
+# (Authentication -> Emails -> SMTP Settings). They are secrets and this file
+# is committed.
+#
+# The invitation email itself does NOT go through GoTrue's templates — the edge
+# function renders it and sends it via Resend, so that the roster, the rate and
+# the wording live in one place. What GoTrue sends is password recovery and
+# email-change confirmation, which is why the sender still has to be right.
+
+[functions.create-unchained-member]
+# Left at the default. The gateway verifies the JWT and still forwards the
+# Authorization header, so the function can read WHO is inviting for its
+# admin_logs entry — and it re-checks super_admin itself regardless, because
+# everything after that check runs as service_role, which no RLS policy
+# governs. Two gates, and the inner one is the one that matters.
+verify_jwt = true

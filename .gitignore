@@ -36,6 +36,20 @@ yarn-error.log*
 # commercial routing interface needs and contains no secret.
 !.env.example
 
+# database isolation cutover
+# Connection strings for both projects, passwords included. The `.env*` rule
+# above does not catch this one — it matches names that START with .env, and
+# this ends with it.
+/scripts/isolation/cutover.env
+# export-from-tancerca.sh writes every lead, every contact and every specialist
+# here as plain SQL — real names, addresses and phone numbers. It is a migration
+# artefact with a lifetime of one cutover, not a file that belongs in history.
+/scripts/isolation/out/
+
+# supabase CLI local state (holds the linked project ref and pooler URL)
+/supabase/.temp/
+/supabase/.branches/
+
 # vercel
 .vercel
 
