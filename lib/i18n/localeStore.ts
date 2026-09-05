@@ -4,13 +4,12 @@ import {
   isLocale,
   type Locale,
 } from './config';
+import { countryToLanguage } from './languageDetection/countryLanguage';
+import { readCountry, requestCountry } from './languageDetection/countrySignal';
 import {
-  countryToLanguage,
   detectLanguage,
-  readCountry,
-  requestCountry,
   type LanguageSource,
-} from './languageDetection';
+} from './languageDetection/detectInitialLanguage';
 
 /**
  * The locale lives in an external store rather than component state so that

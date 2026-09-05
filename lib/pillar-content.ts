@@ -179,5 +179,3 @@ export const pillarContent: Record<string, PillarContent> = {
       'Client acquisition systems are where Unchained Business started, and they remain a core capability. We are applying them to our own company first — this site, its instrumentation and the journey log are that system running on ourselves, in public.',
   },
 };
-
-export const pillarSlugs = Object.keys(pillarContent);

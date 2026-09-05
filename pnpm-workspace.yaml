@@ -6,3 +6,30 @@ allowBuilds:
   msw: true
   sharp: true
   unrs-resolver: true
+
+# --- Supply-chain hardening: WANTED, NOT YET ADOPTABLE ------------------------
+# React Doctor flags this file for missing `minimumReleaseAge` and `trustPolicy`
+# (rule react-doctor/require-pnpm-hardening, Security). Both are the right thing
+# to want. Neither can be turned on against the CURRENT lockfile: each one makes
+# `pnpm install --frozen-lockfile` exit 1, which is what Vercel runs, so enabling
+# either would break every deploy. Verified on 2026-09-05, not assumed.
+#
+#   minimumReleaseAge: 10080     # 7 days, in minutes
+#     -> [MINIMUM_RELEASE_AGE_VIOLATION] on next@16.3.4 and ~23 transitive
+#        packages. Next was upgraded 2026-09-04 (508a666), so the lockfile is
+#        full of releases younger than a week. This one ages out on its own:
+#        enable it at a moment when nothing has just been bumped.
+#        Ongoing cost: upgrading a package on release day then needs an override.
+#
+#   trustPolicy: no-downgrade
+#     -> [ERR_PNPM_TRUST_DOWNGRADE] on 3 entries, reported as "possible package
+#        takeover": eslint-import-resolver-typescript@3.10.1, semver@6.3.1,
+#        undici-types@6.21.0. These are old pinned TRANSITIVE versions that
+#        predate npm provenance attestations, so this is very likely the rule's
+#        known false-positive shape rather than a real compromise — but "very
+#        likely" is not a basis for waving through a takeover warning. Somebody
+#        has to look at those three, then either `pnpm clean --lockfile &&
+#        pnpm install` to resolve them fresh, or record why they are accepted.
+#
+# Do not paste either line in without re-running `pnpm install --frozen-lockfile`
+# first. That is the whole lesson of this comment.

@@ -59,7 +59,3 @@ export function track(event: AnalyticsEvent, props: Props = {}): void {
   w.umami?.track(event, props);
 }
 
-/** Convenience for JSX: `onClick={trackClick('start_project_click', { location: 'hero' })}` */
-export function trackClick(event: AnalyticsEvent, props: Props = {}) {
-  return () => track(event, props);
-}

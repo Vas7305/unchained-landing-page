@@ -223,7 +223,3 @@ export const detailedProjects = projects.filter((p) => p.detailed);
 export function getProject(slug: string): Project | undefined {
   return projects.find((p) => p.slug === slug);
 }
-
-export function countByStatus(status: ProjectStatus): number {
-  return projects.filter((p) => p.status === status).length;
-}

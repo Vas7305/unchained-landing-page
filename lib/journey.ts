@@ -56,5 +56,3 @@ export const journeyEntries: JourneyEntry[] = [
       'Ship the next project from development to live, and publish our first client engagement with real, measured outcomes — reported here whether or not the numbers flatter us.',
   },
 ];
-
-export const latestEntry = journeyEntries[0];
