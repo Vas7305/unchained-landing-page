@@ -25,18 +25,34 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 //
 // ─── What it does, in order ───────────────────────────────────────────────
 //   1. authorize the caller as super_admin (public.roles, service-role read)
-//   2. resolve the auth user for the email — invite if new, magic link if not
+//   2. resolve the auth user for the email — invite if new, recovery link if not
 //   3. upsert the roster row (commercial_contacts | unchained_specialists)
 //      and link it to that user
 //   4. grant an ACTIVE product_memberships row on 'unchained'
 //   5. email the link, non-fatally
 //
-// ─── Why the link lands on /login ─────────────────────────────────────────
-// The panel's login page detects an invite or magic-link token in the URL
-// hash, offers "set your password" for a new account, and then asks the
-// database which products the person holds. A member invited here holds
-// 'unchained', which is the only product this database knows about, so the
-// answer is never ambiguous.
+// ─── Why nobody gets a way in without choosing a password ─────────────────
+// A new address gets an INVITE. It lands on the panel's /login page, which
+// reads `type=invite` from the URL hash and offers "set your password" before
+// routing anywhere.
+//
+// An address that already exists used to get a MAGIC LINK — and a magic link
+// IS a session. /login reads `type=magiclink` and sends the person straight to
+// their dashboard, still holding whatever password the account had, which for
+// somebody only ever invited is none. That is not an access link, it is a
+// bypass: the recipient never chooses a credential, so the only way back in is
+// another email from an operator.
+//
+// So an existing address gets a RECOVERY link instead, landing on
+// /reset-password — the panel's dedicated "choose a new password" page. Same
+// destination in spirit as the invite (pick a password, then be routed by
+// role), reached by the one link type GoTrue offers for an account that
+// already exists. It is what a TanCerca affiliate goes through to set a
+// password, and it is the whole point of sending the link at all.
+//
+// Either way the panel finishes by asking the database which products the
+// person holds. A member invited here holds 'unchained', the only product this
+// database knows about, so the answer is never ambiguous.
 //
 // ─── Why service_role is required here and RLS is not enough ──────────────
 // Creating an auth user, generating an invite link and inserting a membership
@@ -95,6 +111,13 @@ interface CreateMemberPayload {
 // alone.
 const ADMIN_PANEL_URL = Deno.env.get("ADMIN_PANEL_URL") || "https://admin.unchainedbusiness.com"
 const REDIRECT_PATH = Deno.env.get("UNCHAINED_REDIRECT_PATH") || "/login"
+// Where an account that ALREADY EXISTS is sent to choose a new password.
+// It is not /login on purpose: that page only raises its set-password form for
+// `type=invite`, and the panel deliberately keeps recovery on a page of its own
+// so a reset link opened in a second tab cannot flip the login form
+// (admin-panel/src/pages/ResetPasswordPage.tsx). That page reads the same
+// `?property=` parameter and routes by role once the password is saved.
+const PASSWORD_SETUP_PATH = Deno.env.get("UNCHAINED_PASSWORD_SETUP_PATH") || "/reset-password"
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")
 const FROM_EMAIL = Deno.env.get("FROM_EMAIL") || "acceso@unchainedbusiness.com"
 
@@ -168,9 +191,13 @@ async function sendInviteEmail(opts: {
 
   const greeting = opts.name ? `Hola ${opts.name}` : "Hola"
   const roleLabel = opts.kind === "commercial" ? "comercial" : "especialista"
-  const buttonLabel = opts.isExistingUser ? "Acceder al panel" : "Activar mi cuenta"
+  // Both branches end on a password form — a new account at /login, an
+  // existing one at /reset-password — so neither may promise a one-click way
+  // in. The copy has to match the link, or the recipient reads a broken
+  // promise instead of the step they were asked to take.
+  const buttonLabel = opts.isExistingUser ? "Crear mi contraseña" : "Activar mi cuenta"
   const actionText = opts.isExistingUser
-    ? "Pulsa el botón para entrar en tu panel:"
+    ? "Pulsa el botón para crear tu nueva contraseña y entrar en tu panel:"
     : "Pulsa el botón para activar tu cuenta y entrar en tu panel:"
   const whatYouSee =
     opts.kind === "commercial"
@@ -249,7 +276,7 @@ async function sendInviteEmail(opts: {
 </html>`
 
   const subject = opts.isExistingUser
-    ? "Tu acceso al panel — Unchained Business"
+    ? "Crea tu contraseña — Unchained Business"
     : "Activa tu cuenta — Unchained Business"
 
   const res = await fetch("https://api.resend.com/emails", {
@@ -350,20 +377,26 @@ serve(async (req) => {
     // `?property=unchained` is what settles it: exactly one client is
     // constructed with detectSessionInUrl, and it is this project's. See
     // admin-panel/src/platform/connections.ts (landingPropertyFromSearch) and
-    // its test suite, and docs/database-isolation.md §5.
+    // its test suite, and docs/database-isolation.md §5. A recovery token is
+    // single-use in exactly the same way, so /reset-password needs the
+    // parameter every bit as much as /login does.
     //
-    // It must survive a REDIRECT_PATH that already carries a query string, so
-    // it is appended rather than concatenated.
-    const acceptUrl = (() => {
-      const url = new URL(`${ADMIN_PANEL_URL}${REDIRECT_PATH}`)
+    // It must survive a path that already carries a query string, so the
+    // parameter is appended rather than concatenated.
+    const panelUrl = (path: string) => {
+      const url = new URL(`${ADMIN_PANEL_URL}${path}`)
       url.searchParams.set("property", "unchained")
       return url.toString()
-    })()
+    }
+    const acceptUrl = panelUrl(REDIRECT_PATH)
+    const passwordSetupUrl = panelUrl(PASSWORD_SETUP_PATH)
 
     // ─── 3. Resolve the auth user ─────────────────────────────────────────
-    // Existing address → a magic link into the panel they already have.
     // New address → an invite, which creates the user and lets them set a
-    // password on arrival. Both land on the same /login page.
+    // password on arrival at /login.
+    // Existing address → a recovery link to /reset-password, so that person
+    // chooses a password as well. Never a magic link: that signs them in
+    // without one. See the note at the top of this file.
     //
     // Ask GoTrue to create the account and read its answer, rather than
     // deciding in advance whether the address is new. See the note on
@@ -381,12 +414,13 @@ serve(async (req) => {
     if (invited.error && isAlreadyRegistered(invited.error)) {
       // The address already has an Unchained account. Re-inviting it is the
       // documented behaviour of this function: link the existing login to the
-      // roster row and send them a way in. It is not a duplicate-email error.
+      // roster row and send them a way to set a password. It is not a
+      // duplicate-email error.
       isExistingUser = true
       const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-        type: "magiclink",
+        type: "recovery",
         email,
-        options: { redirectTo: acceptUrl },
+        options: { redirectTo: passwordSetupUrl },
       })
       if (linkError || !linkData?.user) {
         return json({ error: linkError?.message ?? "Failed to generate link" }, 400)

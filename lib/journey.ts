@@ -23,17 +23,6 @@ export type JourneyEntry = {
   nextMilestone: string;
 };
 
-export const currentStage = {
-  label: 'Stage: Early',
-  since: 'August 2026',
-  facts: [
-    { value: '~8 mo', label: 'Since the domain was established' },
-    { value: '1', label: 'Completed flagship product' },
-    { value: '5', label: 'Projects in development' },
-    { value: '5 yr', label: 'Horizon we are building against' },
-  ],
-};
-
 export const journeyEntries: JourneyEntry[] = [
   {
     id: '2026-08',

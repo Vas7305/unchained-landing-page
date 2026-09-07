@@ -31,5 +31,22 @@ allowBuilds:
 #        has to look at those three, then either `pnpm clean --lockfile &&
 #        pnpm install` to resolve them fresh, or record why they are accepted.
 #
+# ─── Re-verified 2026-09-07, both still fail ──────────────────────────────
+# `pnpm install --frozen-lockfile` with BOTH lines enabled exits 1 with 15
+# failed entries. Measured, not assumed:
+#
+#   12x MINIMUM_RELEASE_AGE_VIOLATION  all of them next@16.3.4 and its @next/*
+#       platform binaries. Newest publish 2026-08-31T19:56:52Z against a cutoff
+#       of 2026-08-31T18:27:16Z -- ninety minutes short of seven days. This one
+#       really does age out on its own, and it ages out TODAY. Re-run the check
+#       later in the day and `minimumReleaseAge: 10080` should go in clean, as
+#       long as nothing has been bumped in the meantime.
+#
+#    3x TRUST_DOWNGRADE               exactly the three named below, unchanged:
+#       eslint-import-resolver-typescript@3.10.1, semver@6.3.1,
+#       undici-types@6.21.0. These do not age out. Somebody has to either
+#       resolve them fresh (`pnpm clean --lockfile && pnpm install`) or record
+#       why they are accepted.
+#
 # Do not paste either line in without re-running `pnpm install --frozen-lockfile`
 # first. That is the whole lesson of this comment.

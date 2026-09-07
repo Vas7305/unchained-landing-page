@@ -1,75 +1,94 @@
-# React Doctor — triage
+# React Doctor - triage
 
-The repo's stop hook runs React Doctor and reports 8 findings. None is a
-regression from the database-isolation work; they are re-reported on every run
-because the hook falls back to a full scan when it finds no feature branch.
+Reviewed and acted on 2026-09-07. The report went from **8 findings to 3**, and
+the three that remain are decisions rather than omissions.
 
-This file exists so the triage is not re-derived from scratch each time. The
-hook asks for GitHub issues for confirmed-but-deferred findings; `gh` is not
-installed on this machine, so the record lives here instead.
+The hook asks for GitHub issues on anything deferred; `gh` is not installed on
+this machine, so the record lives here.
 
-Last reviewed: 2026-09-05.
+## Fixed
 
-| rule | location | verdict | confidence |
-|---|---|---|---|
-| `deslop/unused-export` | `lib/commercial/countryDetection.ts:144` | pre-existing, untouched by this work | high |
-| `deslop/unused-export` | `lib/i18n/LanguageProvider.tsx:87` | pre-existing, untouched | high |
-| `deslop/unused-export` | `lib/journey.ts:26` | pre-existing, untouched | high |
-| `deslop/unused-file` | `lib/utils.ts` | **true positive** — see below | high |
-| `deslop/unused-dependency` | `package.json` (`class-variance-authority`) | **true positive** — same cause | high |
-| `deslop/unused-file` | `supabase/functions/create-unchained-member/index.ts` | **false positive** — see below | high |
-| `react-doctor/require-pnpm-hardening` ×2 | `pnpm-workspace.yaml` | pre-existing, already answered in that file | high |
+Three genuinely dead exports, removed. Nothing referenced them - not the app,
+not the tests:
 
----
+- `resetCountryDetection` in `lib/commercial/countryDetection.ts`. Its own
+  comment called it a test seam; no test used it.
+- `useTranslationList` in `lib/i18n/LanguageProvider.tsx`.
+- `currentStage` in `lib/journey.ts`. Hardcoded English content on an i18n'd
+  site, superseded by `journeyEntries`, which is what the page renders.
 
-## `supabase/functions/…` is a false positive
+`npm run build`, 252 tests and `pnpm install --frozen-lockfile` all pass.
 
-The rule looks for a module nothing imports. Nothing does, and nothing should:
-it is a Deno Edge Function, a **deployment entry point**, invoked over HTTPS by
-the admin panel. It is live on Unchained's project (`create-unchained-member`,
-`ACTIVE v3`) and is the only path that creates a commercial or a specialist.
+## Not fixed, and why
 
-Deleting it on this rule's advice would remove the invitation system.
+| rule | location | verdict |
+|---|---|---|
+| `deslop/duplicate-jsx-subtree` | `components/InsightArticleView.tsx:183` | won't fix - different concepts |
+| `react-doctor/require-pnpm-hardening` | `pnpm-workspace.yaml` (`minimumReleaseAge`) | blocked, but only for ~90 more minutes |
+| `react-doctor/require-pnpm-hardening` | `pnpm-workspace.yaml` (`trustPolicy`) | needs a human decision on 3 packages |
 
-Note that `tsconfig.json` already excludes `supabase/functions` — for a
-different and unrelated reason: `next build` type-checks `**/*.ts` and cannot
-compile Deno source (`Cannot find name 'Deno'`). That exclusion is not what
-makes React Doctor flag the file, and reversing it would break the build.
+### `duplicate-jsx-subtree`
 
-## `lib/utils.ts` and the unused dependency are one finding
+The related-reading list in `InsightArticleView` and the pillars list in
+`InsightsIndex` share a card style: `group glow-border rounded-2xl bg-card p-6
+flex flex-col gap-2 h-full ...`. They are not the same component.
 
-`lib/utils.ts` exports only `cn()`. Nothing in the repo references `cn(`,
-`@/lib/utils`, `clsx` or `twMerge`, and there is no `components/ui` directory —
-this is orphaned shadcn scaffolding that arrived with `components.json` and was
-never used.
+|  | related reading | pillars |
+|---|---|---|
+| grid | `sm:grid-cols-2` | `sm:grid-cols-3` |
+| number | none | yes |
+| arrow | `items-start`, `mt-1` | `items-center` |
+| target | an article | a pillar page |
 
-**Deleting the file alone makes the report worse.** `clsx` and `tailwind-merge`
-are imported by nothing else, so removing `lib/utils.ts` turns one
-`unused-dependency` finding into three.
+Extracting one component would take four props to reconcile two things that are
+not the same UI concept, and the two will drift apart rather than together. The
+rule's own guidance covers this: *"Keep them separate when the resemblance is
+incidental or the variants are likely to evolve independently."*
 
-The coherent fix is to remove the whole scaffold in one change:
+If the duplication ever does hurt, the cheaper move is a shared class constant
+for the card chrome, not a shared component.
 
-- `lib/utils.ts`
-- `components.json`
-- `class-variance-authority`, `clsx`, `tailwind-merge` from `package.json`
-- regenerate `pnpm-lock.yaml`
+### `require-pnpm-hardening`
 
-### Why it is deferred
+Re-verified by actually enabling both lines and running what Vercel runs.
+`pnpm install --frozen-lockfile` exits 1 with 15 failed entries:
 
-It touches `pnpm-lock.yaml`, and this repo deploys on Vercel with
-`--frozen-lockfile` — a lockfile that disagrees with `package.json` fails the
-deploy rather than degrading. That is a small risk, but it is an *unrelated*
-risk being taken during an active production cutover, for a cleanup with no
-user-visible benefit.
+- **12x `MINIMUM_RELEASE_AGE_VIOLATION`** - all `next@16.3.4` and its `@next/*`
+  binaries. Newest publish `2026-08-31T19:56:52Z`, cutoff
+  `2026-08-31T18:27:16Z`: **ninety minutes short of seven days.** This one ages
+  out on its own, today. Enable `minimumReleaseAge: 10080` once it does, as long
+  as nothing has just been bumped.
+- **3x `TRUST_DOWNGRADE`** - `eslint-import-resolver-typescript@3.10.1`,
+  `semver@6.3.1`, `undici-types@6.21.0`. Old pinned transitives that predate npm
+  provenance attestations. These never age out. Either resolve them fresh
+  (`pnpm clean --lockfile && pnpm install`) or record why they are accepted -
+  and that is a call for the code owner, not a lint fix.
 
-Do it as its own change once the cutover is finished: delete, `pnpm install`,
-then confirm `npm run build` and `pnpm install --frozen-lockfile` both pass
-before pushing.
+The workspace file carries the same finding, dated, where somebody changing it
+would look.
 
-## `require-pnpm-hardening`
+## A false positive worth remembering
 
-`pnpm-workspace.yaml` carries a long comment, written and dated when the rule
-was first raised, explaining that `minimumReleaseAge` and `trustPolicy` are both
-wanted and that each currently makes `pnpm install --frozen-lockfile` exit 1 —
-which is what Vercel runs. The comment records what was verified, when, and
-what has to happen before either can be enabled. Nothing to add here.
+`supabase/functions/create-unchained-member/index.ts` was reported as an unused
+file. It is a Deno Edge Function - a deployment entry point invoked over HTTPS,
+live on Unchained's project as `ACTIVE v3`, and the only path that creates a
+commercial or a specialist. Nothing imports it and nothing should.
+
+It no longer appears in the report, but the reasoning is kept because the rule
+will flag it again the moment the surrounding findings shift.
+
+## What was investigated and deliberately left alone
+
+`lib/utils.ts` (`cn()`) and `class-variance-authority` / `clsx` /
+`tailwind-merge` look dead, and today they are. They were removed and then put
+back, because removing them was wrong twice over:
+
+1. **shadcn is half-adopted, not abandoned.** `app/globals.css` line 3 is
+   `@import "shadcn/tailwind.css"`, the file carries 17 theme variables, and the
+   build emits ~75 KB of CSS containing 32 of them. The styling layer is live.
+   `cn()` and those three packages are the half every generated component needs;
+   the first `npx shadcn add` pulls them all straight back.
+2. **Deleting `lib/utils.ts` breaks React Doctor itself.** With the file gone,
+   every run ends in *"Results are incomplete: maintainability checks failed"* -
+   with or without `components.json`. Restoring it brings the checks back.
+   Trading a working analyzer for a lower finding count is a bad deal.

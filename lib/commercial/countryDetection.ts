@@ -139,8 +139,3 @@ export function detectCountry(): Promise<CountryDetection> {
 
   return detection;
 }
-
-/** Test seam. Never called by the app. */
-export function resetCountryDetection(): void {
-  detection = null;
-}

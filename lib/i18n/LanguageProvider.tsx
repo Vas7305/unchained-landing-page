@@ -82,8 +82,3 @@ export function useLanguage(): LanguageContextValue {
 export function useTranslation() {
   return useLanguage().t;
 }
-
-/** Shorthand for components that only need list-valued strings. */
-export function useTranslationList() {
-  return useLanguage().tList;
-}

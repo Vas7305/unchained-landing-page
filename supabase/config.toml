@@ -56,17 +56,21 @@ major_version = 17
 # the data, and not the credentials.
 #
 # ─── The list must cover the QUERY STRING, not just the path ──────────────
-# create-unchained-member sends people to `/login?property=unchained` — the
-# parameter is what tells the panel which project minted the token, and without
-# it the wrong Supabase client races to redeem a single-use invite (see
-# admin-panel/src/platform/connections.ts).
+# create-unchained-member sends people to `/login?property=unchained` (a new
+# account, invite token) or `/reset-password?property=unchained` (an account
+# that already exists, recovery token — it sets a password there rather than
+# being signed straight in). The parameter is what tells the panel which
+# project minted the token, and without it the wrong Supabase client races to
+# redeem a single-use one (see admin-panel/src/platform/connections.ts).
 #
 # GoTrue matches a redirect against these entries and refuses anything that
 # does not match, falling back to site_url. An entry of `.../login` alone does
 # NOT cover `.../login?property=unchained`, so the invitation would silently
 # land on the wrong page with no token. The `/**` wildcards below cover the
 # panel's own routes with their parameters; the bare paths are kept so that
-# links sent before this existed still resolve.
+# links sent before this existed still resolve. Both destinations are already
+# covered — do not remove /reset-password thinking it belongs to the panel's
+# own "forgot password" flow alone; a re-invitation lands there too.
 site_url = "https://admin.unchainedbusiness.com"
 additional_redirect_urls = [
   "https://admin.unchainedbusiness.com/**",

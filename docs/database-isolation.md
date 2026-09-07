@@ -107,11 +107,32 @@ answer, rather than deciding in advance:
 
 ```ts
 const invited = await supabaseAdmin.auth.admin.generateLink({ type: "invite", … })
-if (invited.error && isAlreadyRegistered(invited.error)) { /* magic link */ }
+if (invited.error && isAlreadyRegistered(invited.error)) { /* recovery link */ }
 ```
 
 One round trip instead of one per fifty accounts, and it cannot go stale between
 the read and the write.
+
+### 1.2.1 The fallback is a recovery link, not a magic link
+
+The existing-address branch originally generated `type: "magiclink"`, which is
+what `create-affiliate` still does. A magic link **is a session**: the panel's
+login page reads `type=magiclink` from the URL hash and routes the person
+straight to their dashboard, so a commercial or a specialist invited this way
+arrived inside the panel having never chosen a password — and, having none,
+could not get back in without another email from an operator.
+
+It now generates `type: "recovery"` pointed at `/reset-password?property=…`,
+the panel's dedicated set-a-new-password page (`ResetPasswordPage.tsx`, which
+routes by role once the password is saved). A new address still gets an invite
+to `/login?property=…`, where the same choice is offered as `type=invite`. Both
+paths therefore end on a password form, which is what a TanCerca affiliate has
+always gone through.
+
+`/login` is deliberately NOT the recovery destination: it handles only
+`type=invite`, and the panel keeps recovery on its own page so a reset link
+opened in a second tab cannot flip the login form. Both URLs are already in
+`supabase/config.toml`'s `additional_redirect_urls`.
 
 > **`create-affiliate/index.ts:218` has the identical bug** and is untouched —
 > it is TanCerca's, and TanCerca is not what you asked me to change. It will
