@@ -186,6 +186,9 @@ supabase/
     20260905000003_resolve_commercial_contact.sql    ported unchanged
     20260905000004_unchained_leads.sql               ported unchanged
     20260905000005_unchained_workforce.sql           ported unchanged
+    20260907000001_unchained_settings.sql            NEW — the business
+                                                     profile behind
+                                                     /unchained/settings
   functions/
     create-unchained-member/index.ts                 ported + fixed + own sender
 
@@ -202,10 +205,17 @@ scripts/isolation/
   _pg.sh                           native-or-Docker tool resolution
 ```
 
-Only `20260905000001_unchained_foundation.sql` is new code. The other four are
-the migrations that have been running in production, unchanged apart from a
-banner at the top of each saying so. That is deliberate: they carry their own
-apply-time assertions — a lot of them, including a probe that creates a lead,
+Two files are new code: `20260905000001_unchained_foundation.sql`, and
+`20260907000001_unchained_settings.sql`, which was written after the cutover
+and is the first migration in this repo that was never a TanCerca file. It adds
+one table, `unchained_settings` — a single row holding the business profile,
+which is what the admin panel's Unchained › Settings screen now edits. It is
+additive: it creates its own table and touches nothing an earlier phase built.
+
+The other four are the migrations that have been running in production,
+unchanged apart from a banner at the top of each saying so. That is deliberate:
+they carry their own apply-time assertions — a lot of them, including a probe
+that creates a lead,
 walks it through the funnel and rolls back — and those assertions are the
 acceptance test for the port. Rewriting the bodies would mean the thing being
 verified is no longer the thing that was running. If the new database is wrong,
