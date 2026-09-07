@@ -42,6 +42,14 @@ allowBuilds:
 #       later in the day and `minimumReleaseAge: 10080` should go in clean, as
 #       long as nothing has been bumped in the meantime.
 #
+#       Measured a THIRD time later on 2026-09-07: same 12 entries, cutoff now
+#       2026-08-31T19:02:03Z. Still short, by 55 minutes rather than ninety, so
+#       it is closing exactly as predicted. The blocker is one package --
+#       @next/swc-win32-x64-msvc@16.3.4, published 2026-08-31T19:56:52Z -- and
+#       the line goes in clean once the cutoff passes that stamp, i.e. from
+#       2026-09-07T19:57Z. Do not enable it before then: it exits 1 and Vercel
+#       runs this command.
+#
 #    3x TRUST_DOWNGRADE               exactly the three named below, unchanged:
 #       eslint-import-resolver-typescript@3.10.1, semver@6.3.1,
 #       undici-types@6.21.0. These do not age out. Somebody has to either

@@ -6,6 +6,24 @@ the three that remain are decisions rather than omissions.
 The hook asks for GitHub issues on anything deferred; `gh` is not installed on
 this machine, so the record lives here.
 
+## Where it stands after the 2026-09-07 re-scan
+
+A later full scan the same day reports **5 findings, all of them already triaged
+below**. None is a regression: the run happened on a clean tree whose last
+commit touched only `supabase/` and `docs/`, so no application code changed.
+The count moved because the rule set did, not because the codebase did.
+
+| rule | location | verdict | confidence |
+|---|---|---|---|
+| `deslop/unused-file` | `supabase/functions/create-unchained-member/index.ts` | false positive - Deno deploy entry point | high |
+| `deslop/unused-file` | `lib/utils.ts` | true, won't fix - removing it breaks the analyzer | high |
+| `deslop/unused-dependency` | `class-variance-authority` | true, won't fix - live shadcn scaffolding | high |
+| `react-doctor/require-pnpm-hardening` | `pnpm-workspace.yaml` (`minimumReleaseAge`) | blocked until 2026-09-07T19:57Z, re-measured | high |
+| `react-doctor/require-pnpm-hardening` | `pnpm-workspace.yaml` (`trustPolicy`) | needs a human decision on 3 packages | high |
+
+`deslop/duplicate-jsx-subtree` has dropped out of the report; its reasoning is
+kept below because the rule may return.
+
 ## Fixed
 
 Three genuinely dead exports, removed. Nothing referenced them - not the app,
@@ -58,6 +76,15 @@ Re-verified by actually enabling both lines and running what Vercel runs.
   `2026-08-31T18:27:16Z`: **ninety minutes short of seven days.** This one ages
   out on its own, today. Enable `minimumReleaseAge: 10080` once it does, as long
   as nothing has just been bumped.
+
+  Re-measured a third time later the same day by actually enabling the line and
+  running `pnpm install --frozen-lockfile`: **still exit 1**, same 12 entries,
+  cutoff now `2026-08-31T19:02:03Z` - 55 minutes short instead of ninety. The
+  line was reverted rather than left in, because Vercel runs that command. The
+  single blocking entry is `@next/swc-win32-x64-msvc@16.3.4`
+  (`2026-08-31T19:56:52Z`), so the clean-adoption moment is
+  **from 2026-09-07T19:57Z**. Re-run the install before committing it; do not
+  take this note as permission to paste the line in unverified.
 - **3x `TRUST_DOWNGRADE`** - `eslint-import-resolver-typescript@3.10.1`,
   `semver@6.3.1`, `undici-types@6.21.0`. Old pinned transitives that predate npm
   provenance attestations. These never age out. Either resolve them fresh
@@ -74,13 +101,18 @@ file. It is a Deno Edge Function - a deployment entry point invoked over HTTPS,
 live on Unchained's project as `ACTIVE v3`, and the only path that creates a
 commercial or a specialist. Nothing imports it and nothing should.
 
-It no longer appears in the report, but the reasoning is kept because the rule
-will flag it again the moment the surrounding findings shift.
+It dropped out of the report once and came back in the 2026-09-07 re-scan,
+which is exactly why the reasoning is written down: the verdict does not change
+when the finding reappears. Nothing imports it, nothing should, and deleting it
+would delete the only path that creates a commercial or a specialist.
 
 ## What was investigated and deliberately left alone
 
 `lib/utils.ts` (`cn()`) and `class-variance-authority` / `clsx` /
-`tailwind-merge` look dead, and today they are. They were removed and then put
+`tailwind-merge` look dead, and today they are - re-confirmed on the 2026-09-07
+re-scan, which flags `lib/utils.ts` and `class-variance-authority` by name. No
+file imports `@/lib/utils`, `cva` appears nowhere, and `clsx` / `tailwind-merge`
+are reached only through `lib/utils.ts` itself. They were removed once and put
 back, because removing them was wrong twice over:
 
 1. **shadcn is half-adopted, not abandoned.** `app/globals.css` line 3 is
