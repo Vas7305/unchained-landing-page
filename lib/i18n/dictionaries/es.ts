@@ -261,6 +261,20 @@ export const es: Dictionary = {
   'project.unchained-os.industry':
     'Capital privado y operaciones de inversión',
 
+  'project.vector-forge.description':
+    'Una estación de trabajo de escritorio para producción de assets que construimos para nuestro propio trabajo: vectoriza imágenes rasterizadas en archivos vectoriales limpios, retoca y comprime imágenes, y genera los paquetes completos de iconos y favicons que necesita cada lanzamiento — todo procesado en la propia máquina.',
+  'project.vector-forge.category': 'Aplicación de Escritorio',
+  'project.vector-forge.industry':
+    'Herramientas de diseño y producción de assets',
+  'project.vector-forge.summary':
+    'VectorForge es la cadena de producción de assets detrás de nuestros propios proyectos: una aplicación de escritorio para Windows que convierte imágenes rasterizadas en SVG listo para producción, retoca y optimiza imágenes, y produce los paquetes completos de iconos, favicons y assets web que exige el lanzamiento de un sitio o una app — con cada archivo procesado en la máquina en lugar de subirse a un servicio.',
+  'project.vector-forge.challenge':
+    'Cada proyecto que lanzamos necesita el mismo conjunto de assets: un logo en SVG limpio, favicons en una docena de tamaños, iconos de aplicación por plataforma, imágenes comprimidas sin degradarse. Producirlos significaba una cadena de conversores web gratuitos y scripts sueltos — material de marca subido a servicios que no controlamos, ajustes que nadie registraba y resultados que variaban según quién los preparara y qué día. Era lento en todos los proyectos y nunca salía dos veces igual.',
+  'project.vector-forge.solution':
+    'Construimos la cadena como una aplicación de escritorio. Un núcleo en Rust hace el trabajo — vectorización de raster a SVG en cuatro modos afinados (logo, icono, ilustración, precisión), renderizado y optimización de SVG, ajustes clásicos de imagen y generación de juegos de iconos — mientras una interfaz en React mantiene visible cada ajuste y revisable cada resultado antes de confirmarlo. Los proyectos guardan sus assets, versiones y trazabilidad en disco, así que una mejora es una versión nueva y no un archivo sobrescrito; una cola de lotes aplica una misma receta a una carpeta entera; y la exportación produce un ZIP validado con manifiesto en lugar de una carpeta armada a mano. Se distribuye como instalador firmado de Windows con su propio canal de actualizaciones.',
+  'project.vector-forge.outcome':
+    'Un 1.0 publicado y en uso diario: la herramienta que hoy produce los assets vectoriales, iconos y favicons detrás del resto de este portafolio, funcionando sin conexión en la misma máquina donde están los originales.',
+
   'workPage.eyebrow': 'Portafolio',
   'workPage.statusKey': 'Leyenda de estados de proyecto',
   'workPage.projects': 'Proyectos',
@@ -583,6 +597,23 @@ export const esLists: ListDictionary = {
     'Sistemas de referidos',
     'Infraestructura de backend',
     'Flujos operativos',
+  ],
+
+  'project.vector-forge.services': [
+    'Arquitectura de producto',
+    'Diseño de producto',
+    'Desarrollo de aplicaciones de escritorio',
+    'Ingeniería de releases',
+  ],
+  'project.vector-forge.capabilities': [
+    'Aplicaciones de escritorio (Tauri + Rust)',
+    'Vectorización de raster a SVG',
+    'Procesamiento de imagen nativo',
+    'Generación de iconos y favicons',
+    'Orquestación de procesos por lotes',
+    'Arquitectura offline-first',
+    'Instaladores firmados y auto-actualización',
+    'Implementación de design systems',
   ],
 
   'entry.2026-08.built': [

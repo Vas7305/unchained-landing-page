@@ -260,6 +260,19 @@ export const it: Dictionary = {
   'project.unchained-os.category': 'Software Interno',
   'project.unchained-os.industry': 'Private equity e operazioni di investimento',
 
+  'project.vector-forge.description':
+    'Una workstation desktop per la produzione di asset che abbiamo costruito per il nostro lavoro: traccia le immagini raster in file vettoriali puliti, ritocca e comprime le immagini e genera i pacchetti completi di icone e favicon che ogni lancio richiede — tutto elaborato sulla macchina.',
+  'project.vector-forge.category': 'Applicazione Desktop',
+  'project.vector-forge.industry': 'Strumenti di design e produzione di asset',
+  'project.vector-forge.summary':
+    'VectorForge è la pipeline di asset dietro i nostri progetti: un’applicazione desktop per Windows che converte le immagini raster in SVG pronto per la produzione, ritocca e ottimizza le immagini e produce i pacchetti completi di icone, favicon e asset web richiesti dal lancio di un sito o di un’app — con ogni file elaborato sulla macchina invece che caricato su un servizio.',
+  'project.vector-forge.challenge':
+    'Ogni progetto che rilasciamo ha bisogno dello stesso insieme di asset: un logo in SVG pulito, favicon in una dozzina di dimensioni, icone applicative per piattaforma, immagini compresse senza degradarle. Produrli significava una catena di convertitori web gratuiti e script improvvisati — materiali di marca caricati su servizi che non controlliamo, impostazioni che nessuno annotava e risultati diversi a seconda di chi li preparava e di quale giorno. Era lento su ogni progetto e non veniva mai due volte uguale.',
+  'project.vector-forge.solution':
+    'Abbiamo costruito la pipeline come applicazione desktop. Un core in Rust fa il lavoro — tracciatura da raster a vettore in quattro modalità calibrate (logo, icona, illustrazione, precisione), rendering e ottimizzazione SVG, regolazioni classiche dell’immagine e generazione dei set di icone — mentre un’interfaccia React tiene visibile ogni impostazione e revisionabile ogni risultato prima di confermarlo. I progetti conservano su disco asset, versioni e provenienza, così un miglioramento è una nuova versione e non un file sovrascritto; una coda batch applica la stessa ricetta a un’intera cartella; e l’export produce uno ZIP validato con manifest invece di una cartella messa insieme a mano. Viene distribuito come installer Windows firmato con un proprio canale di aggiornamento.',
+  'project.vector-forge.outcome':
+    'Una 1.0 rilasciata e in uso quotidiano: lo strumento che oggi produce gli asset vettoriali, le icone e le favicon dietro al resto di questo portfolio, funzionando offline sulla macchina che contiene i file originali.',
+
   'workPage.eyebrow': 'Portfolio',
   'workPage.statusKey': 'Legenda stato progetti',
   'workPage.projects': 'Progetti',
@@ -583,6 +596,23 @@ export const itLists: ListDictionary = {
     'Sistemi di referral',
     'Infrastruttura backend',
     'Flussi di lavoro operativi',
+  ],
+
+  'project.vector-forge.services': [
+    'Architettura di prodotto',
+    'Design di prodotto',
+    'Sviluppo di applicazioni desktop',
+    'Release engineering',
+  ],
+  'project.vector-forge.capabilities': [
+    'Applicazioni desktop (Tauri + Rust)',
+    'Tracciatura da raster a vettore',
+    'Elaborazione immagini nativa',
+    'Generazione di icone e favicon',
+    'Orchestrazione di lavorazioni in batch',
+    'Architettura offline-first',
+    'Installer firmati e aggiornamento automatico',
+    'Implementazione di design system',
   ],
 
   'entry.2026-08.built': [

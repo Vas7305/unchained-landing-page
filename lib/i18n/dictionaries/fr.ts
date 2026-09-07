@@ -261,6 +261,19 @@ export const fr: Dictionary = {
   'project.unchained-os.industry':
     'Capital-investissement et opérations d’investissement',
 
+  'project.vector-forge.description':
+    'Un poste de production d’assets pour le bureau, construit pour notre propre travail : il vectorise les images matricielles en fichiers vectoriels propres, retouche et compresse les images, et génère les paquets complets d’icônes et de favicons que réclame chaque lancement — le tout traité sur la machine.',
+  'project.vector-forge.category': 'Application de Bureau',
+  'project.vector-forge.industry': 'Outils de design et production d’assets',
+  'project.vector-forge.summary':
+    'VectorForge est la chaîne de production d’assets derrière nos propres projets : une application de bureau Windows qui convertit les images matricielles en SVG prêt pour la production, retouche et optimise les images, et produit les paquets complets d’icônes, de favicons et d’assets web qu’exige le lancement d’un site ou d’une application — chaque fichier étant traité sur la machine plutôt qu’envoyé à un service.',
+  'project.vector-forge.challenge':
+    'Chaque projet que nous livrons a besoin du même jeu d’assets : un logo en SVG propre, des favicons dans une douzaine de tailles, des icônes applicatives par plateforme, des images compressées sans être dégradées. Les produire passait par une chaîne de convertisseurs web gratuits et de scripts ponctuels — des visuels de marque envoyés à des services que nous ne contrôlons pas, des réglages que personne ne notait et des résultats variant selon la personne et le jour. C’était lent sur chaque projet, et jamais deux fois identique.',
+  'project.vector-forge.solution':
+    'Nous avons construit la chaîne sous forme d’application de bureau. Un cœur en Rust fait le travail — vectorisation matriciel-vers-vectoriel en quatre modes calibrés (logo, icône, illustration, précision), rendu et optimisation SVG, retouches classiques de l’image et génération des jeux d’icônes — pendant qu’une interface React garde chaque réglage visible et chaque résultat vérifiable avant validation. Les projets conservent sur disque leurs assets, leurs versions et leur filiation : une amélioration devient une nouvelle version plutôt qu’un fichier écrasé ; une file de traitement par lots applique une même recette à un dossier entier ; et l’export produit une archive ZIP validée avec manifeste au lieu d’un dossier assemblé à la main. Le produit est distribué en installateur Windows signé, sur son propre canal de mise à jour.',
+  'project.vector-forge.outcome':
+    'Une version 1.0 livrée et utilisée au quotidien : l’outil qui produit désormais les assets vectoriels, les icônes et les favicons derrière le reste de ce portfolio, fonctionnant hors ligne sur la machine où se trouvent les originaux.',
+
   'workPage.eyebrow': 'Portfolio',
   'workPage.statusKey': 'Légende des statuts de projet',
   'workPage.projects': 'Projets',
@@ -584,6 +597,23 @@ export const frLists: ListDictionary = {
     'Systèmes de parrainage',
     'Infrastructure backend',
     'Flux de travail opérationnels',
+  ],
+
+  'project.vector-forge.services': [
+    'Architecture produit',
+    'Design produit',
+    'Développement d’applications de bureau',
+    'Ingénierie de release',
+  ],
+  'project.vector-forge.capabilities': [
+    'Applications de bureau (Tauri + Rust)',
+    'Vectorisation matriciel-vers-vectoriel',
+    'Traitement d’image natif',
+    'Génération d’icônes et de favicons',
+    'Orchestration de traitements par lots',
+    'Architecture hors ligne d’abord',
+    'Installateurs signés et mise à jour automatique',
+    'Mise en œuvre de design systems',
   ],
 
   'entry.2026-08.built': [

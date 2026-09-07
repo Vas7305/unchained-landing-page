@@ -261,6 +261,19 @@ export const de: Dictionary = {
   'project.unchained-os.category': 'Interne Software',
   'project.unchained-os.industry': 'Private Equity & Investmentbetrieb',
 
+  'project.vector-forge.description':
+    'Eine Desktop-Werkbank für die Asset-Produktion, gebaut für unsere eigene Arbeit: Sie vektorisiert Rasterbilder zu sauberen Vektordateien, retuschiert und komprimiert Bilder und erzeugt die vollständigen Icon- und Favicon-Pakete, die jeder Launch braucht — vollständig auf dem Rechner verarbeitet.',
+  'project.vector-forge.category': 'Desktop-Anwendung',
+  'project.vector-forge.industry': 'Design-Werkzeuge & Asset-Produktion',
+  'project.vector-forge.summary':
+    'VectorForge ist die Asset-Pipeline hinter unseren eigenen Projekten: eine Windows-Desktop-Anwendung, die Rasterbilder in produktionsfertiges SVG umwandelt, Bilder retuschiert und optimiert und die vollständigen Icon-, Favicon- und Web-Asset-Pakete erzeugt, die der Launch einer Website oder App verlangt — jede Datei wird auf dem Rechner verarbeitet statt zu einem Dienst hochgeladen.',
+  'project.vector-forge.challenge':
+    'Jedes Projekt, das wir ausliefern, braucht denselben Satz an Assets: ein Logo als sauberes SVG, Favicons in einem Dutzend Größen, Anwendungssymbole je Plattform, Bilder komprimiert, aber nicht verschlechtert. Sie zu erzeugen hieß: eine Kette kostenloser Web-Konverter und einmaliger Skripte — Markenmaterial hochgeladen zu Diensten, die wir nicht kontrollieren, Einstellungen, die niemand festhielt, und Ergebnisse, die davon abhingen, wer sie an welchem Tag vorbereitet hat. Das war in jedem Projekt langsam und nie zweimal gleich.',
+  'project.vector-forge.solution':
+    'Wir haben die Pipeline als Desktop-Anwendung gebaut. Ein Rust-Kern erledigt die Arbeit — Raster-zu-Vektor-Tracing in vier abgestimmten Modi (Logo, Icon, Illustration, Präzision), SVG-Rendering und -Optimierung, klassische Bildkorrekturen und Icon-Set-Erzeugung — während eine React-Oberfläche jede Einstellung sichtbar und jedes Ergebnis prüfbar hält, bevor es festgeschrieben wird. Projekte halten Assets, Versionen und Herkunft auf der Platte, eine Verbesserung ist also eine neue Version und keine überschriebene Datei; eine Batch-Warteschlange wendet dasselbe Rezept auf einen ganzen Ordner an; und der Export erzeugt ein validiertes ZIP mit Manifest statt eines von Hand zusammengestellten Ordners. Ausgeliefert wird sie als signierter Windows-Installer mit eigenem Update-Kanal.',
+  'project.vector-forge.outcome':
+    'Eine ausgelieferte 1.0 im täglichen Einsatz: das Werkzeug, das inzwischen die Vektor-, Icon- und Favicon-Assets hinter dem Rest dieses Portfolios erzeugt — offline, auf dem Rechner, auf dem die Originale liegen.',
+
   'workPage.eyebrow': 'Portfolio',
   'workPage.statusKey': 'Legende der Projektstatus',
   'workPage.projects': 'Projekte',
@@ -585,6 +598,23 @@ export const deLists: ListDictionary = {
     'Empfehlungssysteme',
     'Backend-Infrastruktur',
     'Operative Workflows',
+  ],
+
+  'project.vector-forge.services': [
+    'Produktarchitektur',
+    'Produktdesign',
+    'Desktop-Anwendungsentwicklung',
+    'Release-Engineering',
+  ],
+  'project.vector-forge.capabilities': [
+    'Desktop-Anwendungen (Tauri + Rust)',
+    'Raster-zu-Vektor-Tracing',
+    'Native Bildverarbeitung',
+    'Icon- & Favicon-Erzeugung',
+    'Orchestrierung von Batch-Jobs',
+    'Offline-First-Architektur',
+    'Signierte Installer & Auto-Update',
+    'Umsetzung von Design-Systemen',
   ],
 
   'entry.2026-08.built': [
