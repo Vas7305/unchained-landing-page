@@ -93,7 +93,7 @@ interface CreateMemberPayload {
 // arriving from tancerca.com tells the recipient the two businesses are one
 // system, and it is sent through a Resend key that belongs to this project
 // alone.
-const ADMIN_PANEL_URL = Deno.env.get("ADMIN_PANEL_URL") || "https://admin.tancercadeti.com"
+const ADMIN_PANEL_URL = Deno.env.get("ADMIN_PANEL_URL") || "https://admin.unchainedbusiness.com"
 const REDIRECT_PATH = Deno.env.get("UNCHAINED_REDIRECT_PATH") || "/login"
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")
 const FROM_EMAIL = Deno.env.get("FROM_EMAIL") || "acceso@unchainedbusiness.com"
