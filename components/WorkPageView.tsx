@@ -8,9 +8,9 @@ import ProjectCard from '@/components/ProjectCard';
 import ScrollDepth from '@/components/ScrollDepth';
 import {
   STATUS_META,
-  featuredProject,
-  otherProjects,
-  projects,
+  featuredOf,
+  othersOf,
+  type Project,
   type ProjectStatus,
 } from '@/lib/projects';
 import StartProjectButton from '@/components/StartProjectButton';
@@ -25,8 +25,23 @@ const statusOrder: ProjectStatus[] = [
   'dismissed',
 ];
 
-export default function WorkPageView() {
+/**
+ * The /work page.
+ *
+ * `projects` arrives as a prop rather than being imported, for the reason
+ * components/Work.tsx gives: the portfolio is a database answer now, and a
+ * client component cannot await one. app/work/page.tsx reads it while the page
+ * is prerendered.
+ *
+ * The flagship and the rest are derived here rather than passed as three
+ * props, because the legend below needs the WHOLE list — a status is explained
+ * only when a project on this page actually carries it — and splitting the
+ * list before it arrives would mean reassembling it to work that out.
+ */
+export default function WorkPageView({ projects }: { projects: Project[] }) {
   const t = useTranslation();
+  const featured = featuredOf(projects);
+  const others = othersOf(projects);
   const legend = statusOrder.filter((status) =>
     projects.some((p) => p.status === status),
   );
@@ -64,10 +79,10 @@ export default function WorkPageView() {
 
       <section className='px-6 py-12' aria-label={t('workPage.projects')}>
         <div className='max-w-6xl mx-auto'>
-          {featuredProject && <FlagshipProject project={featuredProject} />}
+          {featured && <FlagshipProject project={featured} />}
 
           <div className='mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {otherProjects.map((project) => (
+            {others.map((project) => (
               <ProjectCard key={project.slug} project={project} />
             ))}
           </div>

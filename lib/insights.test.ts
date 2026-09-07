@@ -11,7 +11,7 @@ import {
   resolveRelated,
   type InsightArticle,
 } from './insights';
-import { getProject } from './projects';
+import { fallbackProjects, findProject } from './projects';
 import { getPillar, pillars, siteConfig } from './site';
 
 /**
@@ -81,10 +81,15 @@ describe('the insights collection', () => {
     expect([...dates].sort().reverse()).toEqual(dates);
   });
 
+  // Checked against `fallbackProjects` rather than the database: a slug named
+  // here is written by an author editing this repository, and the question this
+  // asks is whether they typed one the repository knows. A project unpublished
+  // in the panel is a different matter, and the article route handles it by
+  // dropping the link.
   it('names only case studies that exist', () => {
     for (const article of insights) {
       if (article.caseStudySlug) {
-        expect(getProject(article.caseStudySlug)).toBeDefined();
+        expect(findProject(fallbackProjects, article.caseStudySlug)).toBeDefined();
       }
     }
   });
@@ -143,7 +148,7 @@ describe('Custom Software or SaaS? A Framework for Deciding', () => {
 
   it('rests on a case study that exists and is published', () => {
     expect(article.caseStudySlug).toBe('tancerca');
-    expect(getProject('tancerca')?.detailed).toBe(true);
+    expect(findProject(fallbackProjects, 'tancerca')?.detailed).toBe(true);
   });
 
   it('curates no further reading while it is the only article', () => {

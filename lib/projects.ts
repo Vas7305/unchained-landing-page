@@ -1,17 +1,43 @@
 /**
- * Portfolio data model.
+ * Portfolio data model, and the portfolio the site falls back to.
  *
- * This file is the single source of truth for everything the site says about
- * our work. Adding a project here automatically adds it to the homepage grid,
- * to /work, and — when `detailed` is true — gives it a page at /work/<slug>.
+ * ─── This file is no longer the source of truth ───────────────────────────
+ * It was, until public.unchained_projects existed. The portfolio is now
+ * entered and published in the admin panel, and the site reads it through
+ * lib/portfolio.ts — which is why nothing here is exported as a ready-made
+ * list any more. `featuredProject`, `otherProjects` and `detailedProjects`
+ * were module constants computed at import time; a constant cannot represent
+ * an answer that arrives from a database, and leaving them in place would have
+ * meant half the site rendering the file while the other half rendered the
+ * table.
+ *
+ * What is left is the two things that genuinely belong in code:
+ *
+ *   · the TYPE and the status vocabulary, which the components are written
+ *     against and which the database's CHECK constraint mirrors;
+ *   · the SELECTORS, which are pure functions over a list and are applied to
+ *     whichever list the caller has — the seven below or the seven that came
+ *     back from the RPC.
+ *
+ * ─── What `fallbackProjects` is for ───────────────────────────────────────
+ * A build with no database behind it — a preview deploy, a local checkout with
+ * no .env, a moment when Supabase is unreachable — still has to render a
+ * portfolio, because an agency site with an empty Our Work section says
+ * something false about the agency. So the site falls back to this list, which
+ * is the transcription seeded into the table by
+ * supabase/migrations/20260907000002_unchained_projects.sql.
+ *
+ * It is a floor, not a mirror. It will drift from the table the first time
+ * somebody edits a project in the panel, and that is expected: its job is to
+ * be a truthful portfolio, not the current one. See lib/portfolio.ts for the
+ * three cases that reach it and the one — a successful answer of zero rows —
+ * that deliberately does not.
  *
  * CONTENT RULE: never add an `outcome` we cannot substantiate. Capability
  * language ("launch-ready platform", "production marketplace architecture") is
- * always preferable to an invented metric.
- *
- * The five in-development entries below are intentionally unnamed. We publish
- * a project's name, story and detail page when it ships — not before. Replace
- * `title` / `category` / `description` as each one becomes public.
+ * always preferable to an invented metric. The rule now lives in two places,
+ * on this array and on the `outcome` column, because content can be written in
+ * either.
  */
 
 export type ProjectStatus =
@@ -87,7 +113,7 @@ export type Project = {
   externalUrl?: string;
 };
 
-export const projects: Project[] = [
+export const fallbackProjects: Project[] = [
   {
     title: 'TanCerca',
     slug: 'tancerca',
@@ -204,22 +230,42 @@ export const projects: Project[] = [
   },
 ];
 
-export const featuredProject = projects.find((p) => p.featured);
+/**
+ * The flagship, or nothing.
+ *
+ * `find` rather than `filter`, as before — but the ambiguity a second flagship
+ * would create is now settled upstream: idx_unchained_projects_one_featured
+ * makes two featured rows impossible, so this can no longer silently pick one
+ * of several. Over `fallbackProjects` the same guarantee is held by review.
+ */
+export function featuredOf(list: readonly Project[]): Project | undefined {
+  return list.find((p) => p.featured);
+}
 
 /** Most recent first. Entries without a year sort last; equal years keep
- *  their source order, so this file still controls tie-breaks. */
+ *  their incoming order, so the caller's list still controls tie-breaks —
+ *  which for the database is display_order, applied by list_public_projects().
+ */
 function byYearDesc(a: Project, b: Project): number {
   const ya = a.year ? Number(a.year) : Number.NEGATIVE_INFINITY;
   const yb = b.year ? Number(b.year) : Number.NEGATIVE_INFINITY;
   return yb - ya;
 }
 
-export const otherProjects = projects
-  .filter((p) => !p.featured)
-  .sort(byYearDesc);
+/** Everything but the flagship, newest first. */
+export function othersOf(list: readonly Project[]): Project[] {
+  return list.filter((p) => !p.featured).sort(byYearDesc);
+}
 
-export const detailedProjects = projects.filter((p) => p.detailed);
+/** The projects with enough published detail to warrant /work/<slug>. */
+export function detailedOf(list: readonly Project[]): Project[] {
+  return list.filter((p) => p.detailed);
+}
 
-export function getProject(slug: string): Project | undefined {
-  return projects.find((p) => p.slug === slug);
+/** One project by slug, or nothing. */
+export function findProject(
+  list: readonly Project[],
+  slug: string,
+): Project | undefined {
+  return list.find((p) => p.slug === slug);
 }

@@ -16,7 +16,7 @@ import { contactChannels, type Channel, type ChannelSource } from './channels';
  * key is designed for exactly that, and it is safe HERE specifically because
  * of what Phase 5 did to the database: the four commercial tables carry an
  * `is_super_admin()` RLS policy each and grant anon nothing at all, so this
- * key opens exactly one door — EXECUTE on
+ * key opens exactly the doors listed below — among them EXECUTE on
  * `public.resolve_commercial_contact(text, text)`, which answers with one row
  * and cannot be made to answer with two. See section E of docs/commercial-
  * routing.md.
@@ -37,7 +37,7 @@ export interface ResolverEndpoint {
 
 /**
  * The validated project base, or null. One place decides whether a database is
- * configured at all, so the three endpoints below cannot disagree about it.
+ * configured at all, so no two endpoints can disagree about it.
  */
 function readBase(): { url: string; anonKey: string } | null {
   const url = supabaseUrl?.trim().replace(/\/+$/, '');
@@ -55,16 +55,31 @@ function readBase(): { url: string; anonKey: string } | null {
 
 const base = readBase();
 
-function rpc(name: string): ResolverEndpoint | null {
+/**
+ * One RPC endpoint, or null when no database is configured.
+ *
+ * Exported because this file is where the site decides whether it has a
+ * database at all, and that decision must not be made twice. lib/portfolio.ts
+ * builds its own endpoint through this rather than re-reading the environment,
+ * so a URL this file rejects cannot be accepted over there — which is the
+ * property `readBase()` was written for and which a second copy would break.
+ *
+ * That it lives under commercial/ is history: this was the first module to
+ * need a database. Nothing here is commercial-specific.
+ */
+export function rpcEndpoint(name: string): ResolverEndpoint | null {
   return base ? { url: `${base.url}/rest/v1/rpc/${name}`, anonKey: base.anonKey } : null;
 }
 
-export const resolverEndpoint: ResolverEndpoint | null = rpc(
+export const resolverEndpoint: ResolverEndpoint | null = rpcEndpoint(
   'resolve_commercial_contact',
 );
 
 /**
- * The three RPCs this website is able to call, and there are exactly three.
+ * The RPCs this website is able to call, and there are exactly four. The
+ * fourth, `list_public_projects`, is built in lib/portfolio.ts because it is
+ * that module's contract rather than this one's; it is named here so this
+ * comment stays the complete list.
  *
  * Phase 7 adds two write operations to what was a read-only public surface, so
  * the same reasoning the header applies to the resolver has to hold for them:
@@ -83,9 +98,9 @@ export const resolverEndpoint: ResolverEndpoint | null = rpc(
  * policies, so the complete set of things this key can do to the lead tables is
  * "call these two functions". See section E of docs/lead-capture.md.
  */
-export const leadEndpoint: ResolverEndpoint | null = rpc('create_public_lead');
+export const leadEndpoint: ResolverEndpoint | null = rpcEndpoint('create_public_lead');
 
-export const leadChannelEndpoint: ResolverEndpoint | null = rpc(
+export const leadChannelEndpoint: ResolverEndpoint | null = rpcEndpoint(
   'record_public_lead_channel_click',
 );
 

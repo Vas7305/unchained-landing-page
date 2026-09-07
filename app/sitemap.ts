@@ -1,11 +1,23 @@
 import type { MetadataRoute } from 'next';
 import { pillars, siteConfig } from '@/lib/site';
-import { detailedProjects } from '@/lib/projects';
+import { detailedOf } from '@/lib/projects';
+import { loadProjects } from '@/lib/portfolio';
 import { insightPath, publishedInsights } from '@/lib/insights';
 
-export const dynamic = 'force-static';
+/**
+ * Ten minutes, matching PORTFOLIO_REVALIDATE_SECONDS. See app/page.tsx.
+ *
+ * This replaces `dynamic = 'force-static'`, which said the same thing about
+ * this route — no request-time input — but pinned the output to build time.
+ * The project pages below now come from a database, so a portfolio published
+ * in the panel has to be able to reach the sitemap without a redeploy. The
+ * route is still statically rendered and CDN-cached; it is regenerated on the
+ * same schedule as the pages it lists, so the two cannot drift apart by more
+ * than one interval.
+ */
+export const revalidate = 600;
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const staticRoutes = [
@@ -16,7 +28,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...pillars.map((p) => `/${p.slug}`),
   ];
 
-  const projectRoutes = detailedProjects.map((p) => `/work/${p.slug}`);
+  const projectRoutes = detailedOf(await loadProjects()).map(
+    (p) => `/work/${p.slug}`,
+  );
 
   // Drafts are excluded by `publishedInsights`, so an unfinished article is
   // never submitted for indexing.

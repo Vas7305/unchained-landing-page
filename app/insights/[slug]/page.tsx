@@ -9,6 +9,8 @@ import {
   publishedInsights,
 } from '@/lib/insights';
 import { articleSchema, breadcrumbSchema } from '@/lib/structured-data';
+import { loadProjects } from '@/lib/portfolio';
+import { findProject } from '@/lib/projects';
 
 type Params = { slug: string };
 
@@ -47,6 +49,14 @@ export default async function InsightPage({
 
   if (!article) notFound();
 
+  // The case study the article rests on, resolved here because the portfolio
+  // lives in the database now and InsightArticleView is a client component.
+  // An article naming a project that has since been unpublished simply loses
+  // the link, which is the right outcome — the page it pointed at is gone.
+  const caseStudy = article.caseStudySlug
+    ? findProject(await loadProjects(), article.caseStudySlug)
+    : undefined;
+
   return (
     <>
       {/* Both entities describe this page and agree with each other: the
@@ -61,7 +71,7 @@ export default async function InsightPage({
           { name: article.title, path: insightPath(article.slug) },
         ])}
       />
-      <InsightArticleView article={article} />
+      <InsightArticleView article={article} caseStudy={caseStudy} />
     </>
   );
 }

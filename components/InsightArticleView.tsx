@@ -11,7 +11,7 @@ import {
   resolveRelated,
   type InsightArticle,
 } from '@/lib/insights';
-import { getProject } from '@/lib/projects';
+import type { Project } from '@/lib/projects';
 import { getPillar } from '@/lib/site';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
 import type { TranslationKey } from '@/lib/i18n/dictionaries';
@@ -27,16 +27,21 @@ import type { TranslationKey } from '@/lib/i18n/dictionaries';
  */
 export default function InsightArticleView({
   article,
+  caseStudy,
 }: {
   article: InsightArticle;
+  /**
+   * The project `article.caseStudySlug` names, resolved by the route. Passed
+   * in rather than looked up here: the portfolio now comes from the database,
+   * and a client component that resolved it against the fallback list would
+   * show a stale title next to a page rendering the live one.
+   */
+  caseStudy: Project | undefined;
 }) {
   const { t, locale } = useLanguage();
   const pillar = getPillar(article.pillar);
   const pillarName = t(('pillar.' + pillar.slug) as TranslationKey);
   const related = resolveRelated(article);
-  const caseStudy = article.caseStudySlug
-    ? getProject(article.caseStudySlug)
-    : undefined;
 
   return (
     <main id='main' className='min-h-screen'>

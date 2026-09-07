@@ -3,6 +3,7 @@ import WorkPageView from '@/components/WorkPageView';
 import JsonLd from '@/components/JsonLd';
 import { buildPageMetadata } from '@/lib/metadata';
 import { breadcrumbSchema } from '@/lib/structured-data';
+import { loadProjects } from '@/lib/portfolio';
 
 const path = '/work';
 
@@ -13,7 +14,12 @@ export const metadata: Metadata = buildPageMetadata({
   path,
 });
 
-export default function WorkPage() {
+/** Ten minutes, matching PORTFOLIO_REVALIDATE_SECONDS. See app/page.tsx. */
+export const revalidate = 600;
+
+export default async function WorkPage() {
+  const projects = await loadProjects();
+
   return (
     <>
       <JsonLd
@@ -22,7 +28,7 @@ export default function WorkPage() {
           { name: 'Our Work', path },
         ])}
       />
-      <WorkPageView />
+      <WorkPageView projects={projects} />
     </>
   );
 }

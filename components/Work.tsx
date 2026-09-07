@@ -9,12 +9,28 @@ import SectionHeading from '@/components/SectionHeading';
 import FlagshipProject from '@/components/FlagshipProject';
 import ProjectCard from '@/components/ProjectCard';
 import { track } from '@/lib/analytics';
-import { featuredProject, otherProjects } from '@/lib/projects';
+import type { Project } from '@/lib/projects';
 import { useTranslation } from '@/lib/i18n/LanguageProvider';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function Work() {
+/**
+ * The homepage's Our Work section.
+ *
+ * The portfolio arrives as props rather than being imported. It used to be two
+ * module constants computed from lib/projects.ts at import time; it is now a
+ * database answer, and a client component cannot await one. app/page.tsx reads
+ * it while the page is prerendered and hands the result down, which keeps this
+ * section in the static HTML exactly as it was — the animation below is the
+ * only reason this file is a client component at all.
+ */
+export default function Work({
+  featured,
+  others,
+}: {
+  featured: Project | undefined;
+  others: Project[];
+}) {
   const t = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -65,14 +81,14 @@ export default function Work() {
           body={t('work.body')}
         />
 
-        {featuredProject && (
+        {featured && (
           <div className='mt-16'>
-            <FlagshipProject project={featuredProject} />
+            <FlagshipProject project={featured} />
           </div>
         )}
 
         <div className='project-grid mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {otherProjects.map((project) => (
+          {others.map((project) => (
             <ProjectCard key={project.slug} project={project} />
           ))}
         </div>

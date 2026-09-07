@@ -9,7 +9,7 @@ import { generateMetadata as projectMetadata } from './work/[slug]/page';
 import { SITE_OG_IMAGE } from '@/lib/metadata';
 import { siteConfig } from '@/lib/site';
 import { pillarContent } from '@/lib/pillar-content';
-import { getProject } from '@/lib/projects';
+import { fallbackProjects, findProject } from '@/lib/projects';
 
 /**
  * The regression this module exists to prevent: a page advertising itself
@@ -19,6 +19,15 @@ import { getProject } from '@/lib/projects';
  *
  * Route modules are imported directly and their exported metadata inspected;
  * the project has no DOM test environment and this does not add one.
+ *
+ * ─── Which portfolio these assertions run against ─────────────────────────
+ * The project pages read public.unchained_projects through lib/portfolio.ts,
+ * and this suite sets no Supabase environment variables — so loadProjects()
+ * takes its not-configured path and the routes render `fallbackProjects`,
+ * which is what the lookups below resolve against. That is deliberate: this
+ * module is about metadata, not about content, and pointing a unit test at a
+ * live database would make it fail for reasons that have nothing to do with
+ * an Open Graph tag.
  */
 
 const HOME_OG_TITLE = `${siteConfig.name} — ${siteConfig.tagline}`;
@@ -118,7 +127,7 @@ describe('/work/[slug]', () => {
       params: Promise.resolve({ slug: 'tancerca' }),
     });
     const og = meta.openGraph as Og;
-    const project = getProject('tancerca')!;
+    const project = findProject(fallbackProjects, 'tancerca')!;
 
     expect(meta.alternates?.canonical).toBe('/work/tancerca');
     expect(og.url).toBe(`${siteConfig.url}/work/tancerca`);
@@ -131,11 +140,11 @@ describe('/work/[slug]', () => {
 
   it('keeps a detailed project indexable', () => {
     // Module 1's publication gate, unchanged.
-    expect(getProject('tancerca')?.detailed).toBe(true);
+    expect(findProject(fallbackProjects, 'tancerca')?.detailed).toBe(true);
   });
 
   it('keeps a project without a published page out of the index, with an image', async () => {
-    const undetailed = getProject('unchained-os');
+    const undetailed = findProject(fallbackProjects, 'unchained-os');
     expect(undetailed?.detailed).not.toBe(true);
 
     const meta = await projectMetadata({

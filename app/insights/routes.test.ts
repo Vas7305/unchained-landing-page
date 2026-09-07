@@ -167,8 +167,11 @@ describe('/insights/custom-software-or-saas', () => {
     ]);
   });
 
-  it('is submitted for indexing', () => {
-    const urls = sitemap().map((entry) => entry.url);
+  // Async since the sitemap's project routes come from the portfolio. With no
+  // Supabase configured here, that resolves to `fallbackProjects` — the same
+  // not-configured path app/routes.metadata.test.ts documents.
+  it('is submitted for indexing', async () => {
+    const urls = (await sitemap()).map((entry) => entry.url);
     expect(urls).toContain(`${siteConfig.url}${path}`);
     expect(urls).toContain(`${siteConfig.url}/insights`);
     expect(urls).toContain(`${siteConfig.url}/software-development`);
