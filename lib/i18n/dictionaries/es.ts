@@ -304,6 +304,27 @@ export const es: Dictionary = {
     'El mismo proceso, los mismos estándares, aplicados a tu problema — empezando por un encargo de descubrimiento y arquitectura de alcance cerrado.',
   'detail.seeRest': 'Ver el resto de nuestro trabajo',
 
+  'demo.eyebrow': 'Demo Interactiva',
+  'demo.cta': 'Probar la demo interactiva',
+  'demo.cardCta': 'Demo interactiva',
+  'demo.lede':
+    'Usa el producto como lo usan sus usuarios. Cada pantalla responde a lo que haces: simplemente funciona con datos de demostración en lugar de una cuenta real.',
+  'demo.disclaimer':
+    'Esta es una demostración interactiva con datos simulados. Nada de lo que hagas aquí llega a una cuenta real, a una base de datos real ni a un pago real.',
+  'demo.backToProject': 'Volver al proyecto',
+  'demo.controlsLabel': 'Controles de la demo',
+  'demo.scenario': 'Escenario',
+  'demo.reset': 'Reiniciar demo',
+  'demo.resetDone': 'La demo ha vuelto a su estado inicial.',
+  'demo.loading': 'Cargando la demo',
+  'demo.loadError': 'No se ha podido cargar la demo.',
+  'demo.retry': 'Reintentar',
+  'demo.langNote':
+    'La demo se muestra en el idioma de la propia interfaz del producto.',
+  'demo.nextTitle': 'Esto es una demostración. El producto que hay detrás es real.',
+  'demo.nextBody':
+    'Cada demo reconstruye un sistema que diseñamos y construimos. Si algo así encaja en tu negocio, el siguiente paso es una conversación sobre qué tendría que hacer.',
+
   'journeyPage.eyebrow': 'El Reto Unchained',
   'journeyPage.title': 'Construyendo Unchained.',
   'journeyPage.lede':

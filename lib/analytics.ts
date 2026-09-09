@@ -35,7 +35,18 @@ export type AnalyticsEvent =
   // panel was opened from and whether a service was chosen — and nothing the
   // visitor typed. No name, address, company, phone number or message reaches
   // an analytics provider; those exist in one place, behind RLS.
-  | 'project_inquiry_submitted';
+  | 'project_inquiry_submitted'
+  // ── Interactive demos ─────────────────────────────────────────────────────
+  // §25: no new vendor, no new architecture — three events on the dispatcher
+  // the site already has. Each carries the project slug, which is public
+  // information already in the URL, and nothing else. Nothing a visitor does
+  // inside a demo is reported: not what they searched, not what they put in a
+  // cart, not what they typed into a simulated form. `demo_completed` names
+  // the workflow that finished ('checkout', 'booking'), never its contents.
+  | 'demo_cta_click'
+  | 'demo_open'
+  | 'demo_reset'
+  | 'demo_completed';
 
 type Props = Record<string, string | number | boolean | undefined>;
 

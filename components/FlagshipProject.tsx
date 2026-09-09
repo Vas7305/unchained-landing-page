@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, PlayCircle } from 'lucide-react';
 import { track } from '@/lib/analytics';
+import { demoPath, hasDemo } from '@/lib/demo/registry';
 import type { Project } from '@/lib/projects';
 import ProjectVisual from '@/components/ProjectVisual';
 import StatusBadge from '@/components/StatusBadge';
@@ -70,6 +71,16 @@ export default function FlagshipProject({ project }: { project: Project }) {
                 className='group-hover:translate-x-1 transition-transform duration-200'
               />
             </Link>
+            {hasDemo(project.slug) && (
+              <Link
+                href={demoPath(project.slug)}
+                onClick={() => track('demo_cta_click', { project: project.slug })}
+                className='inline-flex items-center justify-center gap-2 glow-border bg-secondary hover:bg-accent text-foreground font-semibold px-6 py-3 rounded-xl text-sm transition-colors duration-200'
+              >
+                <PlayCircle size={15} aria-hidden='true' />
+                {t('demo.cardCta')}
+              </Link>
+            )}
             {project.outcome && (
               <p className='text-xs text-muted-foreground/70 leading-relaxed max-w-xs'>
                 {t(('project.' + project.slug + '.outcome') as TranslationKey)}

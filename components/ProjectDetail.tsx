@@ -2,14 +2,16 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ExternalLink, PlayCircle } from 'lucide-react';
+import { track } from '@/lib/analytics';
+import { demoPath, hasDemo } from '@/lib/demo/registry';
 import ProjectVisual from '@/components/ProjectVisual';
 import ProjectViewTracker from '@/components/ProjectViewTracker';
 import ScrollDepth from '@/components/ScrollDepth';
 import StatusBadge from '@/components/StatusBadge';
 import type { Project } from '@/lib/projects';
 import StartProjectButton from '@/components/StartProjectButton';
-import { useLanguage } from '@/lib/i18n/LanguageProvider';
+import { useLanguage, useTranslation } from '@/lib/i18n/LanguageProvider';
 import type { ListKey, TranslationKey } from '@/lib/i18n/dictionaries';
 
 function Meta({ label, value }: { label: string; value: string }) {
@@ -19,6 +21,57 @@ function Meta({ label, value }: { label: string; value: string }) {
         {label}
       </dt>
       <dd className='text-sm text-foreground'>{value}</dd>
+    </div>
+  );
+}
+
+/**
+ * The two things a visitor can do with a project from its hero.
+ *
+ * Its own component because the pair is conditional in three ways — a demo, a
+ * live product, both, or neither — and folding that into the page component
+ * put four more branches into a function that already renders six sections.
+ *
+ * §15: the two destinations are deliberately distinguishable. The demo is the
+ * filled, primary action, because it is exploration that stays on this site and
+ * needs no account; the live product is the real thing and is marked as
+ * leaving. A project with neither renders neither.
+ */
+function HeroActions({ project }: { project: Project }) {
+  const t = useTranslation();
+  const demo = hasDemo(project.slug);
+
+  if (!demo && !project.externalUrl) return null;
+
+  return (
+    <div className='mt-8 flex flex-col sm:flex-row gap-3'>
+      {demo && (
+        <Link
+          href={demoPath(project.slug)}
+          onClick={() => track('demo_cta_click', { project: project.slug })}
+          className='group inline-flex items-center justify-center gap-2 bg-foreground text-background font-semibold px-6 py-3 rounded-xl text-sm hover:bg-foreground/90 transition-colors duration-200'
+        >
+          <PlayCircle size={15} aria-hidden='true' />
+          {t('demo.cta')}
+          <ArrowRight
+            size={14}
+            aria-hidden='true'
+            className='group-hover:translate-x-1 transition-transform duration-200'
+          />
+        </Link>
+      )}
+
+      {project.externalUrl && (
+        <a
+          href={project.externalUrl}
+          target='_blank'
+          rel='noopener noreferrer'
+          className='inline-flex items-center justify-center gap-2 glow-border bg-secondary hover:bg-accent text-foreground font-semibold px-6 py-3 rounded-xl text-sm transition-colors duration-200'
+        >
+          {t('detail.visitLive')}
+          <ExternalLink size={14} aria-hidden='true' />
+        </a>
+      )}
     </div>
   );
 }
@@ -75,17 +128,7 @@ export default function ProjectDetail({ project }: { project: Project }) {
             {lede}
           </p>
 
-          {project.externalUrl && (
-            <a
-              href={project.externalUrl}
-              target='_blank'
-              rel='noopener noreferrer'
-              className='group mt-8 inline-flex items-center gap-2 bg-foreground text-background font-semibold px-6 py-3 rounded-xl text-sm hover:bg-foreground/90 transition-colors duration-200'
-            >
-              {t('detail.visitLive')}
-              <ExternalLink size={14} aria-hidden='true' />
-            </a>
-          )}
+          <HeroActions project={project} />
         </div>
       </section>
 

@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { pillars, siteConfig } from '@/lib/site';
 import { detailedOf } from '@/lib/projects';
 import { loadProjects } from '@/lib/portfolio';
+import { demoPath, hasDemo } from '@/lib/demo/registry';
 import { insightPath, publishedInsights } from '@/lib/insights';
 
 /**
@@ -28,15 +29,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...pillars.map((p) => `/${p.slug}`),
   ];
 
-  const projectRoutes = detailedOf(await loadProjects()).map(
-    (p) => `/work/${p.slug}`,
+  const detailed = detailedOf(await loadProjects());
+
+  const projectRoutes = detailed.map((p) => `/work/${p.slug}`);
+
+  // Demo routes follow the same indexing rule the pages themselves apply: a
+  // project with enough published detail to warrant a landing page has a demo
+  // worth submitting too, and one without it is reachable but not indexed. Both
+  // conditions are read rather than restated — `detailed` from the database,
+  // `hasDemo` from the code — so this list cannot claim a demo that does not
+  // exist or a project that was unpublished.
+  const demoRoutes = detailed.flatMap((p) =>
+    hasDemo(p.slug) ? [demoPath(p.slug)] : [],
   );
 
   // Drafts are excluded by `publishedInsights`, so an unfinished article is
   // never submitted for indexing.
   const insightRoutes = publishedInsights.map((a) => insightPath(a.slug));
 
-  return [...staticRoutes, ...projectRoutes, ...insightRoutes].map((route) => ({
+  return [
+    ...staticRoutes,
+    ...projectRoutes,
+    ...demoRoutes,
+    ...insightRoutes,
+  ].map((route) => ({
     url: `${siteConfig.url}${route}`,
     lastModified: now,
     changeFrequency:

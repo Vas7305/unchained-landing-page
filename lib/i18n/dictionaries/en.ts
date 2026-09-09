@@ -319,6 +319,32 @@ export const en = {
     'Same process, same standards, applied to your problem — starting with a fixed-scope discovery and architecture engagement.',
   'detail.seeRest': 'See the rest of our work',
 
+  // ── Interactive demos ─────────────────────────────────────────────────────
+  // Chrome only. The demos themselves are presented in the language their
+  // product is actually built in — a Cuban marketplace in Spanish, a Moscow
+  // salon in Russian — because that is what the product is, and translating a
+  // product's interface into six languages it does not have would be showing
+  // something we did not build. `demo.langNote` is what tells the visitor so.
+  'demo.eyebrow': 'Interactive Demo',
+  'demo.cta': 'Try the interactive demo',
+  'demo.cardCta': 'Interactive demo',
+  'demo.lede':
+    'Use the product the way its users do. Every screen here is live and responds to what you do — it simply runs on demonstration data instead of a real account.',
+  'demo.disclaimer':
+    'This is an interactive demonstration using simulated data. Nothing you do here reaches a real account, a real database or a real payment.',
+  'demo.backToProject': 'Back to the project',
+  'demo.controlsLabel': 'Demo controls',
+  'demo.scenario': 'Scenario',
+  'demo.reset': 'Reset demo',
+  'demo.resetDone': 'The demo has been reset to its starting state.',
+  'demo.loading': 'Loading the demo',
+  'demo.loadError': 'The demo could not be loaded.',
+  'demo.retry': 'Try again',
+  'demo.langNote': 'The demo runs in the product’s own interface language.',
+  'demo.nextTitle': 'This is a demonstration. The product behind it is real.',
+  'demo.nextBody':
+    'Every demo here reconstructs a system we designed and built. If something like it belongs in your business, the next step is a conversation about what it would have to do.',
+
   // ── /journey ──────────────────────────────────────────────────────────────
   'journeyPage.eyebrow': 'The Unchained Challenge',
   'journeyPage.title': 'Building Unchained.',

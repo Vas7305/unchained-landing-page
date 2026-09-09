@@ -303,6 +303,27 @@ export const fr: Dictionary = {
     'Même processus, mêmes standards, appliqués à votre problème — en commençant par une mission de cadrage et d’architecture à périmètre fixe.',
   'detail.seeRest': 'Voir le reste de nos réalisations',
 
+  'demo.eyebrow': 'Démo Interactive',
+  'demo.cta': 'Essayer la démo interactive',
+  'demo.cardCta': 'Démo interactive',
+  'demo.lede':
+    'Utilisez le produit comme le font ses utilisateurs. Chaque écran réagit à vos actions : il fonctionne simplement avec des données de démonstration plutôt qu’avec un compte réel.',
+  'demo.disclaimer':
+    'Ceci est une démonstration interactive utilisant des données simulées. Rien de ce que vous faites ici n’atteint un compte réel, une base de données réelle ou un paiement réel.',
+  'demo.backToProject': 'Retour au projet',
+  'demo.controlsLabel': 'Commandes de la démo',
+  'demo.scenario': 'Scénario',
+  'demo.reset': 'Réinitialiser la démo',
+  'demo.resetDone': 'La démo est revenue à son état initial.',
+  'demo.loading': 'Chargement de la démo',
+  'demo.loadError': 'La démo n’a pas pu être chargée.',
+  'demo.retry': 'Réessayer',
+  'demo.langNote':
+    'La démo est présentée dans la langue d’interface du produit.',
+  'demo.nextTitle': 'Ceci est une démonstration. Le produit derrière elle est réel.',
+  'demo.nextBody':
+    'Chaque démo reconstitue un système que nous avons conçu et construit. Si quelque chose de similaire a sa place dans votre entreprise, la prochaine étape est une conversation sur ce qu’il devrait faire.',
+
   'journeyPage.eyebrow': 'Le Défi Unchained',
   'journeyPage.title': 'Construire Unchained.',
   'journeyPage.lede':
