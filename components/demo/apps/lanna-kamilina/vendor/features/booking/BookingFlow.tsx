@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import type { BookingRequest, IsoDate, SpecialistSelection, TimeSlot } from '../../types';
+import type { BookingRequest, IsoDate, Specialist, SpecialistSelection, TimeSlot } from '../../types';
 import { ANY_SPECIALIST } from '../../types';
 import { cn } from '../../lib/utils';
 import { routes } from '../../lib/routes';
@@ -255,30 +255,11 @@ export function BookingFlow() {
           onOpen={() => serviceId && setOpenStep('specialist')}
           disabled={!serviceId}
         >
-          <div className="flex flex-col gap-3">
-            <p className="lk-type-small text-lk-muted">
-              Выбор мастера не обязателен. «Без предпочтения» обычно даёт больше свободного
-              времени — запись уйдёт к любому мастеру, который выполняет эту услугу.
-            </p>
-            <div className="grid gap-2 sm:grid-cols-2">
-              <SpecialistOption
-                active={specialist === ANY_SPECIALIST}
-                title="Без предпочтения по мастеру"
-                subtitle={`${eligible.length} мастеров выполняют услугу`}
-                onClick={() => chooseSpecialist(ANY_SPECIALIST)}
-              />
-              {eligible.map((item) => (
-                <SpecialistOption
-                  key={item.id}
-                  active={specialist === item.id}
-                  title={item.name}
-                  subtitle={item.role}
-                  portraitSeed={item.portrait?.seed}
-                  onClick={() => chooseSpecialist(item.id)}
-                />
-              ))}
-            </div>
-          </div>
+          <SpecialistChooser
+            eligible={eligible}
+            selected={specialist}
+            onSelect={chooseSpecialist}
+          />
         </Step>
 
         <Step
@@ -313,89 +294,23 @@ export function BookingFlow() {
           disabled={!ready}
           last
         >
-          <div className="flex flex-col gap-5">
-            <div className="grid gap-5 sm:grid-cols-2">
-              <Field label="Имя" required error={nameError}>
-                {(props) => (
-                  <TextInput
-                    {...props}
-                    value={name}
-                    autoComplete="given-name"
-                    placeholder="Как к вам обращаться"
-                    onChange={(event) => setName(event.target.value)}
-                  />
-                )}
-              </Field>
-              <Field
-                label="Телефон"
-                required
-                hint="Позвоним только чтобы подтвердить запись."
-                error={phoneError}
-              >
-                {(props) => (
-                  <TextInput
-                    {...props}
-                    value={phone}
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    placeholder="+7 999 123-45-67"
-                    onChange={(event) => setPhone(event.target.value)}
-                  />
-                )}
-              </Field>
-            </div>
-
-            <Field label="Комментарий" hint="Например: сложная история окрашивания, событие через неделю.">
-              {(props) => (
-                <TextArea
-                  {...props}
-                  value={comment}
-                  onChange={(event) => setComment(event.target.value)}
-                />
-              )}
-            </Field>
-
-            <Checkbox checked={consent} onChange={setConsent} error={consentError}>
-              Согласен(на) на обработку персональных данных для записи в салон.
-            </Checkbox>
-
-            {submitError && (
-              <p role="alert" className="lk-type-small border border-lk-critical/40 bg-lk-critical/5 px-4 py-3 text-lk-critical">
-                {submitError}
-              </p>
-            )}
-
-            {channels.length ? (
-              <>
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  {channels.map((channel, index) => (
-                    <Button
-                      key={channel}
-                      size="lg"
-                      variant={index === 0 ? 'primary' : 'secondary'}
-                      onClick={() => submit(channel)}
-                      disabled={submitting !== null}
-                      className="sm:w-fit"
-                    >
-                      {submitting === channel
-                        ? 'Открываем…'
-                        : `Отправить в ${deliveryLabels[channel]}`}
-                    </Button>
-                  ))}
-                </div>
-
-                <p className="lk-type-meta text-lk-muted">
-                  Регистрация не нужна. Заявка откроется в выбранном мессенджере — останется
-                  нажать «Отправить». Администратор подтвердит время.
-                </p>
-              </>
-            ) : (
-              <p role="alert" className="lk-type-small border border-lk-line px-4 py-3 text-lk-muted">
-                Онлайн-заявка временно недоступна — позвоните в салон, и мы запишем вас сами.
-              </p>
-            )}
-          </div>
+          <ContactForm
+            name={name}
+            phone={phone}
+            comment={comment}
+            consent={consent}
+            nameError={nameError}
+            phoneError={phoneError}
+            consentError={consentError}
+            submitError={submitError}
+            submitting={submitting}
+            channels={channels}
+            onName={setName}
+            onPhone={setPhone}
+            onComment={setComment}
+            onConsent={setConsent}
+            onSubmit={submit}
+          />
         </Step>
       </div>
 
@@ -407,6 +322,181 @@ export function BookingFlow() {
         dateLabel={date && time ? `${formatDateLabel(date)}, ${time}` : undefined}
         factors={service?.price.factors}
       />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------- specialist step */
+
+/**
+ * Choosing a master, or explicitly not choosing one.
+ *
+ * "Без предпочтения" is first and framed as the easier option rather than as a
+ * fallback, because it genuinely has more free time — the calendar pools every
+ * eligible master's availability behind it.
+ */
+function SpecialistChooser({
+  eligible,
+  selected,
+  onSelect,
+}: {
+  eligible: Specialist[];
+  selected: SpecialistSelection;
+  onSelect: (next: SpecialistSelection) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="lk-type-small text-lk-muted">
+        Выбор мастера не обязателен. «Без предпочтения» обычно даёт больше свободного
+        времени — запись уйдёт к любому мастеру, который выполняет эту услугу.
+      </p>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <SpecialistOption
+          active={selected === ANY_SPECIALIST}
+          title="Без предпочтения по мастеру"
+          subtitle={`${eligible.length} мастеров выполняют услугу`}
+          onClick={() => onSelect(ANY_SPECIALIST)}
+        />
+        {eligible.map((item) => (
+          <SpecialistOption
+            key={item.id}
+            active={selected === item.id}
+            title={item.name}
+            subtitle={item.role}
+            portraitSeed={item.portrait?.seed}
+            onClick={() => onSelect(item.id)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ----------------------------------------------------------- contact step */
+
+interface ContactFormProps {
+  name: string;
+  phone: string;
+  comment: string;
+  consent: boolean;
+  /** Validation messages, present only once the visitor has tried to submit. */
+  nameError?: string;
+  phoneError?: string;
+  consentError?: string;
+  /** A failure from the last attempt — a taken slot, or a delivery problem. */
+  submitError: string | null;
+  /** Which channel is mid-flight, so only that button says «Открываем…». */
+  submitting: DeliveryChannel | null;
+  channels: DeliveryChannel[];
+  onName: (value: string) => void;
+  onPhone: (value: string) => void;
+  onComment: (value: string) => void;
+  onConsent: (value: boolean) => void;
+  onSubmit: (channel: DeliveryChannel) => void;
+}
+
+/**
+ * The last step: who to call back, and where to send the request.
+ *
+ * Holds no state of its own. Every value and every error comes from the flow,
+ * because the flow is what decides when a field counts as wrong — the errors
+ * only appear once a submission has been attempted, and clearing them is its
+ * business rather than this component's.
+ */
+function ContactForm({
+  name,
+  phone,
+  comment,
+  consent,
+  nameError,
+  phoneError,
+  consentError,
+  submitError,
+  submitting,
+  channels,
+  onName,
+  onPhone,
+  onComment,
+  onConsent,
+  onSubmit,
+}: ContactFormProps) {
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field label="Имя" required error={nameError}>
+          {(props) => (
+            <TextInput
+              {...props}
+              value={name}
+              autoComplete="given-name"
+              placeholder="Как к вам обращаться"
+              onChange={(event) => onName(event.target.value)}
+            />
+          )}
+        </Field>
+        <Field
+          label="Телефон"
+          required
+          hint="Позвоним только чтобы подтвердить запись."
+          error={phoneError}
+        >
+          {(props) => (
+            <TextInput
+              {...props}
+              value={phone}
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="+7 999 123-45-67"
+              onChange={(event) => onPhone(event.target.value)}
+            />
+          )}
+        </Field>
+      </div>
+
+      <Field label="Комментарий" hint="Например: сложная история окрашивания, событие через неделю.">
+        {(props) => (
+          <TextArea {...props} value={comment} onChange={(event) => onComment(event.target.value)} />
+        )}
+      </Field>
+
+      <Checkbox checked={consent} onChange={onConsent} error={consentError}>
+        Согласен(на) на обработку персональных данных для записи в салон.
+      </Checkbox>
+
+      {submitError && (
+        <p role="alert" className="lk-type-small border border-lk-critical/40 bg-lk-critical/5 px-4 py-3 text-lk-critical">
+          {submitError}
+        </p>
+      )}
+
+      {channels.length ? (
+        <>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            {channels.map((channel, index) => (
+              <Button
+                key={channel}
+                size="lg"
+                variant={index === 0 ? 'primary' : 'secondary'}
+                onClick={() => onSubmit(channel)}
+                disabled={submitting !== null}
+                className="sm:w-fit"
+              >
+                {submitting === channel ? 'Открываем…' : `Отправить в ${deliveryLabels[channel]}`}
+              </Button>
+            ))}
+          </div>
+
+          <p className="lk-type-meta text-lk-muted">
+            Регистрация не нужна. Заявка откроется в выбранном мессенджере — останется
+            нажать «Отправить». Администратор подтвердит время.
+          </p>
+        </>
+      ) : (
+        <p role="alert" className="lk-type-small border border-lk-line px-4 py-3 text-lk-muted">
+          Онлайн-заявка временно недоступна — позвоните в салон, и мы запишем вас сами.
+        </p>
+      )}
     </div>
   );
 }

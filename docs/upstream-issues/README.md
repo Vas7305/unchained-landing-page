@@ -68,6 +68,7 @@ uncommitted, on `main`.
 | `rerender-lazy-state-init` ×2 | `BookingFlow.tsx` | `useState(params.get(…))` → lazy initialisers |
 | `prefer-module-scope-static-value` | `ContactLinks.tsx` | a constant array hoisted out of the component |
 | `js-combine-iterations` ×4, `js-set-map-lookups` ×5 | `data/index.ts`, `BookingFlow.tsx`, `lib/seo.ts` | list walks collapsed to one pass; repeated `includes` scans replaced by a `Set` built once |
+| `no-giant-component` | `BookingFlow.tsx` | the specialist chooser and the contact form extracted as siblings; the flow component went 351 → 266 lines |
 
 Verified after the change: `tsc --noEmit` clean, `vite build` green. The
 repository has no test suite.
@@ -117,7 +118,7 @@ written from an effect, which runs *after* the render it reacts to has painted:
 | draft | rule | confidence | why not fixed |
 |---|---|---|---|
 | [convert-screen-size](./vectorforge-convert-screen-size.md) | `no-giant-component`, `no-high-complexity-react-function` | high | Restructuring `ConvertScreen` would turn every future re-copy into a manual merge. The benefit is only permanent if it happens upstream. |
-| [booking-flow-size](./lanna-kamilina-booking-flow-size.md) | `no-giant-component` | high | Same reasoning, for Lanna Kamilina's 660-line `BookingFlow`. |
+| [booking-flow-size](./lanna-kamilina-booking-flow-size.md) | `no-high-complexity-react-function` | high | The size half was fixed upstream. What remains is twelve interdependent pieces of state, the submit error taxonomy and the URL sync — moving those into a `useBookingFlow()` hook is an architectural decision, not a mechanical extraction. |
 
 The GitHub CLI is not installed on this machine (`gh: command not found`), so
 this is a file rather than a filed issue. To file it:
@@ -128,7 +129,7 @@ gh issue create --repo Vas7305/VectorForge-V-1.0 \
   --body-file docs/upstream-issues/vectorforge-convert-screen-size.md
 
 gh issue create --repo Vas7305/Lanna-Kamilina \
-  --title "refactor: BookingFlow is ~660 lines and holds five steps plus the form" \
+  --title "refactor: BookingFlow control-flow complexity" \
   --body-file docs/upstream-issues/lanna-kamilina-booking-flow-size.md
 ```
 

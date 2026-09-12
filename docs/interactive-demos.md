@@ -346,11 +346,14 @@ large files with no rendering tests behind them, so it was left for a deliberate
 pass.
 
 Three files left that list by being vendored instead: Mensalere's, VectorForge's
-and Lanna Kamilina's approximations no longer exist. The same two rules now fire
-on the products' own large components — `ConvertScreen` and `BookingFlow` — and
-those are deliberately *not* fixed here, because the vendored trees are verbatim
-copies and restructuring one would turn every future re-copy into a manual
-merge. Both are written up as issue drafts in
+and Lanna Kamilina's approximations no longer exist.
+
+The same rules then fired on the products' own large components. `BookingFlow`
+was fixed **upstream** — two step bodies extracted, 351 lines down to 266 — and
+the vendored copy overwritten from it. What still fires there is control-flow
+complexity rather than size, and unpicking that means deciding where the flow's
+state should live, so it is carried as the product wrote it. `ConvertScreen` is
+untouched for the same reason it always was. Both are written up in
 [upstream-issues/](./upstream-issues/).
 
 ## 10. Adding a ninth demo
@@ -384,7 +387,7 @@ frontend. The recipe is the same each time and is worth following exactly.
 | styling strategy | rescoped stylesheet | namespaced tokens | rescoped stylesheet | namespaced tokens **and** rescoped base layer |
 | what had to be replaced | one outbound call | nothing — already mock-backed | the Tauri IPC layer | one outbound call and the document head |
 | adaptations | 3 | 3 | 4 modules + 10 in-place divergences | 7 in-place divergences |
-| fixed upstream instead | — | — | 4 findings | 14 findings |
+| fixed upstream instead | — | — | 4 findings | 15 findings |
 
 **Lazara Sersa.** Its `tokens.css` and `base.css` were mechanically rewritten
 from `:root`/`html`/`body` onto one class in `vendor/styles/surface.module.css`,
