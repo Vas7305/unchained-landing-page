@@ -370,7 +370,7 @@ frontend. The recipe is the same each time and is worth following exactly.
 | files vendored | 44 + 25 photographs | 44 | 84 + 3 source rasters |
 | styling strategy | rescoped stylesheet | namespaced tokens | rescoped stylesheet |
 | what had to be replaced | one outbound call | nothing — already mock-backed | the Tauri IPC layer |
-| adaptations | 3 | 3 | 4 modules + 14 in-place divergences |
+| adaptations | 3 | 3 | 4 modules + 10 in-place divergences |
 
 **Lazara Sersa.** Its `tokens.css` and `base.css` were mechanically rewritten
 from `:root`/`html`/`body` onto one class in `vendor/styles/surface.module.css`,
@@ -451,24 +451,34 @@ whole frontend is the product's, and the isolation work is four modules:
   before anybody visits the Enhance screen.
 - **`vendor/demo-reset.ts`** — see below.
 
-Fourteen further divergences are marked in place across eleven
-otherwise-untouched product files. Seven remove a call into the operating
-system: the OS drag-drop listener in `DropZone` and in `ConvertScreen`, the
-`project.json` write in `assetStore`, the SVG rehydrate in `convertStore` and in
-`ConvertScreen`, the last-screen write in `uiStore`, and the import dialog's new
-argument.
+Ten further divergences are marked in place across eight otherwise-untouched
+product files. Seven remove a call into the operating system: the OS drag-drop
+listener in `DropZone` and in `ConvertScreen`, the `project.json` write in
+`assetStore`, the SVG rehydrate in `convertStore` and in `ConvertScreen`, the
+last-screen write in `uiStore`, and the import dialog's new argument.
 
-The other seven are defects found while reading the code, each worth fixing
-anywhere: a ref written during render in `DropZone`; form state filled from an
-effect in both project modals; a `<dialog>` with no accessible name in `Modal`;
-`aria-selected` on a `role="listitem"` in `AssetBrowser`, which a screen reader
-ignores, replaced by `aria-current`; and a redundant `role` on the `<aside>` in
-`RightPanel` and the `<header>` in `TopBar`.
+The other three are defects whose fix depends on something that is true here and
+not in the product: a ref written during render in `DropZone` (upstream still
+needs that ref, because upstream still has the listener it was written for), and
+form state filled from an effect in both project modals.
 
-Grep for `DEMO DIVERGENCE` to find all fourteen. Every one is written up in
-[upstream-findings.md](./upstream-findings.md), and the confirmed findings that
-were deliberately *not* patched are drafted as issue bodies in
-[upstream-issues/](./upstream-issues/).
+Grep for `DEMO DIVERGENCE` to find all ten; every one is written up in
+[upstream-findings.md](./upstream-findings.md).
+
+### Four findings went the other way
+
+Four accessibility findings in the vendored tree were fixed **in the VectorForge
+repository** and the vendored files overwritten from it — `prefer-tag-over-role`
+in three components, `aria-selected` on a `listitem`, the hand-rolled
+click/keydown control that the first fix exposed underneath it, and two
+redundant ARIA roles.
+
+That is the arrangement doing what it was built for. A vendored tree that is a
+verbatim copy makes "fix it upstream and re-copy" a mechanical operation rather
+than a negotiation: three files went back to being byte-for-byte the product's,
+the demo got the fix, and the product keeps it. See
+[upstream-issues/](./upstream-issues/) for what changed and what it cost in
+CSS.
 
 **Export is real.** `tauriExportSvgFile` opened a save dialog and wrote a file
 through Rust. The browser equivalent needs no backend — a Blob and an anchor —

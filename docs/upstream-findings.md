@@ -7,7 +7,14 @@ to the product repositories rather than to this one.
 
 They are recorded here rather than patched, because the value of the vendored
 copy is that it is *the product* — a re-copy should be an overwrite, not a
-merge. The exceptions are the five under "Fixed locally" below. Each is
+merge.
+
+Four of the VectorForge findings were instead **fixed in the VectorForge
+repository and re-copied** — see [upstream-issues/](./upstream-issues/), and
+§10–§12 below. That is the arrangement working as intended: the fix lands where
+it lasts, and the vendored copy is overwritten rather than diverging further.
+
+The remaining exceptions are the four under "Fixed locally" below. Each is
 behaviour-preserving, each sits in a path a visitor actually exercises, and
 each carries a `DEMO DIVERGENCE` comment in the file saying what changed and
 why. Everything else is left exactly as the product wrote it.
@@ -109,7 +116,7 @@ patched here are also written out as ready-to-file issue bodies in
 
 ---
 
-## Reported, not fixed — real but low impact
+## Reported, and fixed upstream where marked
 
 ### 6. Chained `filter().map()` over small arrays — LOW
 
@@ -162,11 +169,11 @@ patched here are also written out as ready-to-file issue bodies in
   free. The rows already carry `tabIndex`, `onClick` and an Enter/Space
   `onKeyDown`, so most of the behaviour is there — it is the roles that are
   wrong, not the interaction.
-- **Status here** Reported, not fixed. Unlike the dialog name above, this one
-  changes a widget's whole accessibility contract — roving tabindex,
-  `aria-activedescendant`, arrow-key navigation — and choosing that from
-  outside the product is how a demo starts drifting from the application it is
-  supposed to be showing. It belongs to whoever owns the asset browser.
+- **Status** ✅ **Fixed upstream and re-copied.** `aria-current` replaced
+  `aria-selected`, and the row's hand-rolled click/keydown handling became a
+  real `<button>` wrapping the selectable part, with the action buttons as
+  siblings — the structure `SidebarProjectsSection` already used. The vendored
+  copy is byte-for-byte the product's again.
 
 ### 11. ARIA roles where an HTML element would do — LOW
 
@@ -178,8 +185,11 @@ patched here are also written out as ready-to-file issue bodies in
   where `<ul>`, `<li>` and `<button>` carry the same semantics natively, for
   free, with keyboard behaviour included. `DropZone`'s is the one with teeth:
   a real `<button>` would not need the hand-written Enter/Space handler it has.
-- **Status here** Reported. Same reasoning as #10 — these are the product's
-  markup decisions.
+- **Status** ✅ **Fixed upstream and re-copied.** `<ul>`, `<li>` and
+  `<button type="button">`, with the stylesheet changes the user-agent styles
+  require (`list-style: none`; `appearance`/`font`/`color`/`text-align:
+  inherit`). `DropZone`'s hand-written Enter/Space handler was deleted — the
+  element handles it natively now.
 
 ### 12. Redundant ARIA roles — LOW
 
@@ -187,8 +197,10 @@ patched here are also written out as ready-to-file issue bodies in
 - **Files** `src/components/layout/RightPanel.tsx:10`,
   `src/components/layout/TopBar.tsx:60`
 - **Impact** None, beyond noise: `role="complementary"` on `<aside>` and
-  `role="banner"` on `<header>` restate what the element already means. Worth
-  deleting on the next pass through those files.
+  `role="banner"` on `<header>` restate what the element already means.
+- **Status** ✅ **Fixed upstream and re-copied.** Both attributes deleted; the
+  computed accessibility tree is unchanged, and both files are verbatim copies
+  again.
 
 ---
 
