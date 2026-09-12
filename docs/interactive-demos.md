@@ -133,7 +133,7 @@ scenario resets the same way, for the same reason.
 | Mensalere | browser | en | **the product's own frontend** — directory, profile, availability, booking | one |
 | Frito | phone | es | onboarding → discovery → match → conversation | new user / with matches |
 | Unchained OS | desktop | en | pipeline → compare → allocate capital → commit | pipeline / allocation |
-| VectorForge | desktop | en | trace recipe → version history → icon package → batch | one |
+| VectorForge | desktop | en | **the product's own frontend** — import, mode, sliders, trace, split preview, node overlay, SVG export | one |
 
 ### Why each demo is in its product's own language
 
@@ -158,8 +158,10 @@ Every demo can be made to fail, on purpose and repeatably (§20) — never rando
 - **Lazara Sersa** — committed dates are refused, with the next free date offered.
 - **Unchained OS** — cheques below the fund minimum, deals not yet at investment
   committee, and allocations exceeding dry powder.
-- **VectorForge** — tracing a photographic source in Logo mode is refused, naming
-  the mode that would work.
+- **VectorForge** — a source the tracer has no input for throws out of the
+  adapter, which is the product's own error path: the red message under the
+  sliders is written by the product's store, not by the demo. Cancel is real
+  too — the trace is an `AbortController` the product created.
 - **Frito** — under-18 registration is refused.
 
 ### Fixtures
@@ -171,8 +173,11 @@ tiles are generated SVG (`components/demo/ui/DemoArtwork.tsx`). Using stock
 portraits as dating profiles or as named clinicians with invented registration
 numbers would be fabricating records about real people.
 
-This is also why the demos add **zero image requests**: there are no demo image
-assets to lazy-load, compress or 404.
+No demo shows a photograph of a person. Two carry real imagery of other kinds,
+fetched only on the route that needs it: Lazara Sersa's 25 portfolio
+photographs, and VectorForge's three source rasters (92 KB total), which are
+the product's own brand artwork rendered to PNG — see §"Vendored product
+frontends".
 
 ---
 
@@ -277,10 +282,19 @@ markup is not. Nothing was mocked, disabled or weakened to achieve this.
 - Authentication. No demo has a login, because none needs one to be understood.
 - Multi-user or shared state. Each visitor's demo is theirs alone.
 - Persistence across reloads. Reloading a demo starts it over, by design.
-- VectorForge's actual raster-to-vector tracing. The recipe, the reproducibility
-  guarantee, the version lineage and the output package are modelled; the tracer
-  itself is a Rust core in a desktop application and is not reimplemented in a
-  browser.
+- VectorForge's raster-to-vector tracing *as such*. The tracer is a Rust core
+  in a desktop application. What the demo does instead is the half that can be
+  done honestly: every sample source is a rasterised copy of a vector this
+  repository still holds, so the perfect trace is known, and Detail, Colors,
+  Smoothing, node simplification and the four modes then perform real
+  operations on it — resampling the outline, snapping to a grid, clustering the
+  palette by luminance. The preview responds, the numbers are measured from the
+  SVG that was produced, and the same recipe gives the same file. See
+  `lib/demo/apps/vector-forge/trace.ts`.
+- VectorForge's other seven screens. Convert is vendored in full; Enhance,
+  Optimize, Web Assets, Batch, Export, Settings and the Dashboard each sit on
+  their own stack of Tauri commands. The navigation still lists them and says
+  so, through the product's own `EmptyState`.
 
 ---
 
@@ -312,14 +326,19 @@ Assessed and **not** changed, with reasons:
   inside loops of at most ten. Converting these to `Set`s would add allocation
   and indirection for no measurable gain.
 
+- **`async-await-in-loop`** (VectorForge batch) — no longer present. The
+  hand-written batch queue was deleted when the product's own Convert screen
+  was vendored.
+
 **Outstanding, recipe proven, awaiting sign-off:** `no-giant-component` and
-`no-high-complexity-react-function` still fire on six demo `App.tsx` files
-(Frito, Klassisches Ballett, Lanna Kamilina, Mensalere, Unchained OS,
-VectorForge). The fix is the one applied to Lazara Sersa and already present in
+`no-high-complexity-react-function` still fire on the demo `App.tsx` files that
+are still hand-written (Frito, Klassisches Ballett, Lanna Kamilina, Unchained
+OS). The fix is the one applied to Lazara Sersa and already present in
 TanCerca — extract each screen or panel into a sibling component in the same
 file, taking `{ state, dispatch }`. It is mechanical and behaviour-preserving,
-but it touches six large files with no rendering tests behind them, so it was
-left for a deliberate pass rather than folded into this one.
+but it touches large files with no rendering tests behind them, so it was left
+for a deliberate pass. Two files left that list by being vendored instead:
+Mensalere's and VectorForge's approximations no longer exist.
 
 ## 10. Adding a ninth demo
 
@@ -339,22 +358,35 @@ route, shell, frame, controls, reset and CTAs all pick it up from the registry.
 
 ## Vendored product frontends
 
-Two demos no longer approximate their product — they run the product's own
+Three demos no longer approximate their product — they run the product's own
 frontend. The recipe is the same each time and is worth following exactly.
 
 ### What gets copied, and what gets adapted
 
-| | Lazara Sersa | Mensalere |
-|---|---|---|
-| source | `/d/Sersa Sarria` | `/d/Mensalere` |
-| stack | Next 16 / React 19 / CSS modules | Vite 8 / React 19 / Tailwind v4 |
-| files vendored | 44 + 25 photographs | 44 |
-| styling strategy | rescoped stylesheet | namespaced tokens |
-| adaptations | 3 | 3 |
+| | Lazara Sersa | Mensalere | VectorForge |
+|---|---|---|---|
+| source | `/d/Sersa Sarria` | `/d/Mensalere` | `/d/VectorForge-V-1.0` |
+| stack | Next 16 / React 19 / CSS modules | Vite 8 / React 19 / Tailwind v4 | Tauri 2 / Vite / React 19 / CSS modules + Zustand |
+| files vendored | 44 + 25 photographs | 44 | 84 + 3 source rasters |
+| styling strategy | rescoped stylesheet | namespaced tokens | rescoped stylesheet |
+| what had to be replaced | one outbound call | nothing — already mock-backed | the Tauri IPC layer |
+| adaptations | 3 | 3 | 4 modules + 14 in-place divergences |
 
 **Lazara Sersa.** Its `tokens.css` and `base.css` were mechanically rewritten
 from `:root`/`html`/`body` onto one class in `vendor/styles/surface.module.css`,
 so the product's design system applies inside the demo and cannot escape it.
+
+**VectorForge.** Same mechanical rewrite as Lazara Sersa: `tokens.css` and
+`globals.css` concatenated into `vendor/styles/surface.module.css` with every
+global selector — `:root`, `html, body, #root`, `body`, `:focus-visible`,
+`::-webkit-scrollbar`, the universal reset — scoped under one class. This one
+mattered more than usual: the product and this site both define `--surface`,
+`--border`, `--radius-md` and `--font-mono` with different values, and both
+zero every margin and padding with `*`. Unscoped, opening the demo would have
+restyled the page around it. Its CSS modules then needed no edit at all —
+29 of the product's 78 came across, and all 29 verbatim — because custom
+properties declared on the surface class are inherited by everything inside it
+and by nothing outside it.
 
 **Mensalere.** Tailwind tokens cannot be scoped that way — `@theme` is global —
 and the product and this site both define `--color-primary`, `--color-border`
@@ -390,6 +422,74 @@ a merge.
   journey does not use — those three files were dropped rather than pulling in
   a query client.
 
+### VectorForge: a desktop application in a browser tab
+
+This is the one where the boundary is not a detail. VectorForge is a Tauri
+application: its tracer, optimiser, thumbnailer, file dialogs and project
+storage are Rust commands reached through `invoke`, and twelve of its modules
+import `@tauri-apps/api`. None of that can exist in a browser tab.
+
+What made it vendorable anyway is that the coupling is *concentrated*. The
+components are pure, and the Zustand stores that matter — `convertStore`,
+`uiStore`, `historyStore`, `toastStore`, `systemStore`, `preferencesStore`,
+`assetStore` — reach the operating system only through `services/`. So the
+whole frontend is the product's, and the isolation work is four modules:
+
+- **`vendor/services/`** — `fs`, `probe`, `thumbnails`, `preferences`, `tauri`
+  and `vectorize`, each keeping the product's export names and signatures and
+  answering from fixtures. `convertStore.startVectorization` is untouched: it
+  still builds an `AbortController`, still dynamically imports `./vectorize`,
+  still reports progress by the product's own stage names. It simply reaches an
+  adapter. The pure functions in `services/fs.ts` — `validateRef`,
+  `isSupportedFormat`, `pathsToRefs`, the 100 MB limit — are copied verbatim,
+  so the import validation a visitor sees is the product's.
+- **`vendor/stores/projectStore.ts`** — 595 lines of directory creation,
+  `project.json` repair, workspace scanning and migration, replaced by the read
+  surface the vendored screens actually use. Projects created in the demo live
+  in memory and nowhere else.
+- **`vendor/stores/enhanceStore.ts`** — reduced to the empty map Convert reads
+  before anybody visits the Enhance screen.
+- **`vendor/demo-reset.ts`** — see below.
+
+Fourteen further divergences are marked in place across eleven
+otherwise-untouched product files. Seven remove a call into the operating
+system: the OS drag-drop listener in `DropZone` and in `ConvertScreen`, the
+`project.json` write in `assetStore`, the SVG rehydrate in `convertStore` and in
+`ConvertScreen`, the last-screen write in `uiStore`, and the import dialog's new
+argument.
+
+The other seven are defects found while reading the code, each worth fixing
+anywhere: a ref written during render in `DropZone`; form state filled from an
+effect in both project modals; a `<dialog>` with no accessible name in `Modal`;
+`aria-selected` on a `role="listitem"` in `AssetBrowser`, which a screen reader
+ignores, replaced by `aria-current`; and a redundant `role` on the `<aside>` in
+`RightPanel` and the `<header>` in `TopBar`.
+
+Grep for `DEMO DIVERGENCE` to find all fourteen. Every one is written up in
+[upstream-findings.md](./upstream-findings.md), and the confirmed findings that
+were deliberately *not* patched are drafted as issue bodies in
+[upstream-issues/](./upstream-issues/).
+
+**Export is real.** `tauriExportSvgFile` opened a save dialog and wrote a file
+through Rust. The browser equivalent needs no backend — a Blob and an anchor —
+so the visitor gets the actual SVG the trace produced, byte for byte, and
+nothing leaves the machine to make that happen.
+
+### Reset, when the state is not in the tree
+
+Every other demo resets by remount: `DemoStage` changes the React `key` and the
+`useReducer` inside is rebuilt. VectorForge is a Zustand application, and a
+Zustand store is a module singleton — it survives every key change the shell can
+think of. Pressing Reset would have rebuilt the components around state that
+never moved.
+
+So each vendored store exports its own reset beside its own definition, and
+`vendor/demo-reset.ts` calls them from a `useState` initialiser in the demo's
+`App.tsx`. That runs during the first render of the new tree and before its
+children's, so the previous visitor's assets never paint for a frame. It is a
+lifecycle hook used for its timing, deliberately; a module-level flag would not
+re-run on a remount, which is the whole point.
+
 ### Why Mensalere needed almost no isolation work
 
 Its `services/` layer is already backed by a mock store with simulated latency,
@@ -400,9 +500,40 @@ layer rather than reimplementing it. `psychologistService.list()` and
 
 ### What this removed
 
-Both demos' hand-written approximations are deleted — 403 lines for Lazara
-Sersa, a directory-and-diary reimplementation for Mensalere. What remains in
-`lib/demo/apps/<slug>/state.ts` is only the selection each product keeps in its
-URL: which filter is active, whose profile is open, which day and slot are
-chosen. Their tests shrank accordingly, because the product's own components
-and services are tested in the product's own repository.
+Every vendored demo's hand-written approximation is deleted — 403 lines for
+Lazara Sersa, a directory-and-diary reimplementation for Mensalere, and for
+VectorForge a 665-line `App.tsx` plus a reducer that modelled a trace, a
+version history, an icon package and a batch queue with invented numbers.
+
+For Lazara Sersa and Mensalere what remains in `lib/demo/apps/<slug>/state.ts`
+is only the selection each product keeps in its URL. VectorForge has no
+`state.ts` at all: its state is the product's own stores. What replaced the
+reducer is `trace.ts` — the real geometric and colour operations behind the
+sliders — and its 21 tests check the two claims the demo makes to a prospect:
+that the same recipe gives the same file, and that every control moves the
+output in the direction its label promises.
+
+Their tests shrank accordingly, because the product's own components, services
+and stores are tested in the product's own repository.
+
+### What it cost, measured
+
+Both builds run, both measured the same way — the sum of every JS and CSS file
+the prerendered HTML references:
+
+| route | before VectorForge | after | change |
+|---|---|---|---|
+| `/` | 1167 KB raw / 359 KB gzip | 1167 / 359 | **none** |
+| `/work` | 1094 KB | 1094 KB | **none** |
+| `/work/vector-forge` | 1092 KB | 1092 KB | **none** |
+| any `/work/*/demo` | 1361 KB raw / 407 KB gzip | 1475 / 433 | **+114 KB raw, +26 KB gzip** |
+
+Plus 92 KB of PNG, requested only once the Convert screen shows an asset. The
+entire frontend of a desktop application — 84 files including 29 CSS modules,
+the design system, Zustand, and two self-hosted font families — costs 26 KB
+gzipped, on demo routes only, and nothing at all on any page that is not a
+demo.
+
+The +114 KB lands on *every* demo route rather than only VectorForge's, because
+Turbopack still groups all eight demo chunks together (documented in §7). That
+is the same finding as before, not a new one.
