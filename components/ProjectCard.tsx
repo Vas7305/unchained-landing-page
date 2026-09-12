@@ -9,7 +9,7 @@ import { demoPath, hasDemo } from '@/lib/demo/registry';
 import ProjectVisual from '@/components/ProjectVisual';
 import StatusBadge from '@/components/StatusBadge';
 import { useTranslation } from '@/lib/i18n/LanguageProvider';
-import type { TranslationKey } from '@/lib/i18n/dictionaries';
+import { useProjectCopy } from '@/lib/cms/projectCopy';
 
 /**
  * One project in the portfolio grid.
@@ -35,6 +35,10 @@ const cardClasses =
 export default function ProjectCard({ project }: { project: Project }) {
   const t = useTranslation();
   const demo = hasDemo(project.slug);
+  // Resolved rather than read straight from the dictionary: a project created
+  // in the panel has no `project.<slug>.*` keys, and t() returns the key on a
+  // miss. See lib/cms/projectCopy.ts.
+  const copy = useProjectCopy(project);
 
   return (
     <article
@@ -48,7 +52,7 @@ export default function ProjectCard({ project }: { project: Project }) {
           thumbnail down, or cards sit at different heights in the same row. */}
       <div className='flex items-start justify-between gap-4 min-h-8'>
         <span className='text-xs uppercase tracking-widest text-muted-foreground'>
-          {t(('project.' + project.slug + '.category') as TranslationKey)}
+          {copy.category}
         </span>
         <StatusBadge status={project.status} />
       </div>
@@ -57,7 +61,12 @@ export default function ProjectCard({ project }: { project: Project }) {
         {project.thumbnail ? (
           <Image
             src={project.thumbnail}
-            alt=''
+            /* Empty when no alt was written: the card's heading already names
+               the project, so an undescribed screenshot is decoration and
+               announcing the filename would be noise. An editor who writes alt
+               text in the panel is saying the image carries information the
+               heading does not, and it is read out. */
+            alt={copy.thumbnailAlt ?? ''}
             fill
             sizes='(min-width: 768px) 33vw, 100vw'
             className='object-cover object-top'
@@ -82,10 +91,10 @@ export default function ProjectCard({ project }: { project: Project }) {
                  without a second link wrapping one. */
               className='after:absolute after:inset-0 after:content-[""] after:rounded-2xl'
             >
-              {project.title}
+              {copy.title}
             </Link>
           ) : (
-            project.title
+            copy.title
           )}
           {project.detailed && (
             <ArrowUpRight
@@ -96,7 +105,7 @@ export default function ProjectCard({ project }: { project: Project }) {
           )}
         </h3>
         <p className='text-sm text-muted-foreground leading-relaxed'>
-          {t(('project.' + project.slug + '.description') as TranslationKey)}
+          {copy.description}
         </p>
       </div>
 

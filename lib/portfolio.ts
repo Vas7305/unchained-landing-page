@@ -3,8 +3,20 @@ import {
   STATUS_META,
   fallbackProjects,
   type Project,
+  type ProjectCopy,
   type ProjectStatus,
 } from '@/lib/projects';
+import {
+  bool,
+  externalUrl,
+  labels,
+  mediaRef,
+  size,
+  text,
+  year,
+} from '@/lib/cms/sanitize';
+import { readTranslations } from '@/lib/cms/localized';
+import { readSeo } from '@/lib/cms/seo';
 
 /**
  * The public website's second question: "what is the portfolio?"
@@ -66,25 +78,15 @@ const projectsEndpoint = rpcEndpoint('list_public_projects');
 const REQUEST_TIMEOUT_MS = 8000;
 
 /**
- * Control characters, zero-width characters and bidirectional overrides.
+ * Every column the RPC returns. Every one of them is untrusted.
  *
- * Copied deliberately from lib/commercial/resolver.ts rather than shared: both
- * modules sanitise text that arrives from the database, and the day one of
- * them needs a different class is the day sharing it would be wrong. The
- * reasoning is the same — the risk is not markup injection, since React
- * escapes output already, but a stored string carrying a bidi override that
- * rearranges the sentence around it on screen.
- *
- * The one difference: the line feed is NOT in the class. The resolver
- * sanitises names, where a newline is never wanted; this sanitises a
- * project's summary, its challenge and its solution, which are prose somebody
- * may have written in paragraphs. Stripping their line breaks would run those
- * paragraphs together on the detail page.
+ * The readers that sanitise them — text, bool, year, size, labels, mediaRef,
+ * externalUrl — used to be defined here. They moved to lib/cms/sanitize.ts
+ * unchanged when insights needed the same rules: two content types applying
+ * two copies of "what is a displayable string" would have drifted, and the
+ * copy that drifted would have been the one with no test file of its own.
+ * Their behaviour is still pinned by toProject() in lib/portfolio.test.ts.
  */
-const UNDISPLAYABLE =
-  /[\u0000-\u0009\u000B-\u001F\u007F\u200B-\u200F\u2028\u2029\u202A-\u202E\u2066-\u2069]/g;
-
-/** Every column the RPC returns. Every one of them is untrusted. */
 interface ProjectRow {
   slug?: unknown;
   title?: unknown;
@@ -101,89 +103,61 @@ interface ProjectRow {
   thumbnail?: unknown;
   thumbnail_width?: unknown;
   thumbnail_height?: unknown;
+  thumbnail_alt?: unknown;
   hero_image?: unknown;
+  hero_image_alt?: unknown;
   summary?: unknown;
   challenge?: unknown;
   solution?: unknown;
   outcome?: unknown;
   external_url?: unknown;
+  // Added by the CMS phase. A build running against a database that has not
+  // had 20260912000001 applied receives none of these, and every one of them
+  // degrades to "not set" — which is the same state as a project whose editor
+  // has written no overrides and commissioned no translations.
+  seo_title?: unknown;
+  seo_description?: unknown;
+  og_title?: unknown;
+  og_description?: unknown;
+  og_image?: unknown;
+  canonical_url?: unknown;
+  translations?: unknown;
 }
 
 /**
- * A displayable string, or null.
+ * One locale's translation of a project.
  *
- * Multi-line fields — the summary, the challenge, the solution — keep their
- * paragraph breaks, so newlines are stripped only from the single-line ones.
- * `collapse` is what says which is which.
- */
-function text(
-  value: unknown,
-  max: number,
-  collapse = true,
-): string | null {
-  if (typeof value !== 'string') return null;
-  const stripped = value.replace(UNDISPLAYABLE, ' ');
-  const clean = collapse
-    ? stripped.replace(/\s+/g, ' ').trim()
-    : stripped.replace(/[^\S\n]+/g, ' ').trim();
-  return clean === '' ? null : clean.slice(0, max);
-}
-
-function bool(value: unknown): boolean {
-  return value === true;
-}
-
-/** A four-digit year as the model states it, or undefined. */
-function year(value: unknown): string | undefined {
-  const n = typeof value === 'number' ? value : Number(value);
-  if (!Number.isInteger(n) || n < 2000 || n > 2100) return undefined;
-  return String(n);
-}
-
-/** A positive integer, or undefined. */
-function size(value: unknown): number | undefined {
-  const n = typeof value === 'number' ? value : Number(value);
-  if (!Number.isInteger(n) || n < 1 || n > 10000) return undefined;
-  return n;
-}
-
-/**
- * A list of short labels, with the empties dropped.
+ * The same readers, the same limits, applied to the same fields — because a
+ * translation that could hold a longer summary than the original would break
+ * the layout the original was written to fit.
  *
- * Returns undefined rather than [] for an empty list, because the components
- * render these sections conditionally on the property being present and an
- * empty array would produce a heading over nothing.
+ * Absent keys stay absent. `localize()` overlays only what is present, so a
+ * translator who did the title and not the case study leaves the case study
+ * reading in the default locale rather than blanking it.
  */
-function labels(value: unknown): string[] | undefined {
-  if (!Array.isArray(value)) return undefined;
-  const clean = value
-    .map((entry) => text(entry, 80))
-    .filter((entry): entry is string => entry !== null);
-  return clean.length > 0 ? clean : undefined;
-}
+function readProjectCopy(row: Record<string, unknown>): Partial<ProjectCopy> {
+  const copy: Partial<ProjectCopy> = {
+    title: text(row.title, 120) ?? undefined,
+    description: text(row.description, 600) ?? undefined,
+    category: text(row.category, 80) ?? undefined,
+    industry: text(row.industry, 120) ?? undefined,
+    summary: text(row.summary, 1000, false) ?? undefined,
+    challenge: text(row.challenge, 2000, false) ?? undefined,
+    solution: text(row.solution, 2000, false) ?? undefined,
+    outcome: text(row.outcome, 600, false) ?? undefined,
+    services: labels(row.services),
+    technologies: labels(row.technologies),
+    capabilities: labels(row.capabilities),
+    thumbnailAlt: text(row.thumbnail_alt, 300) ?? undefined,
+    heroImageAlt: text(row.hero_image_alt, 300) ?? undefined,
+    seo: readSeo(row),
+  };
 
-/** A site-relative asset path, or undefined. */
-function assetPath(value: unknown): string | undefined {
-  const clean = text(value, 300);
-  if (!clean || !clean.startsWith('/') || clean.startsWith('//')) {
-    return undefined;
+  for (const key of Object.keys(copy) as (keyof ProjectCopy)[]) {
+    if (copy[key] === undefined) delete copy[key];
   }
-  return clean;
-}
 
-/** An absolute http(s) URL, or undefined. */
-function externalUrl(value: unknown): string | undefined {
-  const clean = text(value, 300);
-  if (!clean) return undefined;
-  try {
-    const parsed = new URL(clean);
-    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
-      return undefined;
-    }
-  } catch {
-    return undefined;
-  }
-  return clean;
+  return copy;
 }
 
 /**
@@ -226,9 +200,10 @@ export function toProject(row: ProjectRow | null | undefined): Project | null {
   if (!slug || !title || !description || !category) return null;
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) return null;
 
-  const thumbnail = assetPath(row.thumbnail);
+  const thumbnail = mediaRef(row.thumbnail);
   const width = size(row.thumbnail_width);
   const height = size(row.thumbnail_height);
+  const heroImage = mediaRef(row.hero_image);
 
   const summary = text(row.summary, 1000, false);
   const challenge = text(row.challenge, 2000, false);
@@ -260,12 +235,19 @@ export function toProject(row: ProjectRow | null | undefined): Project | null {
     // Both or neither, and only alongside the image they measure.
     thumbnailSize:
       thumbnail && width && height ? { width, height } : undefined,
-    heroImage: assetPath(row.hero_image),
+    // Alt text with no image to describe would never be read out, so it is
+    // dropped with the image rather than kept as an orphan. The database says
+    // the same thing with unchained_projects_alt_needs_image.
+    thumbnailAlt: thumbnail ? text(row.thumbnail_alt, 300) ?? undefined : undefined,
+    heroImage,
+    heroImageAlt: heroImage ? text(row.hero_image_alt, 300) ?? undefined : undefined,
     summary: summary ?? undefined,
     challenge: challenge ?? undefined,
     solution: solution ?? undefined,
     outcome: text(row.outcome, 600, false) ?? undefined,
     externalUrl: externalUrl(row.external_url),
+    seo: readSeo(row as Record<string, unknown>),
+    translations: readTranslations<ProjectCopy>(row.translations, readProjectCopy),
   };
 }
 

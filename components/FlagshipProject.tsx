@@ -9,13 +9,18 @@ import type { Project } from '@/lib/projects';
 import ProjectVisual from '@/components/ProjectVisual';
 import StatusBadge from '@/components/StatusBadge';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
-import type { ListKey, TranslationKey } from '@/lib/i18n/dictionaries';
+import { useProjectCopy } from '@/lib/cms/projectCopy';
 
 export default function FlagshipProject({ project }: { project: Project }) {
-  const { t, tList } = useLanguage();
+  const { t } = useLanguage();
+  // See lib/cms/projectCopy.ts: the dictionary is one step of the chain now,
+  // not the whole of it, so a project entered in the panel renders words
+  // rather than translation keys.
+  const copy = useProjectCopy(project);
   const image = project.thumbnail;
   const size = project.thumbnailSize;
-  const interfaceAlt = project.title + ' ' + t('flagship.interfaceAlt');
+  const interfaceAlt =
+    copy.thumbnailAlt ?? copy.title + ' ' + t('flagship.interfaceAlt');
 
   return (
     <article className='flagship-card relative overflow-hidden glow-border rounded-3xl bg-card'>
@@ -31,22 +36,20 @@ export default function FlagshipProject({ project }: { project: Project }) {
 
           <div>
             <h3 className='text-3xl md:text-4xl font-extrabold tracking-tight text-foreground'>
-              {project.title}
+              {copy.title}
             </h3>
             <p className='mt-3 text-muted-foreground text-base leading-relaxed max-w-lg'>
-              {t(('project.' + project.slug + '.description') as TranslationKey)}
+              {copy.description}
             </p>
           </div>
 
-          {project.capabilities && (
+          {copy.capabilities && (
             <div>
               <p className='text-xs uppercase tracking-widest text-muted-foreground/70 mb-3 font-medium'>
                 {t('flagship.proves')}
               </p>
               <ul className='flex flex-wrap gap-2'>
-                {tList(
-                  ('project.' + project.slug + '.capabilities') as ListKey,
-                ).map((c) => (
+                {copy.capabilities.map((c) => (
                   <li
                     key={c}
                     className='text-xs text-muted-foreground bg-secondary/70 border border-border rounded-lg px-2.5 py-1.5'
@@ -81,9 +84,9 @@ export default function FlagshipProject({ project }: { project: Project }) {
                 {t('demo.cardCta')}
               </Link>
             )}
-            {project.outcome && (
+            {copy.outcome && (
               <p className='text-xs text-muted-foreground/70 leading-relaxed max-w-xs'>
-                {t(('project.' + project.slug + '.outcome') as TranslationKey)}
+                {copy.outcome}
               </p>
             )}
           </div>

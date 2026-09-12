@@ -7,11 +7,13 @@ import ScrollDepth from '@/components/ScrollDepth';
 import {
   formatInsightDate,
   insightPath,
-  publishedInsights,
   type InsightArticle,
+  type InsightCopy,
 } from '@/lib/insights';
 import { pillars } from '@/lib/site';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
+import type { Locale } from '@/lib/i18n/config';
+import { localize } from '@/lib/cms/localized';
 import type { TranslationKey } from '@/lib/i18n/dictionaries';
 
 /**
@@ -24,9 +26,14 @@ function ArticleCard({
   t,
 }: {
   article: InsightArticle;
-  locale: string;
+  locale: Locale;
   t: (key: TranslationKey) => string;
 }) {
+  // The card's own words in the visitor's language, falling back field by
+  // field to the default locale. The date, the pillar and the URL are not
+  // translated: they are the same fact in every language.
+  const copy = localize<InsightCopy>(article, article.translations, locale);
+
   return (
     <article className='glow-border rounded-2xl bg-card p-7 flex flex-col gap-3'>
       <div className='flex flex-wrap items-center gap-3'>
@@ -49,7 +56,7 @@ function ArticleCard({
           href={insightPath(article.slug)}
           className='group inline-flex items-start gap-1.5 hover:text-foreground/80 transition-colors duration-200'
         >
-          {article.title}
+          {copy.title}
           <ArrowRight
             size={15}
             aria-hidden='true'
@@ -59,13 +66,26 @@ function ArticleCard({
       </h2>
 
       <p className='text-sm text-muted-foreground leading-relaxed'>
-        {article.description}
+        {copy.description}
       </p>
     </article>
   );
 }
 
-export default function InsightsIndex() {
+export default function InsightsIndex({
+  articles,
+}: {
+  /**
+   * The published articles, read from the CMS by the route.
+   *
+   * Passed in rather than imported. This component used to read the typed
+   * array in lib/insights.ts directly, which stopped being the source of truth
+   * when the editorial layer moved into the database — a client component
+   * importing it would render the fallback list beside a page rendering the
+   * live one.
+   */
+  articles: InsightArticle[];
+}) {
   const { t, locale } = useLanguage();
 
   return (
@@ -81,9 +101,9 @@ export default function InsightsIndex() {
 
       <section className='px-6 pb-24 md:pb-28' aria-label={t('insightsPage.articles')}>
         <div className='max-w-5xl mx-auto flex flex-col gap-10'>
-          {publishedInsights.length > 0 ? (
+          {articles.length > 0 ? (
             <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
-              {publishedInsights.map((article) => (
+              {articles.map((article) => (
                 <ArticleCard
                   key={article.slug}
                   article={article}

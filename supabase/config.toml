@@ -71,8 +71,26 @@ major_version = 17
 # links sent before this existed still resolve. Both destinations are already
 # covered — do not remove /reset-password thinking it belongs to the panel's
 # own "forgot password" flow alone; a re-invitation lands there too.
+#
+# ─── Both hostnames, and why site_url is still the bare one ───────────────
+# The panel answers on `admin.unchainedbusiness.com` and on
+# `www.admin.unchainedbusiness.com`. The CMS brief names the `www.` form as the
+# canonical address, and new work is written against it.
+#
+# `site_url` is deliberately NOT changed to match. It is the destination GoTrue
+# falls back to when a redirect does not match the list, and every invitation
+# and recovery email already in somebody's inbox was minted against the bare
+# host. Repointing it would gain nothing — the `www.` entries below make that
+# host a valid redirect, which is what actually governs where a link may land —
+# and would risk a live email flow for a cosmetic change.
+#
+# Adding entries is additive and cannot break a link that works today. That is
+# the whole reason this is an addition rather than an edit.
 site_url = "https://admin.unchainedbusiness.com"
 additional_redirect_urls = [
+  "https://www.admin.unchainedbusiness.com/**",
+  "https://www.admin.unchainedbusiness.com/login",
+  "https://www.admin.unchainedbusiness.com/reset-password",
   "https://admin.unchainedbusiness.com/**",
   "https://admin.unchainedbusiness.com/login",
   "https://admin.unchainedbusiness.com/reset-password",

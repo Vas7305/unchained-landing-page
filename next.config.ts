@@ -19,6 +19,41 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
+    /**
+     * The media library's host.
+     *
+     * ─── Why this is needed even though images are unoptimized ──────────
+     * `unoptimized: true` means next/image serves the file as-is rather than
+     * through the optimizer, which is why every asset in public/ works with no
+     * configuration. It does NOT switch off the check that a REMOTE src is
+     * allowed: next/image still refuses a host that is not declared, and the
+     * failure is a thrown error at render time rather than a broken image.
+     *
+     * Until the CMS, no image was remote — Phase 9 constrained every image
+     * column to a site-relative path for exactly that reason. The media
+     * library introduces the first images that are not in the repository, and
+     * this is the one host they can come from.
+     *
+     * ─── The hostname is a wildcard, and the pathname is not ────────────
+     * The project ref is a deployment detail: the same code runs against
+     * production and against a staging project, and hard-coding one ref would
+     * mean the config had to be edited to deploy. The PATHNAME is pinned
+     * instead, to the public objects of this one bucket — so this declaration
+     * admits the CMS media library and nothing else, not even another bucket
+     * in the same project.
+     *
+     * The database enforces the same rule on the way in
+     * (unchained_media_reference_ok), and lib/cms/sanitize.ts enforces it again
+     * on the way out. This is the third statement of one rule, in the place
+     * the framework reads.
+     */
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/storage/v1/object/public/unchained-cms-media/**',
+      },
+    ],
   },
 };
 

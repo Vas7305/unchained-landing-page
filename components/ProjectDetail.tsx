@@ -12,7 +12,10 @@ import StatusBadge from '@/components/StatusBadge';
 import type { Project } from '@/lib/projects';
 import StartProjectButton from '@/components/StartProjectButton';
 import { useLanguage, useTranslation } from '@/lib/i18n/LanguageProvider';
-import type { ListKey, TranslationKey } from '@/lib/i18n/dictionaries';
+import {
+  useProjectCopy,
+  type ResolvedProjectCopy,
+} from '@/lib/cms/projectCopy';
 
 function Meta({ label, value }: { label: string; value: string }) {
   return (
@@ -76,19 +79,55 @@ function HeroActions({ project }: { project: Project }) {
   );
 }
 
-export default function ProjectDetail({ project }: { project: Project }) {
-  const { t, tList } = useLanguage();
-
-  /** Every prose field of a project is translated under its own slug. */
-  const field = (name: string) =>
-    t(('project.' + project.slug + '.' + name) as TranslationKey);
-  const fieldList = (name: string) =>
-    tList(('project.' + project.slug + '.' + name) as ListKey);
-
+/**
+ * The picture at the top of a detail page, and what it should be announced as.
+ *
+ * ─── Why this is a function and not four lines in the component ───────────
+ * It pairs two decisions that have to agree, and getting them out of the
+ * render is what keeps them agreeing: WHICH image is shown, and WHOSE alt text
+ * describes it. Written inline, the second is easy to update without the
+ * first — and the failure mode is a screen reader describing the card shot
+ * while the page displays the hero.
+ *
+ * The alt chain is: what an editor wrote for THIS image, in this place; then a
+ * sentence assembled from the title. An editor's description of the actual
+ * screenshot always beats a generated one, and there is always one of the two,
+ * so the image is never announced as nothing.
+ */
+function detailBandImage(
+  project: Project,
+  copy: ResolvedProjectCopy,
+  fallbackSuffix: string,
+): { src: string | undefined; alt: string } {
   // Detail pages prefer a dedicated hero image, falling back to the card shot.
-  const bandImage = project.heroImage ?? project.thumbnail;
-  const interfaceAlt = project.title + ' ' + t('flagship.interfaceAlt');
-  const lede = project.summary ? field('summary') : field('description');
+  const usingHero = Boolean(project.heroImage);
+  const src = project.heroImage ?? project.thumbnail;
+  const written = usingHero ? copy.heroImageAlt : copy.thumbnailAlt;
+
+  return { src, alt: written ?? `${copy.title} ${fallbackSuffix}` };
+}
+
+export default function ProjectDetail({ project }: { project: Project }) {
+  const { t } = useLanguage();
+
+  /**
+   * Every prose field, resolved in the visitor's language.
+   *
+   * This used to read the dictionary directly under `project.<slug>.<field>`
+   * keys. It cannot any more: a project created in the panel has no such keys,
+   * and `t()` returns the key itself on a miss — so an editor's new project
+   * would have printed "project.acme-corp.challenge" on the page. The chain in
+   * useProjectCopy keeps the existing six-language copy for the projects that
+   * have it, and reads the CMS for everything else.
+   */
+  const copy = useProjectCopy(project);
+
+  const { src: bandImage, alt: interfaceAlt } = detailBandImage(
+    project,
+    copy,
+    t('flagship.interfaceAlt'),
+  );
+  const lede = copy.summary ?? copy.description;
 
   return (
     <main id='main' className='min-h-screen'>
@@ -116,12 +155,12 @@ export default function ProjectDetail({ project }: { project: Project }) {
             )}
             <StatusBadge status={project.status} />
             <span className='text-xs uppercase tracking-widest text-muted-foreground'>
-              {field('category')}
+              {copy.category}
             </span>
           </div>
 
           <h1 className='mt-6 text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.02] gradient-text'>
-            {project.title}
+            {copy.title}
           </h1>
 
           <p className='mt-6 max-w-2xl text-lg md:text-xl text-muted-foreground leading-relaxed'>
@@ -167,29 +206,29 @@ export default function ProjectDetail({ project }: { project: Project }) {
         <div className='max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12 lg:gap-16 items-start'>
           {/* Narrative */}
           <div className='flex flex-col gap-12'>
-            {project.challenge && (
+            {copy.challenge && (
               <div>
                 <h2 className='text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-4'>
                   {t('detail.challenge')}
                 </h2>
                 <p className='text-muted-foreground text-base leading-relaxed'>
-                  {field('challenge')}
+                  {copy.challenge}
                 </p>
               </div>
             )}
 
-            {project.solution && (
+            {copy.solution && (
               <div>
                 <h2 className='text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-4'>
                   {t('detail.whatWeBuilt')}
                 </h2>
                 <p className='text-muted-foreground text-base leading-relaxed'>
-                  {field('solution')}
+                  {copy.solution}
                 </p>
               </div>
             )}
 
-            {project.capabilities && (
+            {copy.capabilities && (
               <div>
                 <h2 className='text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-2'>
                   {t('detail.proves')}
@@ -198,7 +237,7 @@ export default function ProjectDetail({ project }: { project: Project }) {
                   {t('detail.provesNote')}
                 </p>
                 <ul className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
-                  {fieldList('capabilities').map((c) => (
+                  {copy.capabilities.map((c) => (
                     <li
                       key={c}
                       className='glow-border rounded-xl bg-card px-4 py-3 text-sm text-muted-foreground'
@@ -210,13 +249,13 @@ export default function ProjectDetail({ project }: { project: Project }) {
               </div>
             )}
 
-            {project.outcome && (
+            {copy.outcome && (
               <div className='glow-border rounded-2xl bg-card p-8'>
                 <h2 className='text-xs uppercase tracking-widest text-muted-foreground/60 mb-3'>
                   {t('detail.outcome')}
                 </h2>
                 <p className='text-lg font-medium text-foreground leading-snug'>
-                  {field('outcome')}
+                  {copy.outcome}
                 </p>
               </div>
             )}
@@ -231,20 +270,23 @@ export default function ProjectDetail({ project }: { project: Project }) {
               {project.year && (
                 <Meta label={t('detail.year')} value={project.year} />
               )}
-              {project.industry && (
-                <Meta label={t('detail.industry')} value={field('industry')} />
+              {copy.industry && (
+                <Meta label={t('detail.industry')} value={copy.industry} />
               )}
-              {project.services && (
+              {copy.services && (
                 <Meta
                   label={t('detail.services')}
-                  value={fieldList('services').join(', ')}
+                  value={copy.services.join(', ')}
                 />
               )}
-              {/* Technology names are the same in every language. */}
-              {project.technologies && (
+              {/* Technology names are usually the same in every language, and
+                  have never had a dictionary entry. They go through the same
+                  resolver all the same, so a translation entered in the panel
+                  — a script change, say — is honoured rather than ignored. */}
+              {copy.technologies && (
                 <Meta
                   label={t('detail.stack')}
-                  value={project.technologies.join(', ')}
+                  value={copy.technologies.join(', ')}
                 />
               )}
             </dl>

@@ -3,7 +3,8 @@ import { pillars, siteConfig } from '@/lib/site';
 import { detailedOf } from '@/lib/projects';
 import { loadProjects } from '@/lib/portfolio';
 import { demoPath, hasDemo } from '@/lib/demo/registry';
-import { insightPath, publishedInsights } from '@/lib/insights';
+import { insightPath } from '@/lib/insights';
+import { loadInsights } from '@/lib/editorial';
 
 /**
  * Ten minutes, matching PORTFOLIO_REVALIDATE_SECONDS. See app/page.tsx.
@@ -29,7 +30,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...pillars.map((p) => `/${p.slug}`),
   ];
 
-  const detailed = detailedOf(await loadProjects());
+  // Both content types, read in parallel: the sitemap is one of the routes
+  // that has to be regenerated on publish, and two sequential round trips
+  // would double how long that takes for no benefit.
+  const [projects, articles] = await Promise.all([
+    loadProjects(),
+    loadInsights(),
+  ]);
+
+  const detailed = detailedOf(projects);
 
   const projectRoutes = detailed.map((p) => `/work/${p.slug}`);
 
@@ -43,9 +52,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     hasDemo(p.slug) ? [demoPath(p.slug)] : [],
   );
 
-  // Drafts are excluded by `publishedInsights`, so an unfinished article is
-  // never submitted for indexing.
-  const insightRoutes = publishedInsights.map((a) => insightPath(a.slug));
+  // Drafts and archived articles are excluded by list_public_insights(), which
+  // filters on `published AND archived_at IS NULL` before the site is
+  // involved, so an unfinished or retired article is never submitted for
+  // indexing. The same is true of the projects above, through
+  // list_public_projects().
+  //
+  // Preview URLs are absent for a stronger reason than filtering: they are not
+  // derivable from content at all — a preview address contains a token that
+  // exists only in the link an editor was handed.
+  const insightRoutes = articles.map((a) => insightPath(a.slug));
 
   return [
     ...staticRoutes,

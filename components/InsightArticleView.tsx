@@ -10,7 +10,9 @@ import {
   insightPath,
   resolveRelated,
   type InsightArticle,
+  type InsightCopy,
 } from '@/lib/insights';
+import { localize } from '@/lib/cms/localized';
 import type { Project } from '@/lib/projects';
 import { getPillar } from '@/lib/site';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
@@ -19,15 +21,22 @@ import type { TranslationKey } from '@/lib/i18n/dictionaries';
 /**
  * The shape every Insights article renders in.
  *
- * Article prose comes from the article object rather than from the dictionary:
- * unlike the site's chrome, a piece of writing is not a string that can be
- * swapped per locale, and pretending otherwise would mean shipping six
- * placeholder translations of every paragraph. The furniture around it — the
- * labels, headings and CTA — is translated like everything else on the site.
+ * Article prose comes from the article object rather than from the dictionary,
+ * and that distinction survives the CMS: the furniture around the writing — the
+ * labels, the headings, the CTA — is a `t()` key like everything else on the
+ * site, while the writing itself is content somebody authored.
+ *
+ * What changed is that the writing can now be authored MORE THAN ONCE. An
+ * article carries a translation per locale, written in the panel, and
+ * `localize()` below picks the visitor's language field by field. An article
+ * nobody has translated renders in the default locale exactly as it did
+ * before — which is the state of every article today, and the reason this is
+ * not a behaviour change for anything already published.
  */
 export default function InsightArticleView({
   article,
   caseStudy,
+  pool,
 }: {
   article: InsightArticle;
   /**
@@ -37,11 +46,23 @@ export default function InsightArticleView({
    * show a stale title next to a page rendering the live one.
    */
   caseStudy: Project | undefined;
+  /**
+   * The published articles the route read, so `relatedSlugs` resolves against
+   * the same snapshot the page was rendered from.
+   *
+   * Without it this component would resolve related reading against the
+   * fallback array in lib/insights.ts — and would show a link to an article
+   * that had since been unpublished, or miss one that had just gone out.
+   */
+  pool: InsightArticle[];
 }) {
   const { t, locale } = useLanguage();
   const pillar = getPillar(article.pillar);
   const pillarName = t(('pillar.' + pillar.slug) as TranslationKey);
-  const related = resolveRelated(article);
+  const related = resolveRelated(article, pool);
+  // The article as this visitor reads it. Falls back per field, so a partly
+  // translated piece reads in their language as far as the translator got.
+  const copy = localize<InsightCopy>(article, article.translations, locale);
 
   return (
     <main id='main' className='min-h-screen'>
@@ -62,7 +83,7 @@ export default function InsightArticleView({
             items={[
               { name: t('breadcrumb.home'), href: '/' },
               { name: t('nav.insights'), href: '/insights' },
-              { name: article.title },
+              { name: copy.title },
             ]}
           />
 
@@ -90,11 +111,11 @@ export default function InsightArticleView({
           </div>
 
           <h1 className='mt-6 text-4xl md:text-5xl font-extrabold tracking-tight leading-[1.05] gradient-text'>
-            {article.title}
+            {copy.title}
           </h1>
 
           <p className='mt-6 text-lg text-muted-foreground leading-relaxed'>
-            {article.lede}
+            {copy.lede}
           </p>
         </div>
       </section>
@@ -102,7 +123,7 @@ export default function InsightArticleView({
       {/* Body */}
       <article className='px-6 pb-16'>
         <div className='max-w-3xl mx-auto flex flex-col gap-12'>
-          {article.sections.map((section) => (
+          {copy.sections.map((section) => (
             <section key={section.heading} className='flex flex-col gap-4'>
               <h2 className='text-2xl md:text-3xl font-bold tracking-tight text-foreground'>
                 {section.heading}

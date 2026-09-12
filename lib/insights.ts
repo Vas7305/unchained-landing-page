@@ -1,27 +1,44 @@
 /**
- * Insights — the site's editorial layer.
+ * Insights — the site's editorial layer, and the collection it falls back to.
  *
- * Same pattern as lib/projects.ts and lib/pillar-content.ts: a typed array is
- * the entire content system. Adding an article object below publishes it to
- * /insights and gives it a page at /insights/<slug>. No CMS, no MDX, no build
- * step beyond the normal deploy.
+ * ─── This file is no longer the source of truth ───────────────────────────
+ * It was, until public.unchained_insights existed. Articles are now written
+ * and published in the admin panel, and the site reads them through
+ * lib/editorial.ts. What is left here is the three things that genuinely
+ * belong in code — the same split lib/projects.ts made when the portfolio
+ * moved into a table:
+ *
+ *   · the TYPES the components are written against, which the database's
+ *     CHECK constraints mirror;
+ *   · the SELECTORS, which are pure functions over a list and are applied to
+ *     whichever list the caller holds;
+ *   · the ARTICLES themselves, as the fallback for a build with no database
+ *     behind it — a preview deploy, a local checkout with no .env, a moment
+ *     when Supabase is unreachable.
+ *
+ * `insights` and `publishedInsights` keep their names and their contents. They
+ * are a floor, not a mirror: they will drift from the table the first time
+ * somebody edits an article in the panel, and that is expected. See
+ * lib/editorial.ts for the cases that reach them and the one — a successful
+ * answer of zero rows — that deliberately does not.
  *
  * PUBLISHING GATE: an entry marked `draft: true` is not published — it stays
- * out of the index, out of the sitemap, and out of the route's static params,
- * so /insights/<slug> 404s until the flag comes off. This is deliberate: the
- * /work/[slug] route treats every array entry as a live URL, and repeating
- * that here would turn an unfinished draft into an indexable page the moment
- * someone started writing it.
+ * out of the index and out of the sitemap. In the database the same rule is
+ * `WHERE a.published AND a.archived_at IS NULL`, inside list_public_insights(),
+ * where no caller can be involved in it.
  *
- * CONTENT RULE: an article is added here when it has something to say, not to
+ * CONTENT RULE: an article is added when it has something to say, not to
  * demonstrate that the route works. Prose lives in the article object rather
  * than in the dictionaries — see components/InsightArticleView.tsx — so the
  * body carries no markup, and internal links are expressed through the model:
  * `pillar` and `caseStudySlug` are what the page turns into links.
  */
 
+
 import type { Metadata } from 'next';
-import { buildPageMetadata, SITE_OG_IMAGE } from '@/lib/metadata';
+import { SITE_OG_IMAGE } from '@/lib/metadata';
+import { buildCmsMetadata, type SeoFields } from '@/lib/cms/seo';
+import type { Localized } from '@/lib/cms/localized';
 import type { PillarSlug } from '@/lib/site';
 
 /** One `<h2>` section of an article body. */
@@ -66,7 +83,46 @@ export type InsightArticle = {
   ogImage?: string;
   /** Written but not published. No page, no index entry, no sitemap entry. */
   draft?: boolean;
+
+  // ─── Added when the editorial layer moved into the CMS ──────────────────
+  // Every one is optional, so the articles in `insights` below — which are the
+  // fallback for a build with no database — remain valid unchanged, and so
+  // does every component reading this type.
+
+  /** The image at the head of the article. Distinct from `ogImage`, which is
+   *  the share preview and is often a different crop. */
+  coverImage?: string;
+  /** What the cover image shows, for a reader who cannot see it. */
+  coverImageAlt?: string;
+  /** Free-form labels. Used by the panel's filtering; the public site has no
+   *  tag pages, and adding one is a routing decision, not a content one. */
+  tags?: string[];
+  /** The by-line. Absent on every article written before the field existed,
+   *  and deliberately not backfilled — see scripts/generate-insight-seed.mjs. */
+  author?: string;
+  /** Editorially promoted on the index. */
+  featured?: boolean;
+  /** Editor-written SEO overrides. Absent means "derive from the content". */
+  seo?: SeoFields;
+  /** The article in the other five languages. See lib/cms/localized.ts. */
+  translations?: Localized<InsightCopy>;
 };
+
+/**
+ * The fields of an article that a translator writes.
+ *
+ * The slug, the dates, the pillar, the images and the curated links stay on the
+ * parent: they are facts about the article rather than about a language.
+ */
+export type InsightCopy = Pick<
+  InsightArticle,
+  | 'title'
+  | 'description'
+  | 'lede'
+  | 'sections'
+  | 'coverImageAlt'
+  | 'seo'
+>;
 
 export const insights: InsightArticle[] = [
   {
@@ -244,8 +300,33 @@ export function insightPath(slug: string): string {
   return `/insights/${slug}`;
 }
 
-export function getPublishedInsight(slug: string): InsightArticle | undefined {
-  return publishedInsights.find((a) => a.slug === slug);
+/**
+ * One published article by slug, or nothing.
+ *
+ * `pool` defaults to the fallback collection so existing callers and tests are
+ * unchanged, and is passed explicitly by the routes, which read the database.
+ * The same shape `resolveRelated` and `insightsForPillar` already had — a pure
+ * selector over whichever list the caller holds, which is what let the
+ * portfolio move into a table without rewriting its selectors.
+ */
+export function getPublishedInsight(
+  slug: string,
+  pool: InsightArticle[] = publishedInsights,
+): InsightArticle | undefined {
+  return pool.find((a) => a.slug === slug);
+}
+
+/**
+ * The published articles of a list, newest first.
+ *
+ * Applied to whatever `loadInsights()` returned. The database already filters
+ * and orders — `WHERE a.published` and `ORDER BY a.published_on DESC` inside
+ * list_public_insights() — so over a database answer this is a no-op, and over
+ * the fallback array it is what `publishedInsights` was computed with. Stating
+ * it once means the two sources cannot present articles in different orders.
+ */
+export function publishedOf(pool: InsightArticle[]): InsightArticle[] {
+  return pool.filter(isPublished).sort(byNewestFirst);
 }
 
 /**
@@ -282,21 +363,27 @@ export function insightsForPillar(
  * share preview.
  */
 export function buildInsightMetadata(article: InsightArticle): Metadata {
-  return buildPageMetadata({
-    title: article.title,
-    description: article.description,
-    path: insightPath(article.slug),
-    type: 'article',
-    // An article with no image of its own still gets a valid one: declaring
-    // `openGraph` opts a route out of the root opengraph-image file
-    // convention, so the site image has to be named explicitly.
-    image: article.ogImage ?? SITE_OG_IMAGE,
-    publishedTime: article.publishedAt,
-    modifiedTime: article.updatedAt,
-    // Belt and braces: the route only generates published slugs, but a draft
-    // that somehow reached a renderer must not be indexable.
-    ...(article.draft ? { robots: { index: false, follow: false } } : {}),
-  });
+  return buildCmsMetadata(
+    {
+      title: article.title,
+      description: article.description,
+      path: insightPath(article.slug),
+      type: 'article',
+      // An article with no image of its own still gets a valid one: declaring
+      // `openGraph` opts a route out of the root opengraph-image file
+      // convention, so the site image has to be named explicitly.
+      image: article.ogImage ?? article.coverImage ?? SITE_OG_IMAGE,
+      publishedTime: article.publishedAt,
+      modifiedTime: article.updatedAt,
+      // Belt and braces: the route only renders published articles, but a
+      // draft that somehow reached a renderer must not be indexable.
+      ...(article.draft ? { robots: { index: false, follow: false } } : {}),
+    },
+    // The editor's overrides, applied over those defaults. An article with
+    // none produces exactly the metadata this function produced before the CMS
+    // existed, which is what keeps app/insights/routes.test.ts meaningful.
+    article.seo,
+  );
 }
 
 /**

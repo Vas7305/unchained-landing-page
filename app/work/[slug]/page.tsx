@@ -4,7 +4,8 @@ import ProjectDetail from '@/components/ProjectDetail';
 import JsonLd from '@/components/JsonLd';
 import { detailedOf, findProject } from '@/lib/projects';
 import { loadProjects } from '@/lib/portfolio';
-import { buildPageMetadata, SITE_OG_IMAGE } from '@/lib/metadata';
+import { SITE_OG_IMAGE } from '@/lib/metadata';
+import { buildCmsMetadata } from '@/lib/cms/seo';
 import { breadcrumbSchema } from '@/lib/structured-data';
 
 type Params = { slug: string };
@@ -35,21 +36,36 @@ export async function generateMetadata({
 
   if (!project) return { title: 'Project not found' };
 
-  return buildPageMetadata({
-    title: project.title,
-    description: project.summary ?? project.description,
-    path: `/work/${project.slug}`,
-    type: 'article',
-    // The project's real screenshot is a better share preview than the generic
-    // site image; a project without one still gets a valid og:image, because
-    // declaring `openGraph` opts the route out of the root file convention.
-    image: project.heroImage ?? project.thumbnail ?? SITE_OG_IMAGE,
-    // Only projects with `detailed: true` have enough published content to
-    // warrant a public SEO landing page — the flag the panel sets, which the
-    // database refuses without the prose behind it. Others still render
-    // normally for direct access, but are kept out of the index.
-    ...(project.detailed ? {} : { robots: { index: false, follow: true } }),
-  });
+  return buildCmsMetadata(
+    {
+      title: project.title,
+      description: project.summary ?? project.description,
+      path: `/work/${project.slug}`,
+      type: 'article',
+      // The project's real screenshot is a better share preview than the
+      // generic site image; a project without one still gets a valid
+      // og:image, because declaring `openGraph` opts the route out of the root
+      // file convention.
+      image: project.heroImage ?? project.thumbnail ?? SITE_OG_IMAGE,
+      // Only projects with `detailed: true` have enough published content to
+      // warrant a public SEO landing page — the flag the panel sets, which the
+      // database refuses without the prose behind it. Others still render
+      // normally for direct access, but are kept out of the index.
+      ...(project.detailed ? {} : { robots: { index: false, follow: true } }),
+    },
+    // The editor's overrides, applied over those defaults.
+    //
+    // ─── Metadata is NOT localized here, and that is deliberate ──────────
+    // generateMetadata runs on the server at build/revalidate time, where
+    // there is no visitor and therefore no locale — the page is prerendered in
+    // the default locale and switches on the client, which cannot change a
+    // <title> a crawler already read. So the SEO block is the default locale's,
+    // matching the language of the prerendered HTML it describes. The
+    // per-locale seo_title and seo_description the CMS stores are there for
+    // the day the site adopts per-locale routes; until then they are carried
+    // and unused rather than applied to the wrong document.
+    project.seo,
+  );
 }
 
 export default async function ProjectPage({

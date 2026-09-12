@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { metadata as indexMetadata } from './page';
 import ArticlePage, {
-  dynamicParams,
   generateMetadata,
   generateStaticParams,
 } from './[slug]/page';
@@ -54,18 +53,39 @@ describe('/insights', () => {
 });
 
 describe('/insights/[slug]', () => {
-  it('generates a route for every published article and nothing else', () => {
-    expect(generateStaticParams()).toEqual(
+  // Async since the article list now comes from the CMS. With no Supabase
+  // configured here it resolves to `publishedInsights` — the same
+  // not-configured path the sitemap test below documents.
+  it('generates a route for every published article and nothing else', async () => {
+    expect(await generateStaticParams()).toEqual(
       publishedInsights.map((a) => ({ slug: a.slug })),
     );
-    expect(generateStaticParams()).toContainEqual({
+    expect(await generateStaticParams()).toContainEqual({
       slug: 'custom-software-or-saas',
     });
   });
 
-  it('refuses slugs it did not generate', () => {
-    // Without this, a draft or a mistyped URL would render a page.
-    expect(dynamicParams).toBe(false);
+  /**
+   * `dynamicParams` used to be false here, and this test used to assert it.
+   *
+   * It was the right setting while the collection was a typed array: the set
+   * of published articles could only change by deploying, so prerendering all
+   * of them and 404ing everything else was complete. It is the wrong setting
+   * once articles are published from a panel — an article published on Tuesday
+   * would 404 until somebody redeployed, which is the dependency on
+   * source-code changes the CMS exists to remove.
+   *
+   * The property it protected is what this now asserts directly, and it is
+   * held somewhere stronger: list_public_insights() filters on `published`
+   * before the site is involved, so an unpublished slug resolves to no article
+   * and the page calls notFound(). That holds for a slug that WAS published at
+   * build time and has since been unpublished, which the route config never
+   * could.
+   */
+  it('answers a slug that is not published with not-found, not a page', async () => {
+    await expect(
+      ArticlePage({ params: Promise.resolve({ slug: 'an-unpublished-draft' }) }),
+    ).rejects.toThrow();
   });
 
   it('answers an unknown slug with not-found rather than a page', async () => {

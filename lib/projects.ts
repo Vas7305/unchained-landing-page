@@ -42,6 +42,9 @@
  * either.
  */
 
+import type { Localized } from '@/lib/cms/localized';
+import type { SeoFields } from '@/lib/cms/seo';
+
 export type ProjectStatus =
   | 'completed'
   | 'in-development'
@@ -80,6 +83,37 @@ export const STATUS_META: Record<
   },
 };
 
+/**
+ * The fields of a project that a translator writes.
+ *
+ * Everything NOT in this list is a fact about the work rather than about a
+ * language — the slug, the images, the year, the status, the flagship flag —
+ * and is the same in every locale. See the header of
+ * supabase/migrations/20260912000001_unchained_cms_core.sql for why the slug in
+ * particular is not translated: the site has one URL per project, so a
+ * localized slug would have nowhere to be used.
+ *
+ * Expressed as a key list rather than a second interface so it cannot drift
+ * from `Project` itself.
+ */
+export type ProjectCopy = Pick<
+  Project,
+  | 'title'
+  | 'description'
+  | 'category'
+  | 'industry'
+  | 'summary'
+  | 'challenge'
+  | 'solution'
+  | 'outcome'
+  | 'services'
+  | 'technologies'
+  | 'capabilities'
+  | 'thumbnailAlt'
+  | 'heroImageAlt'
+  | 'seo'
+>;
+
 export type Project = {
   title: string;
   slug: string;
@@ -95,6 +129,15 @@ export type Project = {
   technologies?: string[];
   thumbnail?: string;
   /**
+   * What the thumbnail shows, for a reader who cannot see it.
+   *
+   * Per-usage rather than per-file: the same screenshot is "the TanCerca
+   * merchant dashboard" here and "an example of the dashboards we build" in an
+   * article. The media library holds a default that the panel copies in when
+   * the image is chosen; this is the value that reaches the page.
+   */
+  thumbnailAlt?: string;
+  /**
    * Intrinsic pixel size of `thumbnail`. Only needed where the image is shown
    * uncropped (the flagship card): it lets the element be sized to the artwork
    * instead of to its frame, so rounding follows the screenshot's own edges
@@ -102,6 +145,8 @@ export type Project = {
    */
   thumbnailSize?: { width: number; height: number };
   heroImage?: string;
+  /** What the hero image shows. See `thumbnailAlt`. */
+  heroImageAlt?: string;
   summary?: string;
   challenge?: string;
   solution?: string;
@@ -113,6 +158,24 @@ export type Project = {
    */
   outcome?: string;
   externalUrl?: string;
+  /**
+   * Editor-written SEO overrides. Absent means "derive it from the content",
+   * which is what the site did before the CMS had these fields and is still
+   * the right default. See lib/cms/seo.ts for the fallback chain.
+   */
+  seo?: SeoFields;
+  /**
+   * The same project in the other five languages, each holding only the fields
+   * that were actually translated.
+   *
+   * Carried in the payload rather than fetched per language because the site
+   * prerenders one URL per project and switches language on the client — see
+   * lib/cms/localized.ts. Absent on a project nobody has translated, which is
+   * every project in `fallbackProjects`: that list is a floor for a build with
+   * no database, and a hand-maintained six-language copy of it would be a
+   * second content system.
+   */
+  translations?: Localized<ProjectCopy>;
 };
 
 export const fallbackProjects: Project[] = [
