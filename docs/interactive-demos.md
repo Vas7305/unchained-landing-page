@@ -127,7 +127,7 @@ scenario resets the same way, for the same reason.
 | project | frame | language | workflow demonstrated | scenarios |
 |---|---|---|---|---|
 | TanCerca | phone | es | browse merchants → basket → checkout → live order tracking | new / returning customer |
-| Lanna Kamilina | browser | ru | service → master → date and time → contact → confirmed | one |
+| Lanna Kamilina | browser | ru | **the product's own frontend** — service → master → date and time → contact → confirmed | one |
 | Lazara Sersa | browser | en | **the product's own frontend** — filter, gallery, inquiry dialog | one |
 | Klassisches Ballett | browser | de | programme → seat categories → reservation | pre-sale / final seats |
 | Mensalere | browser | en | **the product's own frontend** — directory, profile, availability, booking | one |
@@ -151,8 +151,14 @@ Every demo can be made to fail, on purpose and repeatably (§20) — never rando
 
 - **TanCerca** — card `4000 0000 0000 0002` is always declined; orders below a
   merchant's stated minimum are refused.
-- **Lanna Kamilina / Mensalere** — one fixed slot is taken *while the form is
-  open*, and is then genuinely removed from the diary so the retry succeeds.
+- **Mensalere** — one fixed slot is taken *while the form is open*, and is then
+  genuinely removed from the diary so the retry succeeds.
+- **Lanna Kamilina** — the refusal is the product's own. Book every master who
+  performs a service at the same hour and the next attempt raises
+  `SlotUnavailableError` from `recordAppointment`, which is exactly what happens
+  in the real application when a colleague takes the slot mid-form. The
+  appointment book is real, so this is reachable by doing it rather than by a
+  flag: `lib/demo/apps/lanna-kamilina/booking.test.ts` reaches it that way.
 - **Klassisches Ballett** — sold-out categories, the six-seat house limit, and
   inventory re-checked at the moment of reserving rather than only in the stepper.
 - **Lazara Sersa** — committed dates are refused, with the next free date offered.
@@ -332,13 +338,20 @@ Assessed and **not** changed, with reasons:
 
 **Outstanding, recipe proven, awaiting sign-off:** `no-giant-component` and
 `no-high-complexity-react-function` still fire on the demo `App.tsx` files that
-are still hand-written (Frito, Klassisches Ballett, Lanna Kamilina, Unchained
-OS). The fix is the one applied to Lazara Sersa and already present in
-TanCerca — extract each screen or panel into a sibling component in the same
-file, taking `{ state, dispatch }`. It is mechanical and behaviour-preserving,
-but it touches large files with no rendering tests behind them, so it was left
-for a deliberate pass. Two files left that list by being vendored instead:
-Mensalere's and VectorForge's approximations no longer exist.
+are still hand-written — Frito, Klassisches Ballett and Unchained OS. The fix is
+the one applied to Lazara Sersa and already present in TanCerca — extract each
+screen or panel into a sibling component in the same file, taking
+`{ state, dispatch }`. It is mechanical and behaviour-preserving, but it touches
+large files with no rendering tests behind them, so it was left for a deliberate
+pass.
+
+Three files left that list by being vendored instead: Mensalere's, VectorForge's
+and Lanna Kamilina's approximations no longer exist. The same two rules now fire
+on the products' own large components — `ConvertScreen` and `BookingFlow` — and
+those are deliberately *not* fixed here, because the vendored trees are verbatim
+copies and restructuring one would turn every future re-copy into a manual
+merge. Both are written up as issue drafts in
+[upstream-issues/](./upstream-issues/).
 
 ## 10. Adding a ninth demo
 
@@ -358,19 +371,20 @@ route, shell, frame, controls, reset and CTAs all pick it up from the registry.
 
 ## Vendored product frontends
 
-Three demos no longer approximate their product — they run the product's own
+Four demos no longer approximate their product — they run the product's own
 frontend. The recipe is the same each time and is worth following exactly.
 
 ### What gets copied, and what gets adapted
 
-| | Lazara Sersa | Mensalere | VectorForge |
-|---|---|---|---|
-| source | `/d/Sersa Sarria` | `/d/Mensalere` | `/d/VectorForge-V-1.0` |
-| stack | Next 16 / React 19 / CSS modules | Vite 8 / React 19 / Tailwind v4 | Tauri 2 / Vite / React 19 / CSS modules + Zustand |
-| files vendored | 44 + 25 photographs | 44 | 84 + 3 source rasters |
-| styling strategy | rescoped stylesheet | namespaced tokens | rescoped stylesheet |
-| what had to be replaced | one outbound call | nothing — already mock-backed | the Tauri IPC layer |
-| adaptations | 3 | 3 | 4 modules + 10 in-place divergences |
+| | Lazara Sersa | Mensalere | VectorForge | Lanna Kamilina |
+|---|---|---|---|---|
+| source | `/d/Sersa Sarria` | `/d/Mensalere` | `/d/VectorForge-V-1.0` | `/d/Lanna-Kamilina` |
+| stack | Next 16 / React 19 / CSS modules | Vite 8 / React 19 / Tailwind v4 | Tauri 2 / Vite / React 19 / CSS modules + Zustand | Vite 6 / React 19 / Tailwind v4 / react-router 7 |
+| files vendored | 44 + 25 photographs | 44 | 84 + 3 source rasters | 41 |
+| styling strategy | rescoped stylesheet | namespaced tokens | rescoped stylesheet | namespaced tokens **and** rescoped base layer |
+| what had to be replaced | one outbound call | nothing — already mock-backed | the Tauri IPC layer | one outbound call and the document head |
+| adaptations | 3 | 3 | 4 modules + 10 in-place divergences | 7 in-place divergences |
+| fixed upstream instead | — | — | 4 findings | 14 findings |
 
 **Lazara Sersa.** Its `tokens.css` and `base.css` were mechanically rewritten
 from `:root`/`html`/`body` onto one class in `vendor/styles/surface.module.css`,
@@ -485,6 +499,63 @@ through Rust. The browser equivalent needs no backend — a Blob and an anchor �
 so the visitor gets the actual SVG the trace produced, byte for byte, and
 nothing leaves the machine to make that happen.
 
+### Lanna Kamilina: the one that was almost already isolated
+
+Its `features/booking/api.ts` opens with a comment headed **BOOKING
+INTEGRATION BOUNDARY**, declaring two interfaces and noting that connecting a
+real booking system means writing new implementations and swapping the two
+exported instances at the bottom of the file. The product ships both a
+`mockBookingApi` and a live `messengerBookingApi`, and documents the mock as
+"kept for local UI work; never wire it up as `bookingApi` on a live site".
+
+So the central isolation step was one line — point `bookingApi` at the mock the
+product already wrote. No adapter, no reimplementation. It is the clearest
+demonstration so far of what this brief's §12 is actually asking of an
+application, in a codebase that had done it before anyone asked.
+
+**The `window.open` still had to go.** Swapping the export changed behaviour but
+left `messengerBookingApi` — and its `window.open('https://wa.me/…?text=')`
+carrying a visitor's name, telephone number and chosen time — sitting in the
+shipped bundle as dead code. "Unreferenced" is a weaker guarantee than
+"absent", so the implementation was deleted outright. That removed the only
+`window.open` and the only clipboard write in the tree.
+
+**The head was the bigger find.** `hooks/useSeo.ts` writes `document.title`, the
+meta description, Open Graph tags, a `<link rel="canonical">` and JSON-LD into
+the document, correctly, on every page. There is one document here and it
+belongs to this website: left running, opening the demo would have retitled the
+browser tab, pointed this page's canonical URL at `lannakamilina.ru`, and
+injected `HairSalon` structured data into an Unchained Business page. The first
+is visible; the other two are instructions to a search engine, and a canonical
+pointing off-site is an instruction to deindex the page carrying it. The hook is
+a no-op in the demo.
+
+**MemoryRouter is the whole router adapter.** Mensalere needed a hand-written
+`Link`; this one needed nothing. The product keeps the entire booking flow in
+the query string — which is how a half-filled booking survives a refresh and how
+a campaign deep-links into it — and `MemoryRouter` keeps that history in memory,
+so `useNavigate`, `useSearchParams` and `Link` all work unmodified and the
+address bar is never touched.
+
+**The styling needed both treatments.** The tokens are Tailwind v4 `@theme`, so
+they had to be namespaced like Mensalere's — `lk-`, across 22 tokens, 21 custom
+`@utility` definitions and 379 class occurrences, rewritten only inside string
+literals so the words `shell`, `rail`, `grain` and `reveal` could not be
+rewritten where they appear in prose or in an identifier. But the product also
+has an `@layer base` that styles `html`, `body`, `h1`–`h4`, `img`, `button` and
+`::selection` outright, and those cannot travel with the tokens into a global
+stylesheet — they became `vendor/styles/surface.module.css`, scoped to the
+panel.
+
+**No photograph is involved.** The salon's real client photography sits in
+`public/`, 9.1 MB of it, and shipping pictures of identifiable clients into a
+marketing demo is a consent question rather than a technical one. It did not
+have to be answered: the specialists carry `portrait: { seed }` rather than a
+path, and the product's own `Figure` component draws deterministic, on-brand
+SVG art for any image without a `src`. The booking flow needs none of the
+photography, and what it shows instead is the product's own placeholder, not an
+approximation of one.
+
 ### Reset, when the state is not in the tree
 
 Every other demo resets by remount: `DemoStage` changes the React `key` and the
@@ -492,6 +563,11 @@ Every other demo resets by remount: `DemoStage` changes the React `key` and the
 Zustand store is a module singleton — it survives every key change the shell can
 think of. Pressing Reset would have rebuilt the components around state that
 never moved.
+
+Lanna Kamilina has the same problem in a different shape: its appointment book
+is a module-level cache over a module-level store — the product's own design,
+and the reason a booking made on one screen disappears from the calendar on
+another.
 
 So each vendored store exports its own reset beside its own definition, and
 `vendor/demo-reset.ts` calls them from a `useState` initialiser in the demo's
@@ -511,9 +587,19 @@ layer rather than reimplementing it. `psychologistService.list()` and
 ### What this removed
 
 Every vendored demo's hand-written approximation is deleted — 403 lines for
-Lazara Sersa, a directory-and-diary reimplementation for Mensalere, and for
+Lazara Sersa, a directory-and-diary reimplementation for Mensalere, for
 VectorForge a 665-line `App.tsx` plus a reducer that modelled a trace, a
-version history, an icon package and a batch queue with invented numbers.
+version history, an icon package and a batch queue with invented numbers, and
+for Lanna Kamilina an `App.tsx`, a fixtures module and a 12-test reducer that
+modelled a salon calendar which the product already had.
+
+Lanna Kamilina's replacement tests are worth the contrast: the demo's
+`booking.test.ts` drives the salon's **own** availability and booking layer, and
+checks the things the demo claims rather than re-deriving them — that a long
+service genuinely gets fewer windows than a short one, that "any specialist"
+pools capacity, that a booked slot leaves that master's column, that the hour is
+refused once the whole pool is taken, and that Reset empties the book. Eleven
+tests, none of which describe a calendar this repository wrote.
 
 For Lazara Sersa and Mensalere what remains in `lib/demo/apps/<slug>/state.ts`
 is only the selection each product keeps in its URL. VectorForge has no
@@ -528,22 +614,49 @@ and stores are tested in the product's own repository.
 
 ### What it cost, measured
 
-Both builds run, both measured the same way — the sum of every JS and CSS file
-the prerendered HTML references:
+Every figure below is from a real build, measured the same way — the sum of
+every JS and CSS file the prerendered HTML references. The VectorForge column
+was measured against a clean build of the preceding commit.
 
-| route | before VectorForge | after | change |
+| route | before VectorForge | after VectorForge | after Lanna Kamilina |
 |---|---|---|---|
-| `/` | 1167 KB raw / 359 KB gzip | 1167 / 359 | **none** |
-| `/work` | 1094 KB | 1094 KB | **none** |
-| `/work/vector-forge` | 1092 KB | 1092 KB | **none** |
-| any `/work/*/demo` | 1361 KB raw / 407 KB gzip | 1475 / 433 | **+114 KB raw, +26 KB gzip** |
+| `/` | 1167 KB raw / 359 gzip | 1167 / 359 | 1183 / 362 |
+| `/work` | 1094 KB | 1094 KB | 1110 KB |
+| any `/work/*/demo` | 1361 KB raw / 407 gzip | 1475 / 433 | 1611 / 473 |
 
-Plus 92 KB of PNG, requested only once the Convert screen shows an asset. The
-entire frontend of a desktop application — 84 files including 29 CSS modules,
-the design system, Zustand, and two self-hosted font families — costs 26 KB
-gzipped, on demo routes only, and nothing at all on any page that is not a
-demo.
+VectorForge's entire desktop frontend — 84 files, the design system, Zustand
+and two self-hosted font families — cost **26 KB gzipped on demo routes and
+nothing anywhere else**. Lanna Kamilina cost **40 KB gzipped on demo routes**,
+plus react-router and two more font families.
 
-The +114 KB lands on *every* demo route rather than only VectorForge's, because
-Turbopack still groups all eight demo chunks together (documented in §7). That
-is the same finding as before, not a new one.
+Plus 92 KB of PNG for VectorForge's source images, requested only when the
+Convert screen shows an asset. Lanna Kamilina requests no image at all: its
+placeholder art is inline SVG drawn from a seed.
+
+The demo-route figure lands on *every* demo route rather than only the one
+concerned, because Turbopack still groups all eight demo chunks together
+(documented in §7).
+
+#### The one regression, and where it comes from
+
+`/` went up **16 KB raw, 3 KB gzip**, and `/work` with it. That is not a demo
+chunk leaking — a marker scan of every JavaScript file the homepage loads finds
+no product code, only the demo registry, which is 15 KB of route metadata and
+`() => import(…)` thunks and is meant to be there.
+
+It is CSS, and it is structural. Tailwind v4 registers `@theme` tokens and
+`@utility` definitions **globally**: there is no mechanism to scope either to a
+subtree, so the namespaced `ms-` and `lk-` tokens and the utilities generated
+from them live in `app/globals.css` and therefore in the stylesheet every route
+loads. Mensalere's share was already in the baseline; Lanna Kamilina added
+these 16 KB.
+
+It only applies to the two products that use Tailwind. Lazara Sersa and
+VectorForge ship CSS modules, which Next scopes to the route that imports them,
+and neither adds a byte to a non-demo page.
+
+The remedy, if 3 KB gzipped ever matters: stop generating those utilities with
+Tailwind and emit the ~40 distinct rules the vendored files actually use into
+the demo's own scoped stylesheet. That trades a global 3 KB for a build step
+and a hand-maintained list, which is not obviously the better deal at this
+size — so it is recorded here rather than done.

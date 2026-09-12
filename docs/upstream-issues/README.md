@@ -56,11 +56,68 @@ zeroes margin and padding:
   `.item:focus-visible` to `.select:focus-visible`, since the button is what
   receives focus now.
 
+## Fixed in `Vas7305/Lanna-Kamilina`, then re-copied
+
+Same pass, same arrangement. Changes are in the Lanna Kamilina working tree,
+uncommitted, on `main`.
+
+| rule | files | what changed |
+|---|---|---|
+| `set-state-in-effect` ×3 | `Header.tsx`, `BookingFlow.tsx`, `useAvailability.ts` | state that follows a prop now adjusts during render instead of from an effect |
+| `no-impure-call-at-module-scope` | `data/business.ts` | `yearsInBusiness` was a module-scope `new Date()`; now a function |
+| `rerender-lazy-state-init` ×2 | `BookingFlow.tsx` | `useState(params.get(…))` → lazy initialisers |
+| `prefer-module-scope-static-value` | `ContactLinks.tsx` | a constant array hoisted out of the component |
+| `js-combine-iterations` ×4, `js-set-map-lookups` ×5 | `data/index.ts`, `BookingFlow.tsx`, `lib/seo.ts` | list walks collapsed to one pass; repeated `includes` scans replaced by a `Set` built once |
+
+Verified after the change: `tsc --noEmit` clean, `vite build` green. The
+repository has no test suite.
+
+### The iteration fixes, judged one at a time
+
+The data is small — 28 services, 6 specialists, 18 portfolio items, 14 reviews —
+so none of these was a measurable cost. They were taken because each reads
+better as a single pass and two sit in paths that run on a keystroke, not
+because a benchmark demanded it:
+
+- **`getRelatedServices`** and **`getPortfolioByTags`** scored every candidate
+  by re-scanning a reference tag array that never changes during the scan. The
+  reference is now a `Set` built once, and the map/filter/map chain is one loop.
+- **`getPortfolioForService`** decided membership with `!direct.includes(item)`
+  inside a filter — a linear search per item. `direct` is now a `Set`.
+- **`getBeforeAfterItems`** walked the list three times and worked out the
+  second group by searching the first. It now partitions in one pass, which is
+  also simply what the function means.
+- **`BookingFlow`'s service picker** mapped every category then filtered the
+  empty ones back out, on every keystroke in the search box. One `flatMap`.
+- **`lib/seo.ts`** filtered then mapped the opening hours. One `flatMap`.
+
+**One was left alone deliberately.** `schedule.ts:157` is `prune(read())` — two
+named functions, one validating the stored shape and one dropping yesterday's
+appointments. The rule sees two passes; merging them would fuse two unrelated
+concerns into one function to save a walk over a list that holds a handful of
+entries. It is reported below rather than fixed.
+
+### What each of the three effects was costing
+
+All three were the same shape — state that has to follow something else,
+written from an effect, which runs *after* the render it reacts to has painted:
+
+- **`Header`** closed the mobile menu on navigation. The menu stayed open over
+  the new page for a frame; most visible on a slow phone, which is the only
+  place that menu exists.
+- **`BookingFlow`** dropped a chosen time that had stopped being available. The
+  slot the visitor had just lost was painted once more, still highlighted,
+  before being cleared.
+- **`useAvailability`** cleared the window when the service was deselected. The
+  calendar kept the previous service's days on screen for a frame, which reads
+  as the picker briefly offering the wrong thing.
+
 ## Still open upstream
 
 | draft | rule | confidence | why not fixed |
 |---|---|---|---|
 | [convert-screen-size](./vectorforge-convert-screen-size.md) | `no-giant-component`, `no-high-complexity-react-function` | high | Restructuring `ConvertScreen` would turn every future re-copy into a manual merge. The benefit is only permanent if it happens upstream. |
+| [booking-flow-size](./lanna-kamilina-booking-flow-size.md) | `no-giant-component` | high | Same reasoning, for Lanna Kamilina's 660-line `BookingFlow`. |
 
 The GitHub CLI is not installed on this machine (`gh: command not found`), so
 this is a file rather than a filed issue. To file it:
@@ -69,6 +126,10 @@ this is a file rather than a filed issue. To file it:
 gh issue create --repo Vas7305/VectorForge-V-1.0 \
   --title "refactor: ConvertScreen is ~690 lines and holds six regions" \
   --body-file docs/upstream-issues/vectorforge-convert-screen-size.md
+
+gh issue create --repo Vas7305/Lanna-Kamilina \
+  --title "refactor: BookingFlow is ~660 lines and holds five steps plus the form" \
+  --body-file docs/upstream-issues/lanna-kamilina-booking-flow-size.md
 ```
 
 Three further defects are fixed **only** in the vendored copy, because the fix
@@ -83,13 +144,24 @@ and are worth taking upstream in their own right:
 
 ## Assessed and rejected, so not filed
 
-- **`nextjs-no-img-element`** — written up in full, with the evidence and the
-  two configuration options, in
-  [nextjs-no-img-element-decision.md](./nextjs-no-img-element-decision.md).
-  Short version: every occurrence is in a `vendor/` copy of a product that is
-  not a Next.js application, and `next.config.ts` sets
+- **`nextjs-no-img-element`** — **now disabled** in `doctor.config.json`, on
+  the maintainer's instruction. Every occurrence is in a `vendor/` copy of a
+  product that is not a Next.js application, and `next.config.ts` sets
   `images: { unoptimized: true }`, so `next/image` would add wrapper markup and
-  optimise nothing.
+  optimise nothing. The full evidence, and the note that the rule should come
+  back on if this repository ever grows a first-party `<img>`, is in
+  [nextjs-no-img-element-decision.md](./nextjs-no-img-element-decision.md).
+- **`js-combine-iterations`** (`features/booking/schedule.ts:157`). Real, and
+  left as it is on purpose. The line is `prune(read())`: one function validates
+  what came out of the store, the other drops appointments that are already in
+  the past. Collapsing them would merge two unrelated concerns to save one walk
+  over a list that holds a handful of entries. The other nine findings in this
+  family were fixed upstream — see above.
+- **`no-match-media-in-state-initializer`** (`hooks/useUi.ts:7`). Not
+  applicable. The rule guards against a server/client hydration mismatch. Lanna
+  Kamilina is a Vite SPA with no server render at all, and in this repository
+  the demo tree is gated behind a client-only check in `DemoStage`, so the
+  initializer never runs anywhere but the browser.
 - **`no-noninteractive-element-interactions`** (`Modal.tsx:45`). Not a defect.
   The element is a native `<dialog>`, which *is* interactive; the handler
   implements click-outside-to-close by comparing `event.target` against the

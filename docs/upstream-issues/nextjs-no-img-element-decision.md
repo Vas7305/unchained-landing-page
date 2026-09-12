@@ -2,9 +2,28 @@
 
 **Rule** `react-doctor/nextjs-no-img-element` — Category: Bugs, default
 severity `warn`, framework `nextjs`, tagged `test-noise`. It is opt-in by
-default and auto-enables here because the repository is detected as a Next.js
-app. There is no `doctor.config.*` in this repository and no `reactDoctor` key
-in `package.json`; nothing was configured to turn it on.
+default and auto-enabled here because the repository is detected as a Next.js
+app; nothing in this repository had configured it on.
+
+**Status: disabled.** `doctor.config.json` now sets it to `off`, on the
+maintainer's instruction, after the analysis below. That file did not exist
+before — `npx react-doctor rules disable react-doctor/nextjs-no-img-element`
+created it:
+
+```json
+{
+  "$schema": "https://react.doctor/schema/config.json",
+  "rules": {
+    "react-doctor/nextjs-no-img-element": "off"
+  }
+}
+```
+
+This document is the reasoning behind that one line, and is the thing to read
+before re-enabling it. **The rule should come back on if this repository ever
+grows a first-party `<img>`** — everything below argues only that it does not
+apply to *vendored copies of non-Next applications*, not that `next/image` is
+unnecessary in code this project actually writes.
 
 **Where it fires**
 
@@ -58,20 +77,10 @@ the product repositories are correct as they stand, so an issue there would be
 noise in someone else's tracker, and there is nothing for this repository to fix
 either.
 
-## If the warning should stop firing
+## The alternative, if the trade-off ever changes
 
-The rule is on by framework detection, not by choice, and it is the only
-diagnostic left in the changed-file scan. Two options, neither applied here —
-suppressing a rule is a maintainer's decision, not one to take silently:
-
-```bash
-# Narrowest control that matches the intent: the rule does not apply to this
-# codebase, because the code it flags is not Next.js code.
-npx react-doctor@latest rules disable react-doctor/nextjs-no-img-element
-```
-
-or keep it enabled for any first-party Next code added later and exclude it from
-the blocking surface only, by adding to `doctor.config.json`:
+Turning the rule off everywhere is the blunt instrument. The narrower option
+keeps it reporting locally and only stops it gating:
 
 ```jsonc
 {
@@ -81,11 +90,13 @@ the blocking surface only, by adding to `doctor.config.json`:
 }
 ```
 
-The second is better if this repository ever grows a first-party `<img>`: the
-rule keeps reporting locally and stops gating.
+That is the better shape the moment this repository has a first-party `<img>`
+of its own — the rule would then be catching something real, and silencing it
+outright would hide it. Until then, `"off"` and this document say the same
+thing with less ceremony.
 
-Note that the Stop hook scans **uncommitted** changes
-(`--scope changed --include-untracked`), so these warnings disappear from it
-once the vendored trees are committed — which is why Mensalere's two have not
-been blocking anything. That makes this a question about the next vendoring
-pass, not about the current one.
+Worth knowing either way: the Stop hook scans **uncommitted** changes
+(`--scope changed --include-untracked`), so these warnings leave it once the
+vendored trees are committed. That is why Mensalere's two never blocked
+anything, and it means the configuration matters mainly for the *next*
+vendoring pass rather than for this one.

@@ -1,6 +1,6 @@
 # Upstream findings — vendored product frontends
 
-Three demos run their product's own frontend, copied into
+Four demos run their product's own frontend, copied into
 `components/demo/apps/<slug>/vendor/`. Static analysis over this repository
 therefore also analyses **the products' code**, and reports findings that belong
 to the product repositories rather than to this one.
@@ -9,8 +9,8 @@ They are recorded here rather than patched, because the value of the vendored
 copy is that it is *the product* — a re-copy should be an overwrite, not a
 merge.
 
-Four of the VectorForge findings were instead **fixed in the VectorForge
-repository and re-copied** — see [upstream-issues/](./upstream-issues/), and
+Eighteen findings — four in VectorForge, fourteen in Lanna Kamilina — were
+instead **fixed in the product repository and re-copied** — see [upstream-issues/](./upstream-issues/), and
 §10–§12 below. That is the arrangement working as intended: the fix lands where
 it lasts, and the vendored copy is overwritten rather than diverging further.
 
@@ -24,6 +24,7 @@ Sources:
 - **Lazara Sersa** — `/d/Sersa Sarria`
 - **Mensalere** — `/d/Mensalere`
 - **VectorForge** — `/d/VectorForge-V-1.0` (`Vas7305/VectorForge-V-1.0`)
+- **Lanna Kamilina** — `/d/Lanna-Kamilina` (`Vas7305/Lanna-Kamilina`)
 
 The findings that are confirmed, belong to a product, and were deliberately not
 patched here are also written out as ready-to-file issue bodies in
