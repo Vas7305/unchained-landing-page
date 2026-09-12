@@ -1,0 +1,141 @@
+.sidebar {
+  width: 280px;
+  min-width: 240px;
+  background: var(--chrome);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-shrink: 0;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  padding: 18px var(--space-4) 17px;
+  border-bottom: 1px solid var(--hairline);
+  min-height: var(--topbar-h);
+}
+
+/* Scrollable middle area (nav + projects) */
+.middle {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Nav */
+.nav {
+  padding: var(--space-3) var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 0 var(--space-3);
+  height: 36px;
+  min-height: 36px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--nav-idle);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 120ms, color 120ms;
+  text-align: left;
+}
+
+.navItem:hover:not(.active) {
+  background: var(--surface);
+  color: var(--text-secondary);
+}
+
+.navItem.active {
+  background: rgba(31, 184, 150, 0.1);
+  color: var(--accent-300);
+}
+
+.navIcon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 16px;
+}
+
+.navLabel {
+  flex: 1;
+}
+
+/* Status */
+.status {
+  padding: var(--space-4);
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.engineRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.engineDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  flex-shrink: 0;
+}
+
+.engineActive {
+  background: var(--accent-500);
+  animation: vfpulse 1.4s ease-in-out infinite;
+}
+
+.engineLabel {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+}
+
+.perfRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.perfLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.perfVal {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 28px;
+}
+
+.panelHint {
+  display: none;
+}

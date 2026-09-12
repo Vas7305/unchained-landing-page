@@ -1,0 +1,34 @@
+/* §11.6 — AppFrame grid contract (deterministic, Enmienda E) */
+.frame {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  grid-template-rows: 100vh;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.mainColumn {
+  display: grid;
+  grid-template-rows: var(--topbar-h) 1fr;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workspaceRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workspaceRow.withPanel {
+  grid-template-columns: 1fr 5px var(--right-w, 340px);
+}
+
+.centerPanel {
+  min-width: 480px;
+  overflow: auto;
+  background: var(--bg-primary);
+}

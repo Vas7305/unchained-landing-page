@@ -257,21 +257,26 @@ export const demoRegistry: Record<string, DemoDefinition> = {
     frame: 'desktop',
     lang: 'en',
     surfaceLabel: 'VectorForge 1.0',
+    // Copied from src/styles/tokens.css in the VectorForge repository. The
+    // demo surface carries the product's full token set itself (see
+    // components/demo/apps/vector-forge/vendor/styles/surface.module.css);
+    // these twelve are what the site's own chrome around the demo uses to
+    // stop looking like it belongs to a different application.
     theme: {
-      '--d-bg': '#15171c',
-      '--d-surface': '#1d2027',
-      '--d-surface-2': '#252932',
-      '--d-border': '#323744',
-      '--d-fg': '#e9ecf2',
-      '--d-muted': '#919aab',
-      '--d-accent': '#6d5efc',
-      '--d-accent-fg': '#ffffff',
-      '--d-ring': '#9488ff',
-      '--d-positive': '#41c08a',
-      '--d-danger': '#e2685e',
-      '--d-radius': '6px',
+      '--d-bg': '#0B0F14',
+      '--d-surface': '#121821',
+      '--d-surface-2': '#1B2430',
+      '--d-border': '#2B3440',
+      '--d-fg': '#ECF1F6',
+      '--d-muted': '#8A95A4',
+      '--d-accent': '#1FB896',
+      '--d-accent-fg': '#0B0F14',
+      '--d-ring': '#5BE0C0',
+      '--d-positive': '#34C759',
+      '--d-danger': '#FC3803',
+      '--d-radius': '12px',
     },
-    scenarios: [{ id: 'trace', label: 'Trace & package' }],
+    scenarios: [{ id: 'trace', label: 'Trace a mark' }],
     load: () => import('@/components/demo/apps/vector-forge/App'),
   },
 };

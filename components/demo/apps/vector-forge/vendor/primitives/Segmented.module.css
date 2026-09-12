@@ -1,0 +1,41 @@
+.wrap {
+  display: inline-flex;
+  background: var(--inset);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  gap: 2px;
+}
+
+.option {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 120ms, color 120ms;
+  white-space: nowrap;
+}
+
+.option:hover:not(.active) {
+  color: var(--text-secondary);
+  background: var(--surface);
+}
+
+.option.active {
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+/* Sizes */
+.sm .option {
+  font-size: 11px;
+  padding: 3px var(--space-2);
+}
+
+.md .option {
+  font-size: 12px;
+  padding: 5px var(--space-3);
+}

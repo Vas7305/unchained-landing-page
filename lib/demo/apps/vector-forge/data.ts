@@ -1,187 +1,160 @@
 /**
- * VectorForge demo fixtures.
+ * VectorForge demo fixtures — the sample project the demo opens with.
  *
- * The workstation's sample project: a handful of source files, the four trace
- * modes the product ships, and the icon package a launch actually needs.
+ * ─── Where these come from ────────────────────────────────────────────────
+ * The three source images are the product's own brand artwork, rasterised
+ * from `src/assets/brand/*.svg` in the VectorForge repository at the sizes a
+ * designer would actually hand over. The `svg` on each entry is that same
+ * original file, verbatim.
  *
- * ─── The one fixture that is not invented ─────────────────────────────────
- * The icon sizes. Those are the real list — 16 through 512, the Apple touch
- * icon at 180, the maskable Android icon, `favicon.ico` — because that list is
- * the product's whole argument: it is tedious, it is exact, and getting it
- * wrong is why people end up with a blurry tab icon. Inventing a prettier list
- * would have thrown away the only part of this demo that teaches anything.
+ * That pairing is deliberate. A tracing demo has to show a before and an
+ * after, and any *invented* "after" would be a drawing of a result rather
+ * than a result. Here the vector genuinely is what the raster was made from,
+ * so the split view shows a true reconstruction — and `outlines` are the real
+ * shapes of that vector, read out of its path data, so the node overlay lands
+ * on the geometry instead of on scattered dots.
  *
- * Everything else — the file names, the byte counts, the path and node counts
- * — is fabricated but internally consistent: `traceOf` in state.ts derives
- * every number from the source and the settings, so the same recipe always
- * produces the same output. That reproducibility is the product's other
- * argument, and a demo with random results would contradict it.
+ * Nothing here is fetched. The PNGs are static files under
+ * `public/demo/vector-forge/`, the SVGs are string literals, and the byte
+ * counts are the real sizes of both.
+ *
+ * How the settings move the shapes: lib/demo/apps/vector-forge/trace.ts.
  */
 
-export type SourceKind = 'flat' | 'detailed' | 'photographic';
-
-export interface DemoAsset {
+export interface DemoSource {
   id: string;
+  /** File name as it appears in the asset browser. */
   name: string;
-  kind: SourceKind;
+  /** Public URL. Doubles as the "path" the product's stores carry around. */
+  path: string;
   width: number;
   height: number;
-  /** Source size in bytes. */
+  /** Real size of the PNG on disk. */
   bytes: number;
-  /** Distinct colours in the source. Drives palette handling. */
-  colours: number;
+  format: 'png';
+  /** The vector this raster was made from — what a perfect trace recovers. */
+  svg: string;
+  /** Real size of that SVG. */
+  svgBytes: number;
+  /** Drawable shapes in it. */
+  pathCount: number;
+  /**
+   * One closed outline per shape, in the rendered pixel space of `svg`.
+   *
+   * Grouped rather than flattened because the tracer subdivides *along edges*:
+   * a midpoint between two vertices of the same hexagon is on the outline, and
+   * a midpoint between the last vertex of one shape and the first of the next
+   * is in empty space.
+   */
+  outlines: readonly (readonly (readonly [number, number])[])[];
 }
 
-export const assets: readonly DemoAsset[] = [
+export const demoSources: readonly DemoSource[] = [
   {
-    id: 'a-logo',
-    name: 'northwind-logo.png',
-    kind: 'flat',
-    width: 1200,
-    height: 400,
-    bytes: 184_320,
-    colours: 3,
-  },
-  {
-    id: 'a-mark',
-    name: 'app-mark.png',
-    kind: 'flat',
+    id: 'a-app-icon',
+    name: 'vectorforge-app-icon.png',
+    path: '/demo/vector-forge/vectorforge-app-icon.png',
     width: 1024,
     height: 1024,
-    bytes: 96_256,
-    colours: 2,
+    bytes: 60_699,
+    format: 'png',
+    svgBytes: 1_144,
+    pathCount: 7,
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" fill="none">
+  <defs>
+    <linearGradient id="vfBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0F3329"></stop>
+      <stop offset="0.7" stop-color="#0A1B17"></stop>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="1024" height="1024" rx="228" fill="url(#vfBg)"></rect>
+  <rect x="6" y="6" width="1012" height="1012" rx="224" fill="none" stroke="#1FB896" stroke-width="6"></rect>
+  <g transform="translate(262,262) scale(5.0)">
+    <polygon points="50,7 88,28.5 88,71.5 50,93 12,71.5 12,28.5" fill="none" stroke="#1FB896" stroke-width="3"></polygon>
+    <path d="M32,38 L50,66 L68,38" fill="none" stroke="#5BE0C0" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    <rect x="28.2" y="34.2" width="7.6" height="7.6" rx="1" fill="#0B1714" stroke="#5BE0C0" stroke-width="2.4"></rect>
+    <rect x="64.2" y="34.2" width="7.6" height="7.6" rx="1" fill="#0B1714" stroke="#5BE0C0" stroke-width="2.4"></rect>
+    <rect x="46.2" y="62.2" width="7.6" height="7.6" rx="1" fill="#5BE0C0"></rect>
+  </g>
+</svg>`,
+    outlines: [
+      [[512.0, 297.0], [702.0, 404.5], [702.0, 619.5], [512.0, 727.0], [322.0, 619.5], [322.0, 404.5]],
+      [[422.0, 452.0], [512.0, 592.0], [602.0, 452.0]],
+      [[403.0, 433.0], [441.0, 433.0], [441.0, 471.0], [403.0, 471.0]],
+      [[583.0, 433.0], [621.0, 433.0], [621.0, 471.0], [583.0, 471.0]],
+      [[493.0, 573.0], [531.0, 573.0], [531.0, 611.0], [493.0, 611.0]],
+      [[0.0, 0.0], [1024.0, 0.0], [1024.0, 1024.0], [0.0, 1024.0]],
+      [[6.0, 6.0], [1018.0, 6.0], [1018.0, 1018.0], [6.0, 1018.0]],
+    ],
   },
   {
-    id: 'a-badge',
-    name: 'quality-badge.png',
-    kind: 'detailed',
-    width: 900,
-    height: 900,
-    bytes: 412_672,
-    colours: 12,
+    id: 'a-isotype',
+    name: 'vectorforge-isotype.png',
+    path: '/demo/vector-forge/vectorforge-isotype.png',
+    width: 512,
+    height: 512,
+    bytes: 13_564,
+    format: 'png',
+    svgBytes: 680,
+    pathCount: 5,
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100" fill="none">
+  <polygon points="50,7 88,28.5 88,71.5 50,93 12,71.5 12,28.5" fill="#0E2A24" stroke="#1FB896" stroke-width="3"></polygon>
+  <path d="M32,38 L50,66 L68,38" fill="none" stroke="#5BE0C0" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  <rect x="28.2" y="34.2" width="7.6" height="7.6" rx="1" fill="#0B0F14" stroke="#5BE0C0" stroke-width="2.4"></rect>
+  <rect x="64.2" y="34.2" width="7.6" height="7.6" rx="1" fill="#0B0F14" stroke="#5BE0C0" stroke-width="2.4"></rect>
+  <rect x="46.2" y="62.2" width="7.6" height="7.6" rx="1" fill="#5BE0C0"></rect>
+</svg>`,
+    outlines: [
+      [[256.0, 35.8], [450.6, 145.9], [450.6, 366.1], [256.0, 476.2], [61.4, 366.1], [61.4, 145.9]],
+      [[163.8, 194.6], [256.0, 337.9], [348.2, 194.6]],
+      [[144.4, 175.1], [183.3, 175.1], [183.3, 214.0], [144.4, 214.0]],
+      [[328.7, 175.1], [367.6, 175.1], [367.6, 214.0], [328.7, 214.0]],
+      [[236.5, 318.5], [275.5, 318.5], [275.5, 357.4], [236.5, 357.4]],
+    ],
   },
   {
-    id: 'a-illustration',
-    name: 'hero-illustration.png',
-    kind: 'detailed',
-    width: 2400,
-    height: 1350,
-    bytes: 1_884_160,
-    colours: 34,
-  },
-  {
-    id: 'a-photo',
-    name: 'team-photo.jpg',
-    kind: 'photographic',
-    width: 3000,
-    height: 2000,
-    bytes: 3_512_320,
-    colours: 4096,
+    id: 'a-inverse',
+    name: 'vectorforge-isotype-inverse.png',
+    path: '/demo/vector-forge/vectorforge-isotype-inverse.png',
+    width: 512,
+    height: 512,
+    bytes: 13_593,
+    format: 'png',
+    svgBytes: 680,
+    pathCount: 5,
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100" fill="none">
+  <polygon points="50,7 88,28.5 88,71.5 50,93 12,71.5 12,28.5" fill="#D8EFE9" stroke="#006D5B" stroke-width="3"></polygon>
+  <path d="M32,38 L50,66 L68,38" fill="none" stroke="#006D5B" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  <rect x="28.2" y="34.2" width="7.6" height="7.6" rx="1" fill="#FFFFFF" stroke="#006D5B" stroke-width="2.4"></rect>
+  <rect x="64.2" y="34.2" width="7.6" height="7.6" rx="1" fill="#FFFFFF" stroke="#006D5B" stroke-width="2.4"></rect>
+  <rect x="46.2" y="62.2" width="7.6" height="7.6" rx="1" fill="#006D5B"></rect>
+</svg>`,
+    outlines: [
+      [[256.0, 35.8], [450.6, 145.9], [450.6, 366.1], [256.0, 476.2], [61.4, 366.1], [61.4, 145.9]],
+      [[163.8, 194.6], [256.0, 337.9], [348.2, 194.6]],
+      [[144.4, 175.1], [183.3, 175.1], [183.3, 214.0], [144.4, 214.0]],
+      [[328.7, 175.1], [367.6, 175.1], [367.6, 214.0], [328.7, 214.0]],
+      [[236.5, 318.5], [275.5, 318.5], [275.5, 357.4], [236.5, 357.4]],
+    ],
   },
 ];
 
-export interface DemoMode {
-  id: string;
-  name: string;
-  detail: string;
-  /** Defaults the mode loads. The visitor can still move them. */
-  threshold: number;
-  smoothing: number;
-  /** Maximum colours in the traced output. */
-  palette: number;
-  /** Source kinds this mode is designed for. */
-  suits: readonly SourceKind[];
-}
+/**
+ * The project the workstation opens with.
+ *
+ * `dir` is a path-shaped label, not a path: nothing in this demo touches a
+ * filesystem, and the product's stores only ever pass it through.
+ */
+export const demoProject = {
+  id: 'vf-demo-brand-kit',
+  name: 'VectorForge Brand Kit',
+  description: 'Source marks and their traced vectors',
+  dir: 'Projects/VectorForge Brand Kit',
+  createdAt: Date.UTC(2026, 0, 19, 9, 30),
+  updatedAt: Date.UTC(2026, 1, 3, 16, 12),
+} as const;
 
-export const modes: readonly DemoMode[] = [
-  {
-    id: 'logo',
-    name: 'Logo',
-    detail: 'Two or three flat colours, hard edges, minimum node count.',
-    threshold: 62,
-    smoothing: 30,
-    palette: 4,
-    suits: ['flat'],
-  },
-  {
-    id: 'icon',
-    name: 'Icon',
-    detail: 'Single-shape marks optimised to stay legible at 16 px.',
-    threshold: 55,
-    smoothing: 45,
-    palette: 2,
-    suits: ['flat'],
-  },
-  {
-    id: 'illustration',
-    name: 'Illustration',
-    detail: 'Many colours, soft transitions, layered output.',
-    threshold: 48,
-    smoothing: 60,
-    palette: 24,
-    suits: ['flat', 'detailed'],
-  },
-  {
-    id: 'precision',
-    name: 'Precision',
-    detail: 'Maximum fidelity. Slower, and produces far more nodes.',
-    threshold: 40,
-    smoothing: 15,
-    palette: 64,
-    suits: ['flat', 'detailed', 'photographic'],
-  },
-];
-
-/** The icon and favicon package a launch needs. */
-export interface IconTarget {
-  id: string;
-  label: string;
-  file: string;
-  /** Pixel size, or 0 for a multi-resolution container. */
-  size: number;
-  /** Selected by default: the set nobody should have to think about. */
-  standard: boolean;
-}
-
-export const iconTargets: readonly IconTarget[] = [
-  { id: 'ico', label: 'favicon.ico (16/32/48)', file: 'favicon.ico', size: 0, standard: true },
-  { id: 'png-16', label: '16 × 16', file: 'favicon-16x16.png', size: 16, standard: true },
-  { id: 'png-32', label: '32 × 32', file: 'favicon-32x32.png', size: 32, standard: true },
-  { id: 'png-48', label: '48 × 48', file: 'favicon-48x48.png', size: 48, standard: false },
-  { id: 'apple-180', label: 'Apple touch icon (180)', file: 'apple-touch-icon.png', size: 180, standard: true },
-  { id: 'png-192', label: 'Android 192', file: 'android-chrome-192x192.png', size: 192, standard: true },
-  { id: 'maskable-512', label: 'Maskable 512', file: 'maskable-icon-512x512.png', size: 512, standard: true },
-  { id: 'png-256', label: '256 × 256', file: 'icon-256x256.png', size: 256, standard: false },
-  { id: 'svg', label: 'Scalable SVG', file: 'icon.svg', size: 0, standard: true },
-];
-
-/** The steps the tracer reports while it works. */
-export const TRACE_STEPS = [
-  'Reading source',
-  'Quantising palette',
-  'Detecting edges',
-  'Fitting curves',
-  'Simplifying paths',
-  'Optimising output',
-] as const;
-
-export const EXPORT_STEPS = [
-  'Rendering raster targets',
-  'Writing manifest',
-  'Compressing package',
-] as const;
-
-export function findAsset(id: string): DemoAsset | undefined {
-  return assets.find((asset) => asset.id === id);
-}
-
-export function findMode(id: string): DemoMode | undefined {
-  return modes.find((mode) => mode.id === id);
-}
-
-/** `184 KB`, the way a file browser writes it. */
-export function bytes(value: number): string {
-  if (value < 1024) return `${value} B`;
-  if (value < 1024 * 1024) return `${Math.round(value / 1024)} KB`;
-  return `${(value / 1024 / 1024).toFixed(1)} MB`;
+/** Look a source up by id. */
+export function findSource(id: string | null): DemoSource | undefined {
+  return demoSources.find((source) => source.id === id);
 }

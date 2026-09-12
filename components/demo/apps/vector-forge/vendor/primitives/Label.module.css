@@ -1,0 +1,10 @@
+.label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: default;
+}
+
+.required {
+  color: var(--error-text);
+}

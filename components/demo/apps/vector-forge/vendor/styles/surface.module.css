@@ -1,0 +1,199 @@
+/*
+ * VectorForge's own tokens and base styles, confined to the demo surface.
+ *
+ * ─── What changed, and why ────────────────────────────────────────────────
+ * This file is `src/styles/tokens.css` and `src/styles/globals.css` from the
+ * VectorForge repository, concatenated, with exactly one kind of edit: every
+ * global selector is scoped under `.surface`.
+ *
+ *   :root            -> .surface
+ *   html, body, #root -> .surface
+ *   body             -> .surface
+ *   ::-webkit-scrollbar -> .surface ::-webkit-scrollbar
+ *   :focus-visible   -> .surface :focus-visible
+ *
+ * The scoping is not cosmetic. The product and this website both define
+ * `--surface`, `--border`, `--radius-md` and `--font-mono`, with different
+ * values — VectorForge's `--radius-md` is 12px, the site's is 0.5rem — and
+ * both define `*, *::before, *::after { margin: 0; padding: 0 }`. Left at
+ * `:root`, opening this demo would restyle the page around it.
+ *
+ * Custom properties declared on `.surface` are inherited by everything inside
+ * it and by nothing outside it, which is why the CSS modules underneath can be
+ * the product's files, unedited, and still resolve every variable they name.
+ *
+ * Two declarations are the demo's rather than the product's, both marked
+ * below: the font families, which point at the faces this site actually loads
+ * instead of at faces a desktop app can assume, and `height/overflow`, because
+ * the demo surface is a panel on a page and not a window.
+ */
+
+.surface {
+  --bg-primary: #0B0F14;
+  --bg-secondary: #121821;
+  --surface: #1B2430;
+  --chrome: #0A0E13;
+  --inset: #0D131B;
+  --inset-deep: #0C1119;
+
+  --border: #2B3440;
+  --hairline: #1B2430;
+  --border-soft: #3A4654;
+
+  --accent-900: #006D5B;
+  --accent-700: #0A8F76;
+  --accent-500: #1FB896;
+  --accent-300: #5BE0C0;
+
+  --success: #34C759;
+  --success-text: #7FE3A0;
+  --warning: #E8A23D;
+  --warning-text: #F2C078;
+  --error: #FC3803;
+  --error-text: #FC6A42;
+  --error-subtle: #FC9B82;
+  --info: #4F9DF0;
+  --info-text: #7FB0FF;
+
+  --text-primary: #ECF1F6;
+  --text-secondary: #B7C0CC;
+  --text-muted: #8A95A4;
+  --text-faint: #5B6675;
+  --nav-idle: #828D9C;
+
+  /* DEMO DIVERGENCE — the product names the families directly, which a
+     desktop app bundling its own faces can do. Here they point at the two
+     next/font variables the demo loads, with the product's own fallback
+     chain behind them, so the type is the product's type and nothing is
+     requested that the page has not already paid for. */
+  --font-ui: var(--font-vf-sans), 'Inter', 'Segoe UI', sans-serif;
+  --font-mono: var(--font-vf-mono), 'JetBrains Mono', ui-monospace, monospace;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
+
+  --topbar-h: 56px;
+
+  --shadow-1: 0 16px 50px rgba(0, 0, 0, 0.5);
+  --glow-accent: 0 0 16px rgba(0, 109, 91, 0.35);
+  --glow-thumb: 0 0 8px rgba(31, 184, 150, 0.5);
+
+  --z-base: 0;
+  --z-panel: 10;
+  --z-sticky: 50;
+  --z-dropdown: 100;
+  --z-modal: 1000;
+  --z-toast: 1100;
+  --z-tooltip: 1200;
+
+  /* Elevation reference comments (not CSS vars) */
+  /* e3: bg-secondary + border(1px, --border) + shadow-1 */
+  /* e2: surface + border(1px, --hairline) */
+  /* e1: inset + border(1px, --hairline) */
+  /* e0: inset-deep (flat, no border) */
+}
+
+
+.surface *,
+.surface *::before,
+.surface *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* DEMO DIVERGENCE — the product sizes html/body/#root to the window. The
+   demo surface is a panel inside a page, so it fills its container instead. */
+.surface {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.surface {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+}
+
+/* Focus ring */
+.surface :focus-visible {
+  outline: 2px solid var(--accent-300);
+  outline-offset: 2px;
+}
+
+/* Scrollbar */
+.surface ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.surface ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.surface ::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-pill);
+}
+.surface ::-webkit-scrollbar-thumb:hover {
+  background: var(--border-soft);
+}
+
+/* Typography helpers */
+.surface .font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Keyframe animations */
+@keyframes vfpulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes vfflow {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+@keyframes vfspin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes vfshimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes vfdash {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes vfslide-in {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes vffade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

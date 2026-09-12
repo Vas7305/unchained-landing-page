@@ -1,0 +1,119 @@
+.browser {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms;
+  user-select: none;
+}
+
+.item:hover {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--accent-300);
+  outline-offset: 2px;
+}
+
+.item.active {
+  background: color-mix(in srgb, var(--accent-900) 25%, var(--surface));
+  border-color: var(--accent-700);
+}
+
+/* ── Thumbnail ── */
+.thumb {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--inset);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumbError {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--text-faint);
+}
+
+/* ── Info ── */
+.info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+.metaTag {
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--accent-500);
+  background: color-mix(in srgb, var(--accent-900) 20%, transparent);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.metaDim,
+.metaSize {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+/* ── Actions ── */
+.actions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 120ms;
+}
+
+.item:hover .actions,
+.item:focus-within .actions,
+.item.active .actions {
+  opacity: 1;
+}

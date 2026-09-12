@@ -1,0 +1,24 @@
+.track {
+  height: 3px;
+  background: var(--inset);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  width: 100%;
+}
+
+.fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 1.2s linear;
+}
+
+.accent { background: var(--accent-500); }
+.danger { background: var(--error); }
+.success { background: var(--success); }
+
+.indeterminate .fill {
+  width: 40%;
+  animation: vfflow 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, var(--accent-500), transparent);
+  background-size: 200% 100%;
+}
