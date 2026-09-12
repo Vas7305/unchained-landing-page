@@ -143,7 +143,24 @@ describe('leadPayload', () => {
       p_source_cta: 'hero_start_project',
       p_client_token: '11111111-2222-4333-8444-555555555555',
       p_honeypot: null,
+      p_self_service: true,
     });
+  });
+
+  it('always declares the inquiry self-service', () => {
+    // The form's only entry point is the "Prefer to write?" disclosure, shown
+    // below whichever representative the resolver presented. Opening it is the
+    // visitor choosing to describe their project instead of starting a
+    // conversation, so the lead arrives unassigned and a manager routes it.
+    //
+    // Pinned as a constant because that reasoning depends on the form having
+    // exactly one way in. If it ever becomes conditional, the condition is what
+    // needs a test — and this one failing is the reminder to write it.
+    const payload = leadPayload(
+      { ...emptyInquiry, name: 'Anna', email: 'anna@example.com' },
+      { ...context, cta: null, country: null },
+    );
+    expect(payload.p_self_service).toBe(true);
   });
 
   it('never sends an assigned commercial', () => {

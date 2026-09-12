@@ -172,6 +172,33 @@ export function leadPayload(draft: InquiryDraft, context: InquiryContext) {
     p_source_cta: context.cta,
     p_client_token: context.clientToken,
     p_honeypot: clean(draft.honeypot),
+    // ─── Always true, and that is the point ───────────────────────────────
+    // This form has exactly one way in: the "Prefer to write?" disclosure,
+    // closed by default, below whichever representative the resolver
+    // presented. A visitor who opens it has looked at that name and chosen to
+    // describe their project instead of starting a conversation.
+    //
+    // The business rule that follows: a visitor who reached the site from
+    // advertising rather than through a representative's work is not that
+    // representative's lead merely because the resolver put their name on the
+    // screen. Attaching them anyway would overrule the visitor's own decision
+    // to skip the consultation. So the lead arrives UNASSIGNED, into the
+    // manager's queue, and is routed by a person.
+    //
+    // Hardcoded rather than threaded through InquiryContext because the
+    // toggle is the only entry point — see ProjectInquiryForm. If this form is
+    // ever mounted somewhere a representative was NOT offered first, that is
+    // the moment to make this a parameter, because the reasoning above stops
+    // holding.
+    //
+    // ─── DEPLOYMENT ORDER MATTERS ─────────────────────────────────────────
+    // Migration 20260911000002 must be applied BEFORE this ships. PostgREST
+    // resolves an RPC by the exact set of keys in the body, so sending this one
+    // to a database that still has the twelve-argument create_public_lead does
+    // not "default" anything — it fails to find the function at all, surfaces
+    // as PGRST202, and every visitor gets 'unavailable' on a form that looks
+    // fine. The old database does not ignore the new key; it rejects the call.
+    p_self_service: true,
   };
 }
 
