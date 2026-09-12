@@ -1,0 +1,122 @@
+/*
+ * Lanna Kamilina's base layer, confined to the demo surface.
+ *
+ * These are the element-level rules from `@layer base` in the product's
+ * `src/styles/index.css` — the body type, the heading family, the focus ring,
+ * the selection colour — with every selector scoped under one class.
+ *
+ * They cannot travel with the tokens into app/globals.css, because they style
+ * `html`, `body`, `h1`–`h4`, `img`, `button` and `::selection` outright. Left
+ * global, this demo would set the whole website's body font to the product's,
+ * restyle every heading on every page, and repaint the selection colour.
+ *
+ * A CSS module rather than a plain stylesheet, so the class name itself is
+ * hashed and nothing can collide with it. The rules below resolve their tokens
+ * because those are declared in app/globals.css under the same `lk-` prefix.
+ *
+ * `html` and `body` become the surface itself: it is the panel that is the
+ * product's viewport here, and it fills its container rather than a window.
+ */
+
+.surface *,
+.surface *::before,
+.surface *::after {
+  box-sizing: border-box;
+}
+
+.surface {
+  -webkit-text-size-adjust: 100%;
+  /* No `scroll-behavior: smooth`. SmoothScroll drives the scroll position
+     itself, and a native easing underneath its easing compounds into a
+     scroll that overshoots and then crawls. Anything that still wants a
+     smooth jump asks for it per call — `ScrollManager` does, for anchors. */
+  /* Hold the scrollbar's width whether or not the route needs one. Short
+     pages (contacts) do not scroll and tall ones (works) do, so without this
+     every navigation between them shifts the layout sideways — which the
+     route slide would then carry, turning a clean horizontal move into a
+     jolt. */
+  scrollbar-gutter: stable;
+  --header-h: 4.5rem;
+}
+
+.surface {
+  margin: 0;
+  background-color: var(--color-lk-paper);
+  color: var(--color-lk-ink);
+  font-family: var(--font-lk-sans);
+  font-weight: 350;
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+.surface h1,
+.surface h2,
+.surface h3,
+.surface h4 {
+  font-family: var(--font-lk-display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.06;
+  text-wrap: balance;
+  margin: 0;
+}
+
+.surface p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.surface img,
+.surface svg,
+.surface video {
+  display: block;
+  max-width: 100%;
+}
+
+.surface button,
+.surface input,
+.surface select,
+.surface textarea {
+  font: inherit;
+  color: inherit;
+}
+
+.surface :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-lk-accent);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+.surface [id] {
+  scroll-margin-top: calc(var(--header-h) + 1.5rem);
+}
+
+.surface ::selection {
+  background: var(--color-lk-ink);
+  color: var(--color-lk-paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .surface {
+    scroll-behavior: auto;
+  }
+
+  .surface *,
+  .surface *::before,
+  .surface *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* DEMO DIVERGENCE — the product sizes itself to the window. The demo surface
+   is a panel inside a page, so it fills its container and scrolls inside it. */
+.surface {
+  height: 100%;
+  overflow-y: auto;
+  position: relative;
+}

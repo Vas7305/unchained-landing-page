@@ -271,3 +271,243 @@
   --shadow-ms-raised: 0 8px 28px rgba(0, 0, 0, 0.08);
   --container-ms-content: 1200px;
 }
+
+/* =========================================================================
+   LANNA KAMILINA — the product's design tokens, namespaced.
+
+   Copied from `src/styles/index.css` in the Lanna Kamilina repository. Every
+   token and every custom utility carries an `lk-` prefix that the product does
+   not have, and the vendored class names carry the same prefix.
+
+   The prefix is not cosmetic. Tailwind v4 registers `@theme` and `@utility`
+   globally — neither can be scoped to a subtree — and the product and this
+   site both define `--color-accent`, `--color-muted`, `--font-sans`,
+   `--radius-sm` and `--radius-md` with different values. Registered
+   unprefixed, opening the demo would restyle this website.
+
+   Element-level base styles are NOT here: they are scoped to the demo panel in
+   components/demo/apps/lanna-kamilina/vendor/styles/surface.module.css.
+   ========================================================================= */
+
+@theme {
+
+  /* -- Colour ------------------------------------------------------------
+     A warm, paper-based neutral scale with a single muted bronze accent.
+     The accent is a punctuation mark, never a background wash.            */
+  --color-lk-paper: #f5f2ec;
+  --color-lk-paper-2: #efeae1;
+  --color-lk-paper-3: #e7e0d4;
+  --color-lk-ink: #191512;
+  --color-lk-ink-2: #3b342c;
+  --color-lk-muted: #7b7268;
+  --color-lk-line: #ded6c9;
+  --color-lk-line-strong: #c9bfae;
+  --color-lk-accent: #8e6a4c;
+  --color-lk-accent-ink: #6d4f37;
+  --color-lk-accent-wash: #f0e7dc;
+  --color-lk-positive: #4b6b4f;
+  --color-lk-critical: #8a3f36;
+
+  /* -- Type -------------------------------------------------------------- */
+  /* DEMO DIVERGENCE — the product names the families directly, which a site
+     that loads its own webfonts can do. Here they point at the two next/font
+     variables the demo declares, with the product's own fallback chain behind
+     them, so the type is the product's type and nothing is requested that the
+     demo route has not already paid for. */
+  --font-lk-display: var(--font-lk-display-face), 'Playfair Display', 'Times New Roman', Georgia, serif;
+  --font-lk-sans: var(--font-lk-sans-face), 'Inter', 'Helvetica Neue', system-ui, -apple-system, sans-serif;
+
+  /* -- Layout ------------------------------------------------------------ */
+  --container-lk-shell: 84rem;
+  --container-lk-text: 44rem;
+
+  /* -- Motion ------------------------------------------------------------ */
+  --ease-lk-editorial: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-lk-enter: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* -- Radius: near-square. Rounded cards read as SaaS, not editorial. --- */
+  --radius-lk-xs: 2px;
+  --radius-lk-sm: 3px;
+  --radius-lk-md: 4px;
+}
+
+@keyframes lk-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes lk-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@utility lk-type-hero {
+  font-family: var(--font-lk-display);
+  font-size: clamp(2.75rem, 1.4rem + 6.4vw, 7rem);
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+}
+
+@utility lk-type-display {
+  font-family: var(--font-lk-display);
+  font-size: clamp(2.125rem, 1.3rem + 3.6vw, 4rem);
+  line-height: 1.04;
+  letter-spacing: -0.022em;
+}
+
+@utility lk-type-title {
+  font-family: var(--font-lk-display);
+  font-size: clamp(1.5rem, 1.15rem + 1.55vw, 2.25rem);
+  line-height: 1.12;
+  letter-spacing: -0.018em;
+}
+
+@utility lk-type-subtitle {
+  font-family: var(--font-lk-display);
+  font-size: clamp(1.185rem, 1.05rem + 0.6vw, 1.5rem);
+  line-height: 1.2;
+  letter-spacing: -0.012em;
+}
+
+@utility lk-type-lead {
+  font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.25rem);
+  line-height: 1.55;
+  font-weight: 350;
+  color: var(--color-lk-ink-2);
+}
+
+@utility lk-type-body {
+  font-size: 1rem;
+  line-height: 1.62;
+}
+
+@utility lk-type-small {
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+@utility lk-type-eyebrow {
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@utility lk-type-meta {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+}
+
+@utility lk-numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility lk-shell {
+  width: 100%;
+  max-width: var(--container-lk-shell);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+
+  @media (width >= 40rem) {
+    padding-inline: 2rem;
+  }
+
+  @media (width >= 80rem) {
+    padding-inline: 3rem;
+  }
+}
+
+@utility lk-section-y {
+  padding-block: clamp(3.5rem, 2rem + 7vw, 8rem);
+}
+
+@utility lk-section-y-tight {
+  padding-block: clamp(2.5rem, 1.5rem + 4vw, 5rem);
+}
+
+@utility lk-hairline {
+  border-top: 1px solid var(--color-lk-line);
+}
+
+@utility lk-reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.9s var(--ease-lk-enter),
+    transform 0.9s var(--ease-lk-enter);
+}
+
+@utility lk-reveal-in {
+  opacity: 1;
+  transform: none;
+}
+
+@utility lk-animate-fade-up {
+  animation: lk-fade-up 0.5s var(--ease-lk-enter) both;
+}
+
+@utility lk-animate-fade {
+  animation: lk-fade 0.35s var(--ease-lk-editorial) both;
+}
+
+@utility lk-rail {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  /* `overflow-x` clips the paint but still reports the scroll extent up to the
+     document, which makes the page itself measure ~2300px wide on a phone.
+     Mobile browsers answer that by widening the layout viewport, so the fixed
+     header and sticky bar stretch past the screen and their right-hand
+     contents land out of view. Paint containment keeps the rail's width its
+     own business. */
+  contain: paint;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  & > * {
+    scroll-snap-align: start;
+    flex: 0 0 auto;
+  }
+}
+
+@utility lk-no-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility lk-grain {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.3;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  }
+}

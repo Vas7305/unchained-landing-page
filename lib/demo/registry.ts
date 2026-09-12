@@ -72,20 +72,25 @@ export const demoRegistry: Record<string, DemoDefinition> = {
     frame: 'browser',
     lang: 'ru',
     surfaceLabel: 'lannakamilina.ru',
-    fontFamily: 'Georgia, "Times New Roman", serif',
+    fontFamily: "'Playfair Display', 'Times New Roman', Georgia, serif",
+    // Copied from the @theme block in src/styles/index.css in the Lanna
+    // Kamilina repository. The demo surface carries the product's full token
+    // set itself, namespaced `lk-` in app/globals.css; these twelve are what
+    // the site's own chrome around the demo uses so the frame stops looking
+    // like it belongs to a different application.
     theme: {
-      '--d-bg': '#f7f3ee',
-      '--d-surface': '#ffffff',
-      '--d-surface-2': '#f2ebe3',
-      '--d-border': '#e0d5c8',
-      '--d-fg': '#2b2019',
-      '--d-muted': '#6b5c50',
-      '--d-accent': '#8c3a52',
-      '--d-accent-fg': '#fdf8f4',
-      '--d-ring': '#732c42',
-      '--d-positive': '#41684c',
-      '--d-danger': '#a32d24',
-      '--d-radius': '4px',
+      '--d-bg': '#f5f2ec',
+      '--d-surface': '#efeae1',
+      '--d-surface-2': '#e7e0d4',
+      '--d-border': '#ded6c9',
+      '--d-fg': '#191512',
+      '--d-muted': '#7b7268',
+      '--d-accent': '#8e6a4c',
+      '--d-accent-fg': '#f5f2ec',
+      '--d-ring': '#6d4f37',
+      '--d-positive': '#4b6b4f',
+      '--d-danger': '#8a3f36',
+      '--d-radius': '3px',
     },
     scenarios: [{ id: 'zapis', label: 'Онлайн-запись' }],
     load: () => import('@/components/demo/apps/lanna-kamilina/App'),

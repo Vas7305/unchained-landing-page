@@ -1,523 +1,153 @@
 'use client';
 
-import { useReducer } from 'react';
-import { ArrowLeft, Calendar, Check, Clock, Scissors } from 'lucide-react';
-import DemoButton from '@/components/demo/ui/DemoButton';
-import DemoStatus from '@/components/demo/ui/DemoStatus';
-import DemoTabs, { DemoTabPanel } from '@/components/demo/ui/DemoTabs';
-import { DemoInput, DemoTextarea } from '@/components/demo/ui/DemoField';
-import { DemoArtwork, DemoAvatar } from '@/components/demo/ui/DemoArtwork';
-import { DEMO_LATENCY, simulate } from '@/lib/demo/service';
-import { dayLabel, demoDate, longDate, money } from '@/lib/demo/format';
-import { track } from '@/lib/analytics';
+import { useState } from 'react';
+import { Inter, Playfair_Display } from 'next/font/google';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+
 import type { DemoAppProps } from '@/lib/demo/types';
-import {
-  categories,
-  findMaster,
-  findService,
-  masters,
-  slotKey,
-  works,
-} from '@/lib/demo/apps/lanna-kamilina/data';
-import {
-  availableMasters,
-  bookableDays,
-  canAdvance,
-  chosenMaster,
-  chosenService,
-  createInitialState,
-  daySlots,
-  confirmBooking,
-  reducer,
-  visibleServices,
-  type BookingForm,
-  type State,
-  type Step,
-} from '@/lib/demo/apps/lanna-kamilina/state';
+
+import { Layout } from './vendor/app/Layout';
+import { ButtonLink } from './vendor/components/Button';
+import { BookingDonePage } from './vendor/pages/BookingDonePage';
+import { BookingPage } from './vendor/pages/BookingPage';
+import { resetDemoStores } from './vendor/demo-reset';
+import { routes } from './vendor/lib/routes';
+import surface from './vendor/styles/surface.module.css';
 
 /**
- * Lanna Kamilina — the salon site and its booking.
+ * The two faces the product's tokens name.
  *
- * The catalogue and the masters are what the site is; the four-step booking is
- * what it does. Everything the visitor picks narrows what comes next, which is
- * the part of a booking product that is genuinely hard and the part worth
- * demonstrating (§6).
+ * `--font-display` is Playfair Display and `--font-sans` is Inter in the
+ * product's `src/styles/index.css`. The namespaced tokens in app/globals.css
+ * point at the variables declared here, so the type is the product's type,
+ * self-hosted, preloaded with the demo chunk, and not paid for by a visitor
+ * who never opens a demo.
  */
+const lkDisplay = Playfair_Display({
+  variable: '--font-lk-display-face',
+  subsets: ['latin', 'cyrillic'],
+});
 
-const RUB = (kopeks: number) => money(kopeks, 'RUB', 'ru-RU', { decimals: 0 });
+/**
+ * No `weight` list on either: both are variable fonts, and the product's base
+ * style sets `font-weight: 350` — a value between the named stops that only a
+ * variable axis can hit. Pinning discrete weights here would round it to 300 or
+ * 400 and quietly change the texture of every paragraph.
+ */
+const lkSans = Inter({
+  variable: '--font-lk-sans-face',
+  subsets: ['latin', 'cyrillic'],
+});
 
-const STEP_LABELS = ['Услуга', 'Мастер', 'Время', 'Контакты'] as const;
-
-function Stepper({ step }: { step: Step }) {
+/**
+ * The pages of the site that this demo does not carry.
+ *
+ * Lanna Kamilina is a fourteen-page site. The booking flow is what the product
+ * is judged on and what the registry advertises, so that is what is vendored in
+ * full; the portfolio, the look-finder and the specialist pages are built
+ * around the salon's photography, and that photography is of identifiable
+ * clients. Shipping it into a marketing demo is a consent question rather than
+ * a technical one, and it has not been answered.
+ *
+ * So the navigation stays real — the header and footer are the product's, with
+ * every link they really have — and a link that leads out of the vendored
+ * pages lands here and says so, in the product's own voice and typography.
+ */
+function NotInDemo() {
   return (
-    <ol className='flex items-center gap-1.5 text-[11px]'>
-      {STEP_LABELS.map((label, index) => {
-        const done = index < step;
-        const current = index === step;
-        return (
-          <li key={label} className='flex items-center gap-1.5'>
-            <span
-              className='inline-flex items-center gap-1.5 px-2 py-1 border'
-              style={{
-                borderColor: current || done ? 'var(--d-accent)' : 'var(--d-border)',
-                color: current ? 'var(--d-accent)' : 'var(--d-muted)',
-                borderRadius: 'var(--d-radius)',
-              }}
-              aria-current={current ? 'step' : undefined}
-            >
-              {done ? <Check size={11} aria-hidden='true' /> : `${index + 1}.`}
-              {label}
-            </span>
-            {index < STEP_LABELS.length - 1 && (
-              <span aria-hidden='true' className='text-[var(--d-border)]'>
-                —
-              </span>
-            )}
-          </li>
-        );
-      })}
-    </ol>
+    <div className="lk-shell lk-section-y">
+      <p className="lk-type-eyebrow text-lk-muted">Демонстрация</p>
+      <h1 className="lk-type-display mt-4">Этот раздел не входит в демо</h1>
+      <p className="lk-type-lead mt-5 max-w-lk-text">
+        Здесь работает онлайн-запись — настоящий интерфейс салона, его
+        собственный календарь и его правила. Остальные страницы сайта живут в
+        самом продукте.
+      </p>
+      <div className="mt-8">
+        <ButtonLink to={routes.booking}>К онлайн-записи</ButtonLink>
+      </div>
+    </div>
   );
 }
 
+/**
+ * Lanna Kamilina — the salon's own frontend, running on its own mock layer.
+ *
+ * ─── What belongs to the product ──────────────────────────────────────────
+ * Everything under `vendor/` that is not marked otherwise: the header, the
+ * footer, the sticky call-to-action, the booking flow and its availability
+ * picker, the confirmation page, the form controls, the typography scale, the
+ * design tokens, the route table, and the whole of `features/booking` —
+ * including the appointment book that makes a booked slot disappear from the
+ * calendar.
+ *
+ * ─── What belongs to the demo ─────────────────────────────────────────────
+ * Six divergences, each marked `DEMO DIVERGENCE` in place, and each a point
+ * where the application reaches outside itself:
+ *
+ *   1. `features/booking/api.ts` — the live export opens WhatsApp or Telegram
+ *      with the visitor's name and phone number prefilled. Swapped for
+ *      `mockBookingApi`, which is the product's own module: no adapter had to
+ *      be written, because the product already ships the replacement.
+ *   2. `features/booking/schedule.ts` — the appointment book moves from
+ *      `localStorage` to a Map behind the same `Storage` interface.
+ *   3. `hooks/useSeo.ts` — the product writes the document title, the
+ *      canonical link and JSON-LD into the head. There is one head here and it
+ *      belongs to this website.
+ *   4. `lib/attribution.ts` — `sessionStorage` becomes a Map.
+ *   5. `components/AppLink.tsx` — View Transitions snapshot the whole
+ *      document, which would slide this website sideways.
+ *   6. `data/business.ts` — the salon's real telephone, WhatsApp and Telegram
+ *      replaced with fictional ones, so nothing here dials anybody.
+ *
+ * Plus two things that are the demo's rather than the product's: the `lk-`
+ * token prefix (Tailwind v4 registers `@theme` globally, and both projects
+ * define `--color-accent`, `--color-muted`, `--font-sans`, `--radius-sm` and
+ * `--radius-md` with different values), and `MemoryRouter` below.
+ */
 export default function LannaKamilinaDemo({ scenarioId }: DemoAppProps) {
-  const [state, dispatch] = useReducer(reducer, scenarioId, createInitialState);
+  /**
+   * Reset, before anything below renders.
+   *
+   * The appointment book is a module singleton — the same shape the product
+   * uses, and the reason a booking made on one screen vanishes from the
+   * calendar on another. Module state survives a remount, so the shell's
+   * `key` change is not enough on its own. A `useState` initialiser runs
+   * during this component's first render and before its children's, so the
+   * previous visitor's appointment is never briefly visible.
+   */
+  useState(() => {
+    resetDemoStores();
+    return null;
+  });
 
-  const service = chosenService(state);
-  const master = chosenMaster(state);
-  const days = bookableDays(state);
-  const slots = daySlots(state);
-
-  async function confirm() {
-    dispatch({ type: 'submit' });
-
-    const result = await simulate(() => confirmBooking(state), DEMO_LATENCY.normal);
-
-    if (result.ok) {
-      dispatch({ type: 'submitSucceeded', booking: result.value });
-      track('demo_completed', { project: 'lanna-kamilina', workflow: 'booking' });
-    } else {
-      const contested =
-        result.failure.code === 'taken' &&
-        state.masterId !== null &&
-        state.dayOffset !== null &&
-        state.time !== null;
-
-      dispatch({
-        type: 'submitFailed',
-        message: result.failure.message,
-        blockSlot: contested
-          ? slotKey(state.masterId as string, state.dayOffset as number, state.time as string)
-          : undefined,
-      });
-    }
-  }
-
-  function field(name: keyof BookingForm) {
-    return {
-      value: state.form[name],
-      error: state.errors[name],
-      onChange: (
-        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-      ) => dispatch({ type: 'field', name, value: event.target.value }),
-    };
-  }
+  void scenarioId;
 
   return (
-    <div className='h-full flex flex-col'>
-      {/* ── Site header ─────────────────────────────────────────────────── */}
-      <header className='shrink-0 border-b border-[var(--d-border)] bg-[var(--d-surface)]'>
-        <div className='px-5 pt-4 pb-3 flex items-baseline justify-between gap-4'>
-          <div>
-            <p className='text-lg font-bold tracking-wide'>ЛАННА КАМИЛИНА</p>
-            <p className='text-[11px] text-[var(--d-muted)]'>
-              Салон красоты в центре Москвы · с 1999 года
-            </p>
-          </div>
-          <p className='text-[11px] text-[var(--d-muted)] hidden sm:block'>
-            Пн–Сб 10:00–21:00
-          </p>
-        </div>
+    <div className={`${surface.surface} ${lkDisplay.variable} ${lkSans.variable}`}>
+      {/*
+        MemoryRouter is the whole router adapter.
 
-        <div className='px-5'>
-          <DemoTabs
-            label='Разделы сайта'
-            active={state.tab}
-            onChange={(tab) => dispatch({ type: 'setTab', tab: tab as State['tab'] })}
-            tabs={[
-              { id: 'services', label: 'Услуги' },
-              { id: 'masters', label: 'Мастера' },
-              { id: 'works', label: 'Работы' },
-              { id: 'booking', label: 'Онлайн-запись' },
-            ]}
-          />
-        </div>
-      </header>
+        The product is a react-router SPA, and its components call `useNavigate`,
+        `useSearchParams` and `Link` freely — the booking flow keeps its entire
+        state in the query string, which is how a half-filled booking survives a
+        refresh and how a campaign can deep-link into it. A BrowserRouter here
+        would fight this site's own router for the address bar and carry the
+        visitor off the page on the first click.
 
-      <div className='flex-1 min-h-0 overflow-y-auto px-5 py-5'>
-        {/* ── Services ──────────────────────────────────────────────────── */}
-        <DemoTabPanel id='services' active={state.tab}>
-          <div className='flex flex-wrap gap-1.5 mb-4'>
-            <button
-              type='button'
-              onClick={() => dispatch({ type: 'setCategory', category: null })}
-              style={{ borderRadius: 'var(--d-radius)' }}
-              className={
-                'px-3 min-h-9 text-xs border transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-[var(--d-ring)] ' +
-                (state.category === null
-                  ? 'border-[var(--d-accent)] text-[var(--d-accent)]'
-                  : 'border-[var(--d-border)] text-[var(--d-muted)]')
-              }
-            >
-              Все
-            </button>
-            {categories.map((category) => (
-              <button
-                key={category}
-                type='button'
-                onClick={() => dispatch({ type: 'setCategory', category })}
-                style={{ borderRadius: 'var(--d-radius)' }}
-                className={
-                  'px-3 min-h-9 text-xs border transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-[var(--d-ring)] ' +
-                  (state.category === category
-                    ? 'border-[var(--d-accent)] text-[var(--d-accent)]'
-                    : 'border-[var(--d-border)] text-[var(--d-muted)]')
-                }
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-
-          <ul className='flex flex-col divide-y divide-[var(--d-border)]'>
-            {visibleServices(state).map((item) => (
-              <li
-                key={item.id}
-                className='py-3 flex items-start justify-between gap-4'
-              >
-                <div className='min-w-0'>
-                  <p className='text-sm font-semibold'>{item.name}</p>
-                  <p className='text-xs text-[var(--d-muted)] mt-0.5'>
-                    {item.description}
-                  </p>
-                  <p className='text-[11px] text-[var(--d-muted)] mt-1 flex items-center gap-1'>
-                    <Clock size={11} aria-hidden='true' />
-                    {item.duration} мин
-                  </p>
-                </div>
-                <div className='text-right shrink-0 flex flex-col items-end gap-1.5'>
-                  <span className='text-sm font-bold tabular-nums'>
-                    {RUB(item.price)}
-                  </span>
-                  <DemoButton
-                    size='sm'
-                    onClick={() =>
-                      dispatch({ type: 'chooseService', serviceId: item.id })
-                    }
-                  >
-                    Записаться
-                  </DemoButton>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </DemoTabPanel>
-
-        {/* ── Masters ───────────────────────────────────────────────────── */}
-        <DemoTabPanel id='masters' active={state.tab}>
-          <ul className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
-            {masters.map((person) => (
-              <li
-                key={person.id}
-                style={{ borderRadius: 'var(--d-radius)' }}
-                className='p-4 border border-[var(--d-border)] bg-[var(--d-surface)] flex gap-3'
-              >
-                <DemoAvatar name={person.name} size={48} />
-                <div className='min-w-0'>
-                  <p className='text-sm font-semibold'>{person.name}</p>
-                  <p className='text-xs text-[var(--d-muted)]'>{person.title}</p>
-                  <p className='text-[11px] text-[var(--d-muted)] mt-1'>
-                    В салоне с {person.since} · {person.categories.join(', ')}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </DemoTabPanel>
-
-        {/* ── Gallery ───────────────────────────────────────────────────── */}
-        <DemoTabPanel id='works' active={state.tab}>
-          <ul className='grid grid-cols-2 sm:grid-cols-3 gap-3'>
-            {works.map((work) => (
-              <li key={work.id}>
-                <div
-                  className='aspect-4/5 overflow-hidden'
-                  style={{ borderRadius: 'var(--d-radius)' }}
-                >
-                  <DemoArtwork seed={work.id} />
-                </div>
-                <p className='text-xs font-medium mt-1.5'>{work.title}</p>
-                <p className='text-[11px] text-[var(--d-muted)]'>{work.category}</p>
-              </li>
-            ))}
-          </ul>
-        </DemoTabPanel>
-
-        {/* ── Booking ───────────────────────────────────────────────────── */}
-        <DemoTabPanel id='booking' active={state.tab}>
-          {state.step === 4 && state.booking ? (
-            <div className='max-w-md mx-auto text-center flex flex-col items-center gap-3 py-6'>
-              <span
-                className='w-12 h-12 grid place-items-center rounded-full'
-                style={{
-                  background: 'color-mix(in oklab, var(--d-positive) 18%, transparent)',
-                  color: 'var(--d-positive)',
-                }}
-              >
-                <Check size={22} aria-hidden='true' />
-              </span>
-              <h2 className='text-lg font-bold'>Вы записаны</h2>
-              <p className='text-sm text-[var(--d-muted)] leading-relaxed'>
-                {findService(state.booking.serviceId)?.name} ·{' '}
-                {findMaster(state.booking.masterId)?.name}
-                <br />
-                {/* The booked day, computed from the booking itself. This read
-                    the day out of `bookableDays(state)` and fell back to
-                    `new Date()`, which was wrong twice over: that list is
-                    rebuilt from the *currently* chosen master, and the fallback
-                    would have printed today's date as the appointment. */}
-                {longDate(demoDate(state.booking.dayOffset), 'ru-RU')}{' '}
-                в {state.booking.time}
-              </p>
-              <p className='text-xs text-[var(--d-muted)]'>
-                Номер записи{' '}
-                <span className='font-bold text-[var(--d-fg)]'>
-                  {state.booking.code}
-                </span>{' '}
-                · {RUB(state.booking.price)}
-              </p>
-              <DemoButton
-                variant='secondary'
-                onClick={() => dispatch({ type: 'startOver' })}
-              >
-                Записаться ещё раз
-              </DemoButton>
-            </div>
-          ) : (
-            <div className='max-w-2xl'>
-              <Stepper step={state.step} />
-
-              <div className='mt-5 flex flex-col gap-4'>
-                {/* Step 0 — service */}
-                {state.step === 0 && (
-                  <div>
-                    <h2 className='text-sm font-bold mb-3'>Выберите услугу</h2>
-                    <ul className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
-                      {visibleServices(state).map((item) => (
-                        <li key={item.id}>
-                          <button
-                            type='button'
-                            onClick={() =>
-                              dispatch({ type: 'chooseService', serviceId: item.id })
-                            }
-                            style={{ borderRadius: 'var(--d-radius)' }}
-                            className='w-full text-left p-3 border border-[var(--d-border)] bg-[var(--d-surface)] hover:border-[var(--d-accent)] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-[var(--d-ring)]'
-                          >
-                            <span className='block text-sm font-medium'>
-                              {item.name}
-                            </span>
-                            <span className='block text-[11px] text-[var(--d-muted)] mt-0.5'>
-                              {item.duration} мин · {RUB(item.price)}
-                            </span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Step 1 — master */}
-                {state.step === 1 && service && (
-                  <div>
-                    <h2 className='text-sm font-bold mb-1'>Выберите мастера</h2>
-                    <p className='text-xs text-[var(--d-muted)] mb-3'>
-                      Показаны мастера, которые выполняют «{service.name}».
-                    </p>
-                    <ul className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
-                      {availableMasters(state).map((person) => (
-                        <li key={person.id}>
-                          <button
-                            type='button'
-                            onClick={() =>
-                              dispatch({ type: 'chooseMaster', masterId: person.id })
-                            }
-                            style={{ borderRadius: 'var(--d-radius)' }}
-                            className={
-                              'w-full text-left p-3 border bg-[var(--d-surface)] flex items-center gap-3 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-[var(--d-ring)] ' +
-                              (state.masterId === person.id
-                                ? 'border-[var(--d-accent)]'
-                                : 'border-[var(--d-border)] hover:border-[var(--d-accent)]')
-                            }
-                          >
-                            <DemoAvatar name={person.name} size={36} />
-                            <span className='min-w-0'>
-                              <span className='block text-sm font-medium'>
-                                {person.name}
-                              </span>
-                              <span className='block text-[11px] text-[var(--d-muted)]'>
-                                {person.title}
-                              </span>
-                            </span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Step 2 — date and time */}
-                {state.step === 2 && master && (
-                  <div>
-                    <h2 className='text-sm font-bold mb-3 flex items-center gap-2'>
-                      <Calendar size={14} aria-hidden='true' />
-                      Дата и время · {master.name}
-                    </h2>
-
-                    <div
-                      className='flex gap-1.5 overflow-x-auto pb-2'
-                      role='group'
-                      aria-label='Дата'
-                    >
-                      {days.map((day) => (
-                        <button
-                          key={day.offset}
-                          type='button'
-                          disabled={!day.open}
-                          onClick={() =>
-                            dispatch({ type: 'chooseDay', dayOffset: day.offset })
-                          }
-                          aria-pressed={state.dayOffset === day.offset}
-                          style={{ borderRadius: 'var(--d-radius)' }}
-                          className={
-                            'shrink-0 px-3 min-h-11 text-xs border transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-[var(--d-ring)] ' +
-                            (state.dayOffset === day.offset
-                              ? 'border-[var(--d-accent)] bg-[var(--d-accent)] text-[var(--d-accent-fg)]'
-                              : 'border-[var(--d-border)] bg-[var(--d-surface)]')
-                          }
-                        >
-                          {dayLabel(day.date, 'ru-RU')}
-                          {!day.open && (
-                            <span className='block text-[10px]'>выходной</span>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-
-                    {state.dayOffset !== null && (
-                      <div
-                        className='flex flex-wrap gap-1.5 mt-3'
-                        role='group'
-                        aria-label='Время'
-                      >
-                        {slots.map((slot) => (
-                          <button
-                            key={slot.time}
-                            type='button'
-                            disabled={!slot.available}
-                            onClick={() =>
-                              dispatch({ type: 'chooseTime', time: slot.time })
-                            }
-                            aria-pressed={state.time === slot.time}
-                            style={{ borderRadius: 'var(--d-radius)' }}
-                            className={
-                              'px-4 min-h-11 text-xs border transition-colors duration-150 disabled:opacity-35 disabled:line-through disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-[var(--d-ring)] ' +
-                              (state.time === slot.time
-                                ? 'border-[var(--d-accent)] bg-[var(--d-accent)] text-[var(--d-accent-fg)]'
-                                : 'border-[var(--d-border)] bg-[var(--d-surface)]')
-                            }
-                          >
-                            {slot.time}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    <DemoStatus tone='error' className='mt-3'>
-                      {state.failure}
-                    </DemoStatus>
-                  </div>
-                )}
-
-                {/* Step 3 — contact details */}
-                {state.step === 3 && (
-                  <form
-                    className='flex flex-col gap-3 max-w-sm'
-                    action={() => void confirm()}
-                  >
-                    <h2 className='text-sm font-bold'>Ваши контакты</h2>
-                    <DemoInput label='Имя' autoComplete='off' {...field('name')} />
-                    <DemoInput
-                      label='Телефон'
-                      inputMode='tel'
-                      placeholder='+7 999 123-45-67'
-                      autoComplete='off'
-                      {...field('phone')}
-                    />
-                    <DemoTextarea
-                      label='Комментарий'
-                      rows={2}
-                      {...field('comment')}
-                    />
-
-                    <DemoStatus tone='error'>{state.failure}</DemoStatus>
-
-                    <DemoButton type='submit' pending={state.submitting} block>
-                      {state.submitting ? 'Отправляем…' : 'Подтвердить запись'}
-                    </DemoButton>
-                  </form>
-                )}
-
-                {/* Summary and navigation */}
-                <div className='flex flex-wrap items-center gap-3 pt-3 border-t border-[var(--d-border)]'>
-                  {state.step > 0 && (
-                    <DemoButton
-                      variant='ghost'
-                      size='sm'
-                      icon={<ArrowLeft size={13} aria-hidden='true' />}
-                      onClick={() =>
-                        dispatch({ type: 'setStep', step: (state.step - 1) as Step })
-                      }
-                    >
-                      Назад
-                    </DemoButton>
-                  )}
-
-                  <p className='text-[11px] text-[var(--d-muted)] flex items-center gap-1.5 flex-1 min-w-0'>
-                    <Scissors size={11} aria-hidden='true' className='shrink-0' />
-                    <span className='truncate'>
-                      {service ? service.name : 'Услуга не выбрана'}
-                      {master ? ` · ${master.name}` : ''}
-                      {state.time ? ` · ${state.time}` : ''}
-                    </span>
-                  </p>
-
-                  {state.step < 3 && (
-                    <DemoButton
-                      size='sm'
-                      disabled={!canAdvance(state)}
-                      onClick={() =>
-                        dispatch({ type: 'setStep', step: (state.step + 1) as Step })
-                      }
-                    >
-                      Далее
-                    </DemoButton>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </DemoTabPanel>
-      </div>
+        MemoryRouter keeps that history in memory instead. Every one of those
+        hooks works unchanged, the query string still drives the flow, and not
+        one component had to be adapted for it.
+      */}
+      <MemoryRouter initialEntries={[routes.booking]}>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path={routes.booking} element={<BookingPage />} />
+            <Route path={routes.bookingDone} element={<BookingDonePage />} />
+            <Route path="*" element={<NotInDemo />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
     </div>
   );
 }
