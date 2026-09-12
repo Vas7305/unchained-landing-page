@@ -43,9 +43,6 @@ function formatSavedAt(savedAt: number): string {
   return `${Math.floor(minutes / 60)}h ago`;
 }
 
-// DEMO DIVERGENCE — `role="banner"` removed from the <header> below: that is
-// already its implicit role outside a sectioning element, which is where it
-// sits in AppFrame.
 export function TopBar() {
   const screen = useUiStore((s) => s.screen);
   const { canUndo, canRedo, undo, redo } = useHistoryStore();

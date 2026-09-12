@@ -5,9 +5,6 @@ interface RightPanelProps {
   children?: React.ReactNode;
 }
 
-// DEMO DIVERGENCE — `role="complementary"` removed from the <aside> below: it
-// is that element's implicit role, so the attribute only restated what the
-// markup already meant. The accessible name stays.
 export function RightPanel({ children }: RightPanelProps) {
   return (
     <aside className={styles.panel} aria-label="Options panel">

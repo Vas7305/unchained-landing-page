@@ -52,7 +52,7 @@ export function AssetBrowser({ assets, activeId, onSelect, onOpen, onRemove }: A
   if (assets.length === 0) return null;
 
   return (
-    <div className={styles.browser} role="list" aria-label="Imported assets">
+    <ul className={styles.browser} aria-label="Imported assets">
       {assets.map((asset) => {
         const isActive = asset.id === activeId;
         const dimLabel = asset.file
@@ -66,47 +66,41 @@ export function AssetBrowser({ assets, activeId, onSelect, onOpen, onRemove }: A
         const fmt = asset.file?.format?.toUpperCase() ?? null;
 
         return (
-          <div
-            key={asset.id}
-            role="listitem"
-            className={`${styles.item} ${isActive ? styles.active : ''}`}
-            tabIndex={0}
-            aria-label={`${asset.ref.name}${isActive ? ', selected' : ''}`}
-            // DEMO DIVERGENCE — the product marks the open asset with
-            // `aria-selected`, which `role="listitem"` does not support, so a
-            // screen reader announces the rows without ever saying which one is
-            // open. `aria-current` carries the same meaning and is valid on any
-            // element, so this fixes the announcement without touching the
-            // widget's role or its keyboard contract. The thorough fix is
-            // listbox/option; that is a product decision and is filed upstream.
-            aria-current={isActive ? 'true' : undefined}
-            onClick={() => onSelect(asset.id)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onSelect(asset.id);
-              }
-            }}
-          >
-            <div className={styles.thumb}>
-              <AssetThumb asset={asset} />
-            </div>
-
-            <div className={styles.info}>
-              <span className={styles.name} title={asset.ref.name}>
-                {asset.ref.name}
-              </span>
-              <div className={styles.meta}>
-                {fmt && <span className={styles.metaTag}>{fmt}</span>}
-                {dimLabel && <span className={styles.metaDim}>{dimLabel}</span>}
-                {sizeLabel && <span className={styles.metaSize}>{sizeLabel}</span>}
-              </div>
-            </div>
-
-            <div
-              className={styles.actions}
-              onClick={(e) => e.stopPropagation()}
+          <li key={asset.id} className={`${styles.item} ${isActive ? styles.active : ''}`}>
+            {/* Selecting the asset is a button, not a row with a tabIndex and a
+                hand-written Enter/Space handler. It cannot wrap the whole row,
+                because the row's own actions are buttons and nesting them would
+                be invalid — so it wraps the part that selects, and the actions
+                sit beside it. `aria-current` rather than `aria-selected`:
+                `aria-selected` belongs to option/tab/row/gridcell, and a screen
+                reader ignored it here, so the open asset was never announced. */}
+            <button
+              type="button"
+              className={styles.select}
+              aria-label={`${asset.ref.name}${isActive ? ', selected' : ''}`}
+              aria-current={isActive ? 'true' : undefined}
+              onClick={() => onSelect(asset.id)}
             >
+              <span className={styles.thumb}>
+                <AssetThumb asset={asset} />
+              </span>
+
+              <span className={styles.info}>
+                <span className={styles.name} title={asset.ref.name}>
+                  {asset.ref.name}
+                </span>
+                <span className={styles.meta}>
+                  {fmt && <span className={styles.metaTag}>{fmt}</span>}
+                  {dimLabel && <span className={styles.metaDim}>{dimLabel}</span>}
+                  {sizeLabel && <span className={styles.metaSize}>{sizeLabel}</span>}
+                </span>
+              </span>
+            </button>
+
+            {/* No stopPropagation any more: these are siblings of the select
+                button rather than children of a clickable row, so activating
+                one cannot also select the asset. */}
+            <div className={styles.actions}>
               <IconButton
                 icon={<FolderOpen size={14} strokeWidth={1.5} />}
                 title="Open asset"
@@ -118,9 +112,9 @@ export function AssetBrowser({ assets, activeId, onSelect, onOpen, onRemove }: A
                 onClick={() => onRemove(asset.id)}
               />
             </div>
-          </div>
+          </li>
         );
       })}
-    </div>
+    </ul>
   );
 }

@@ -53,17 +53,16 @@ export function SidebarProjectsSection() {
         </div>
 
         {!collapsed && (
-          <div className={styles.list} role="list">
+          <ul className={styles.list}>
             {sorted.length === 0 ? (
-              <div className={styles.empty}>No projects yet</div>
+              <li className={styles.empty}>No projects yet</li>
             ) : (
               sorted.map((project) => {
                 const isActive = current?.id === project.metadata.id;
                 return (
-                  <div
+                  <li
                     key={project.metadata.id}
                     className={`${styles.row} ${isActive ? styles.active : ''}`}
-                    role="listitem"
                   >
                     <button
                       className={styles.nameBtn}
@@ -88,11 +87,11 @@ export function SidebarProjectsSection() {
                     >
                       <Pencil size={11} strokeWidth={1.5} />
                     </button>
-                  </div>
+                  </li>
                 );
               })
             )}
-          </div>
+          </ul>
         )}
       </div>
 

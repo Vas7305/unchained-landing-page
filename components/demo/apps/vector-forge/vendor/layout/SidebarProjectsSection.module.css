@@ -83,6 +83,9 @@
 
 /* Project list */
 .list {
+  /* Needed here rather than optional: the empty-state <li> below is a plain
+     block, so without this it would draw a bullet. */
+  list-style: none;
   padding: 2px var(--space-2);
   display: flex;
   flex-direction: column;

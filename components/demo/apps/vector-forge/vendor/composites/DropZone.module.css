@@ -1,4 +1,14 @@
 .zone {
+  /* This is a <button>, so the user-agent's own font, colour and widget
+     appearance have to be turned off. Border, background and padding are
+     already set below (padding by the global reset), so those three are all
+     that is left. */
+  appearance: none;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  width: 100%;
+
   display: flex;
   flex-direction: column;
   align-items: center;

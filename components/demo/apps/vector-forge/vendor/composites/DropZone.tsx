@@ -41,31 +41,24 @@ export function DropZone({ onFiles, dragOver, title, hint }: DropZoneProps) {
   }, [onFiles, showToast]);
 
   // DEMO DIVERGENCE — the product also listens for Tauri's OS-level drag-drop,
-  // which is the only way a desktop app learns a dropped file's real path. A
-  // browser tab has no such event and this demo reads no local files, so the
-  // listener is gone; the click path above is the whole import surface.
+  // the only event that carries a dropped file's real path. A browser tab has
+  // no equivalent and this demo reads no local files, so the listener is gone.
+  // The click path above is the whole import surface.
 
   return (
-    <div
+    <button
+      type="button"
       className={`${styles.zone} ${dragOver ? styles.dragOver : ''}`}
-      role="button"
-      tabIndex={0}
       aria-label={`${title}. ${hint}`}
       onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
       onDrop={(e) => e.preventDefault()}
       onClick={() => { void handleClick(); }}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          void handleClick();
-        }
-      }}
     >
       <span className={styles.icon} aria-hidden="true">
         <Upload size={24} strokeWidth={1.5} />
       </span>
       <span className={styles.title}>{title}</span>
       <span className={styles.hint}>{hint}</span>
-    </div>
+    </button>
   );
 }
