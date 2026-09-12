@@ -482,6 +482,13 @@ form state filled from an effect in both project modals.
 Grep for `DEMO DIVERGENCE` to find all ten; every one is written up in
 [upstream-findings.md](./upstream-findings.md).
 
+### What is left, and why
+
+Four demos still run approximations. The audited reason for each — including a
+correction to an earlier claim about Frito, which does target the web and is
+blocked by its Babel/Metro toolchain rather than by React Native — is in
+[upstream-issues/vendoring-queue.md](./upstream-issues/vendoring-queue.md).
+
 ### Four findings went the other way
 
 Four accessibility findings in the vendored tree were fixed **in the VectorForge
