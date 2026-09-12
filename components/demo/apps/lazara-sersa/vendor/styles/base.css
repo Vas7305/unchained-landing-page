@@ -1,0 +1,300 @@
+/* ===========================================================================
+   LAZARA SERSA — BASE / GLOBAL
+   Reset, element defaults, focus behaviour and motion preferences.
+   Component-specific styling lives in CSS Modules, never here.
+   =========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* The identity is a single committed light editorial palette. Declaring the
+     scheme stops browsers from auto-inverting form controls or scrollbars. */
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+  /* No `scroll-behavior: smooth`. SmoothScroll drives the scroll position
+     itself, ~60 times a second, and each of those calls has to land instantly.
+     A CSS smooth behaviour would have every one of them start a native
+     animation that the next frame cancels — the page would advance in
+     restarted fragments. Keyboard and anchor jumps are instant as a result,
+     which is the correct trade for motion that is continuous everywhere else. */
+  /* The header is sticky, so anything scrolled to by anchor — the skip link
+     included — has to stop clear of it rather than underneath it. */
+  scroll-padding-top: calc(var(--header-height) + var(--space-4));
+  /* Hold the scrollbar's width whether or not the route needs one. Short
+     pages (contact) do not scroll and tall ones (work) do, so without this
+     the viewport changes width on navigation and the whole layout — the
+     wordmark and nav included — jumps sideways between pages. */
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+  background-color: var(--surface-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  font-weight: var(--weight-regular);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* `clip`, never `hidden`.
+     `overflow: hidden` turns the body into a scroll container, and a sticky
+     element cannot stick inside an ancestor that scrolls but never itself
+     moves — the header just scrolled away with the page. `clip` suppresses the
+     same horizontal overflow without establishing that scroll container, and
+     unlike `hidden` it does not force the vertical axis to `auto` either. */
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--tracking-heading);
+  line-height: var(--leading-heading);
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+picture,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+hr {
+  border: none;
+  border-top: var(--hairline) solid var(--divider);
+  margin: 0;
+}
+
+::selection {
+  background-color: var(--color-champagne);
+  color: var(--color-noir);
+}
+
+/* ---------------------------------------------------------------------------
+   CURSOR
+   The brush from the brand artwork, keyed out of its supplied screenshot and
+   turned 45° anticlockwise by scripts/prepare-cursor.mjs. It runs bristles at
+   the upper left to handle at the lower right, and the hotspot sits on the
+   bristles — the end you would actually paint with, and the corner a pointer
+   is expected to point from.
+
+   The hotspot is measured by that script, not chosen here. Re-run it after any
+   change to size or angle and paste back the coordinates it prints.
+
+   Two files, not one: a near-black cursor vanishes on the noir "Inquire" band,
+   so the inverse surfaces get the porcelain cut. Each keeps a keyword fallback,
+   as the spec requires and so a failed image cannot leave the page with no
+   cursor at all.
+
+   Known cost: this overrides whatever cursor the visitor has configured at OS
+   level, which is the wrong outcome for anyone who has set a large or
+   high-contrast pointer for a reason. There is no media query to detect that.
+   Text entry is left alone below, where a caret position is information the
+   brush cannot carry.
+   ------------------------------------------------------------------------ */
+/* On the root as well as the body, and that is not redundant.
+   While a route transition runs, the browser lays its snapshot tree over the
+   page. That overlay carries `pointer-events: none` (see transitions.css) so
+   clicks still reach the live page — but it also means the cursor is resolved
+   further down the stack, and if it reaches <html> with no rule there the
+   visitor gets the system arrow for the length of the slide. Naming the root
+   leaves nothing for it to fall through to. */
+:root,
+body {
+  cursor: url("/cursor/brush.png") 3 0, auto;
+}
+
+/* The UA stylesheet sets `cursor: pointer` on links, which would swap the
+   brush back out for the system hand on the elements visitors use most.
+   Affordance survives on the hover states, which shift colour and rule. */
+a,
+button,
+summary,
+[role="button"] {
+  cursor: url("/cursor/brush.png") 3 0, pointer;
+}
+
+input,
+textarea,
+select {
+  cursor: auto;
+}
+
+/* Pressed: the brush tips 3° anticlockwise on the end of its handle.
+   A second image, not a transform — a CSS cursor cannot be animated or
+   rotated, so the only way to move it is to swap the file. Both files share
+   this hotspot and carry the handle tip at the same pixel, which is what makes
+   the swap read as the brush pivoting rather than jumping. */
+:root:active,
+body:active,
+a:active,
+button:active,
+summary:active,
+[role="button"]:active {
+  cursor: url("/cursor/brush-active.png") 3 0, pointer;
+}
+
+/* `:active` alone loses to the two-selector inverse rules below, so the dark
+   surfaces need their own pressed state at matching specificity. */
+[data-surface="inverse"],
+[data-surface="inverse"] a,
+[data-surface="inverse"] button,
+[data-surface="inverse"] summary,
+[data-surface="inverse"] [role="button"] {
+  cursor: url("/cursor/brush-inverse.png") 3 0, auto;
+}
+
+[data-surface="inverse"]:active,
+[data-surface="inverse"] a:active,
+[data-surface="inverse"] button:active,
+[data-surface="inverse"] summary:active,
+[data-surface="inverse"] [role="button"]:active {
+  cursor: url("/cursor/brush-inverse-active.png") 3 0, pointer;
+}
+
+/* ---------------------------------------------------------------------------
+   FOCUS
+   Visible, high-contrast and never removed (Brand Identity §62).
+   ------------------------------------------------------------------------ */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+[data-surface="inverse"] :focus-visible,
+[data-surface="inverse"]:focus-visible {
+  outline-color: var(--focus-ring-inverse);
+}
+
+/* ---------------------------------------------------------------------------
+   SURFACES
+   Any block can declare its surface; text tokens follow automatically so
+   components never need light/dark variants of their own.
+   ------------------------------------------------------------------------ */
+[data-surface="inverse"] {
+  background-color: var(--surface-inverse);
+  color: var(--text-on-inverse);
+  --text-primary: var(--color-porcelain);
+  --text-secondary: var(--color-porcelain);
+  --text-muted: var(--color-rose-taupe);
+  --divider: var(--divider-inverse);
+  --divider-strong: rgba(250, 244, 242, 0.32);
+  --interactive-hover: var(--color-rose-taupe);
+  --placeholder-stripe: var(--placeholder-stripe-inverse);
+  /* Rose gold clears AA against noir (4.31:1), so on dark surfaces the accent
+     can carry type directly instead of falling back to its deeper sibling. */
+  --accent-text: var(--color-rose-gold);
+}
+
+[data-surface="secondary"] {
+  background-color: var(--surface-secondary);
+}
+
+[data-surface="tertiary"] {
+  background-color: var(--surface-tertiary);
+}
+
+/* The lockup's own paper stock. Used where brand artwork bleeds to the edge
+   and the background has to disappear into the file. */
+[data-surface="paper"] {
+  background-color: var(--surface-paper);
+}
+
+/* ---------------------------------------------------------------------------
+   ACCESSIBILITY HELPERS
+   ------------------------------------------------------------------------ */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: var(--z-skip-link);
+  padding: var(--space-3) var(--space-6);
+  background-color: var(--color-noir);
+  color: var(--color-porcelain);
+  font-size: var(--text-meta);
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline-color: var(--color-porcelain);
+}
+
+/* ---------------------------------------------------------------------------
+   REDUCED MOTION (Brand Identity §62)
+   ------------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

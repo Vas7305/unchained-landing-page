@@ -1,0 +1,14 @@
+/* Restores what an <a> inherits from the product's base stylesheet, since the
+   demo adapter renders a <button>. Nothing here is a new design decision. */
+.link {
+  appearance: none;
+  background: none;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}

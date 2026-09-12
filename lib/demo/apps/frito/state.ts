@@ -41,9 +41,9 @@ export interface Message {
    * Stable identity, assigned when the message is appended.
    *
    * The list is append-only, so a render index would in fact be stable — but
-   * it is stable by accident of how the reducer happens to work today, and
-   * anything that ever inserted or removed a message would silently corrupt
-   * the rendered list. An id makes the invariant explicit instead.
+   * only by accident of how the reducer happens to work today. Anything that
+   * ever inserted or removed a message would corrupt the rendered list
+   * silently. An id makes the invariant explicit.
    */
   id: string;
   from: 'me' | 'them';

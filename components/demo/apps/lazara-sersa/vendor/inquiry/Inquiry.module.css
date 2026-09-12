@@ -1,0 +1,483 @@
+/* ===========================================================================
+   INQUIRY — DIALOG, CATEGORY LIST AND FORM
+
+   One stylesheet for the three components of the flow rather than one each.
+   They are a single piece of chrome: the two steps sit inside the same panel,
+   share its inline rhythm and have to line up to the pixel with each other. A
+   module apiece would have meant maintaining the step's heading, its measure
+   and the panel's padding in two places and hoping they stayed identical.
+
+   No shadows, no gradients, no radius, no icons. Hierarchy is type, hairline
+   and negative space (Brand Identity §34, §37).
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   THE DIALOG
+   A real <dialog>, opened with showModal(). That is what puts it in the top
+   layer, makes the rest of the page inert, traps focus and closes on Escape —
+   all of it native, none of it re-implemented, and no dependency added.
+   ------------------------------------------------------------------------ */
+.dialog {
+  position: fixed;
+  inset: 0;
+  /* dvh, not vh: on iOS the address bar is inside vh, so a sheet sized in vh
+     has its last inch under the browser chrome — which is exactly where the
+     submit button would sit. */
+  height: 100dvh;
+  width: 100%;
+  max-width: 100%;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+/* `[open]`, never the bare class. The UA stylesheet hides a closed dialog with
+   `display: none`, and a `display` declaration on `.dialog` would outrank it
+   and leave the panel sitting on the page while the dialog is shut. */
+.dialog[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity var(--duration-fast) var(--ease-editorial);
+}
+
+/* The entrance. @starting-style is the only way to transition an element that
+   is arriving from `display: none`, which is what a modal dialog always does.
+   Where it is unsupported the panel simply appears — no fallback needed, and
+   `prefers-reduced-motion` collapses the duration globally (base.css). */
+@starting-style {
+  .dialog[open] {
+    opacity: 0;
+  }
+}
+
+.dialog::backdrop {
+  /* The noir ink at reading strength, so the page reads as set down rather
+     than switched off. No blur: it would be composited every frame. */
+  background-color: rgba(25, 20, 18, 0.62);
+  opacity: 1;
+  transition: opacity var(--duration-base) var(--ease-editorial);
+}
+
+@starting-style {
+  .dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/* The global reduced-motion rule in base.css reaches `*`, `::before` and
+   `::after` — it cannot name `::backdrop`, so the one animated pseudo-element
+   on the site that is not covered by it is pinned here instead. */
+@media (prefers-reduced-motion: reduce) {
+  .dialog::backdrop {
+    transition-duration: 0.01ms;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   THE PANEL
+   ------------------------------------------------------------------------ */
+.panel {
+  /* Owned here and read by the sticky footer below, which has to cancel this
+     padding to reach the panel's edges. One value, two users. */
+  --inquiry-inline: var(--space-6);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 100%;
+  background-color: var(--surface-primary);
+  border-top: var(--hairline) solid var(--divider);
+  translate: 0 0;
+  opacity: 1;
+  transition:
+    translate var(--duration-base) var(--ease-out-soft),
+    opacity var(--duration-base) var(--ease-editorial);
+}
+
+@starting-style {
+  .dialog[open] .panel {
+    translate: 0 var(--space-6);
+    opacity: 0;
+  }
+}
+
+/* Mobile is a sheet, not a shrunken dialog: it meets the bottom edge, where
+   the thumb already is, and leaves the page visible above it. */
+@media (max-width: 639px) {
+  .dialog[open] {
+    align-items: flex-end;
+  }
+
+  .panel {
+    max-height: 92dvh;
+  }
+}
+
+@media (min-width: 640px) {
+  .panel {
+    --inquiry-inline: var(--space-12);
+
+    width: min(100%, 660px);
+    max-height: min(88dvh, 780px);
+    border: var(--hairline) solid var(--divider-strong);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   HEADER — the standing label and the way out
+   ------------------------------------------------------------------------ */
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-6) var(--inquiry-inline);
+  border-bottom: var(--hairline) solid var(--divider);
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* The word, not a glyph. The identity has no icon set (Brand Identity §35),
+   and "Close" needs no accessible name written for it afterwards. */
+.close {
+  font-family: var(--font-sans);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: var(--space-2) 0;
+  transition: color var(--duration-fast) var(--ease-editorial);
+}
+
+.close:hover {
+  color: var(--interactive-hover);
+}
+
+/* ---------------------------------------------------------------------------
+   BODY — the one scroll container in the flow
+   ------------------------------------------------------------------------ */
+.body {
+  flex: 1 1 auto;
+  /* Without this a flex child refuses to shrink past its content and the
+     panel grows past the viewport instead of scrolling inside it. */
+  min-height: 0;
+  overflow-y: auto;
+  /* Keeps a flick at the end of the list from scrolling the page underneath. */
+  overscroll-behavior: contain;
+  padding: var(--space-8) var(--inquiry-inline) 0;
+}
+
+/* Focus is moved here on open and on every step change so a screen reader
+   starts at the top of the new step. It is a container, not a control — the
+   ring would be noise, and it is never reachable by Tab. */
+.body:focus,
+.body:focus-visible {
+  outline: none;
+}
+
+/* ---------------------------------------------------------------------------
+   STEP TYPE — shared by both steps so they set identically
+   ------------------------------------------------------------------------ */
+.title {
+  font-family: var(--font-serif);
+  font-size: var(--text-h3);
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--text-primary);
+}
+
+.lede {
+  margin-top: var(--space-4);
+  max-width: var(--measure-narrow);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   STEP 1 — CATEGORY SELECTION
+   A contents page, not a card grid: numeral, rule, label.
+   ------------------------------------------------------------------------ */
+.categoryStep {
+  padding-bottom: var(--space-12);
+}
+
+.list {
+  margin-top: var(--space-8);
+  border-top: var(--hairline) solid var(--divider);
+}
+
+.option {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--space-6);
+  width: 100%;
+  /* Comfortably past the 44px touch minimum at every size. */
+  min-height: 60px;
+  padding: var(--space-4) var(--space-2);
+  text-align: left;
+  border-bottom: var(--hairline) solid var(--divider);
+  transition:
+    background-color var(--duration-fast) var(--ease-editorial),
+    color var(--duration-fast) var(--ease-editorial);
+}
+
+/* Outset rings are clipped by the scroll container, so the row draws its
+   focus inside its own bounds. */
+.option:focus-visible {
+  outline-offset: -2px;
+}
+
+.option:hover {
+  background-color: var(--surface-secondary);
+}
+
+.optionIndex {
+  font-family: var(--font-sans);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-meta);
+  color: var(--text-muted);
+  transition: color var(--duration-fast) var(--ease-editorial);
+}
+
+.optionLabel {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  transition: color var(--duration-fast) var(--ease-editorial);
+}
+
+.option:hover .optionLabel {
+  color: var(--interactive-hover);
+}
+
+.option:hover .optionIndex {
+  color: var(--accent-text);
+}
+
+/* Marks a category the visitor has already typed into and stepped back out
+   of, so returning to it does not look like starting over. */
+.optionResumed {
+  grid-column: 2;
+  font-family: var(--font-sans);
+  font-size: var(--text-meta);
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+/* ---------------------------------------------------------------------------
+   STEP 2 — THE FORM
+   ------------------------------------------------------------------------ */
+/* No bottom padding of its own — the sticky action bar carries it, and any
+   here would leave a strip of ground below the rule. */
+.form {
+  display: block;
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: var(--space-6);
+  padding: var(--space-2) 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition: color var(--duration-fast) var(--ease-editorial);
+}
+
+.back:hover {
+  color: var(--interactive-hover);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin-top: var(--space-12);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.label {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Optional is marked; required is not. The inverse — an asterisk on eleven of
+   thirteen fields — is decoration that carries no information. */
+.optional {
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+  opacity: 0.75;
+}
+
+.hint {
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--text-muted);
+}
+
+.control {
+  width: 100%;
+  padding: var(--space-2) 0;
+  background-color: transparent;
+  border: none;
+  border-bottom: var(--hairline) solid var(--divider-strong);
+  border-radius: var(--radius-0);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--text-primary);
+  /* The focus ring is offset from the control, and the control sits at the
+     edge of a scroll container — this keeps the ring in view rather than
+     under the panel wall. */
+  scroll-margin-block: var(--space-12);
+  transition: border-color var(--duration-fast) var(--ease-editorial);
+}
+
+/* The global ring in base.css is kept — it is the site's focus language, and
+   a rule that merely changes colour is not enough on its own. The rule shifts
+   with it so the field itself reads as live. */
+.control:focus-visible {
+  border-bottom-color: var(--accent);
+}
+
+.control::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.textarea {
+  min-height: 104px;
+  resize: vertical;
+}
+
+.control[aria-invalid="true"] {
+  border-bottom-color: var(--accent-text);
+}
+
+/* Colour is never the only signal — the message below says what is wrong, and
+   the field carries aria-invalid for anyone who cannot see either. */
+.error {
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--accent-text);
+}
+
+/* ---------------------------------------------------------------------------
+   ACTIONS
+   Pinned to the foot of the scroll container so the submit is reachable on a
+   short landscape screen without scrolling to the end of a seven-field form.
+   The negative inline margin cancels the body's padding so the rule and the
+   ground reach the panel walls.
+   ------------------------------------------------------------------------ */
+.actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: var(--space-12) calc(var(--inquiry-inline) * -1) 0;
+  padding: var(--space-6) var(--inquiry-inline)
+    calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+  background-color: var(--surface-primary);
+  border-top: var(--hairline) solid var(--divider);
+}
+
+.submit {
+  width: 100%;
+  justify-content: center;
+}
+
+@media (min-width: 640px) {
+  .submit {
+    width: auto;
+    align-self: flex-start;
+  }
+}
+
+/* States plainly that nothing has been booked (Brand Identity §36). */
+.note {
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--text-muted);
+  max-width: var(--measure-narrow);
+}
+
+/* ---------------------------------------------------------------------------
+   FALLBACK
+   Shown only when the browser refused to open WhatsApp. Never a dead end —
+   the same link is offered to follow by hand, with the direct number under it.
+   ------------------------------------------------------------------------ */
+.fallback {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-8);
+  padding: var(--space-6);
+  background-color: var(--surface-secondary);
+  border-left: 2px solid var(--accent);
+}
+
+.fallbackText {
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--text-secondary);
+}
+
+.fallbackLink {
+  align-self: flex-start;
+  font-family: var(--font-sans);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+  color: var(--text-primary);
+  border-bottom: var(--hairline) solid var(--divider-strong);
+  padding-bottom: var(--space-1);
+  transition:
+    color var(--duration-fast) var(--ease-editorial),
+    border-color var(--duration-fast) var(--ease-editorial);
+}
+
+.fallbackLink:hover {
+  color: var(--interactive-hover);
+  border-bottom-color: var(--accent);
+}

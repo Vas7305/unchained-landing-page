@@ -83,10 +83,9 @@ export default function DemoModal({
   }, [open]);
 
   // The key handler reads the latest `onClose` through a ref rather than
-  // depending on it. A caller that passes an inline arrow — which is every
-  // caller — hands us a new function each render, and depending on it would
-  // tear the document listener down and rebuild it on every keystroke the
-  // dialog causes. The subscription belongs to `open`, not to the callback.
+  // depending on it. Every caller passes an inline arrow, so depending on the
+  // callback would tear the document listener down and rebuild it on each
+  // render the dialog causes. The subscription belongs to `open`.
   const onCloseRef = useRef(onClose);
   useEffect(() => {
     onCloseRef.current = onClose;

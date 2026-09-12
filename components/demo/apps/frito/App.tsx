@@ -60,7 +60,8 @@ import {
  *
  * Onboarding, discovery, the match list and a conversation share nothing but
  * the reducer, so each is its own component and owns the condition that used
- * to wrap it.
+ * to wrap it. Frito is a React Native application, so there is no web frontend
+ * to vendor from — this split is permanent.
  */
 interface ScreenProps {
   state: State;
@@ -70,7 +71,7 @@ interface ScreenProps {
 function OnboardingScreen({ state, dispatch, onFinish }: ScreenProps & { onFinish: () => void }) {
   if (state.screen !== 'onboarding') return null;
 
-  const chosen = new Set(state.profile.interests);
+  const chosenInterests = new Set(state.profile.interests);
 
   return (
     <form
@@ -114,10 +115,10 @@ function OnboardingScreen({ state, dispatch, onFinish }: ScreenProps & { onFinis
           Intereses (mínimo {MIN_INTERESTS})
         </legend>
         <div className='flex flex-wrap gap-2'>
-          {/* Membership is a set, not a scan: the list is rebuilt on every
-              keystroke in the form above it. */}
+          {/* Membership is a set: this list rebuilds on every
+              keystroke in the fields above it. */}
           {allInterests.map((interest) => {
-            const on = chosen.has(interest);
+            const on = chosenInterests.has(interest);
             return (
               <button
                 key={interest}
@@ -155,8 +156,6 @@ function DiscoveryScreen({ state, dispatch, onDecide }: ScreenProps & { onDecide
   if (state.screen !== 'descubrir') return null;
 
   const candidate = currentCandidate(state);
-  // Computed once per card, and as a set: the chips below ask about
-  // membership once each.
   const sharedWithCandidate = new Set(
     candidate ? sharedInterests(state, candidate) : [],
   );
@@ -250,7 +249,7 @@ function DiscoveryScreen({ state, dispatch, onDecide }: ScreenProps & { onDecide
 
 function MatchesScreen({ state, dispatch }: ScreenProps) {
   if (state.screen !== 'matches') return null;
-  
+
   const matches = matchProfiles(state);
 
   return (
@@ -307,10 +306,7 @@ function MatchesScreen({ state, dispatch }: ScreenProps) {
   );
 }
 
-function ChatScreen({
-  state,
-  listEnd,
-}: Pick<ScreenProps, 'state'> & {
+function ChatScreen({ state, listEnd }: Pick<ScreenProps, 'state'> & {
   listEnd: RefObject<HTMLDivElement | null>;
 }) {
   const match = activeMatch(state);
@@ -363,7 +359,7 @@ export default function FritoDemo({ scenarioId }: DemoAppProps) {
 
   // Only what the shell's own chrome and effects read — the top bar, the
   // scroll-into-view effect and the match celebration. Each screen derives
-  // the rest itself.
+  // the rest for itself.
   const candidate = currentCandidate(state);
   const match = activeMatch(state);
   const partner = state.activeMatchId

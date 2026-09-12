@@ -26,78 +26,58 @@ export interface DemoCategory {
 }
 
 export const gala = {
-  /**
-   * In English, like the site itself.
-   *
-   * The company's name is German; its European debut is being sold to a
-   * European audience in English, which is what the site's own navigation
-   * (CAST · THE EXPERIENCE · PERFORMANCES · ABOUT) and its call to action
-   * ("RESERVE YOUR EVENING") say.
-   */
-  title: 'The Official Debut Gala',
-  eyebrow: 'Official debut gala · 2026',
-  venue: 'Historic City Theatre',
+  title: 'Europäisches Debüt-Gala',
+  venue: 'Historisches Stadttheater',
   city: 'Wiesbaden',
-  tagline: 'One night · One stage · A historic cultural moment',
-  lede:
-    'The historic European debut of a world-class artistic institution. One extraordinary evening that marks the beginning of a new cultural legacy.',
   /** Offset from the demo anchor date, so the poster never goes stale. */
   dateOffset: 54,
   doors: '18:30',
   curtain: '19:30',
 } as const;
 
-/** The site's own navigation, in its own order. */
-export const navigation = [
-  'Cast',
-  'The Experience',
-  'Performances',
-  'About',
-] as const;
-
 export const programme: readonly DemoPiece[] = [
   {
     id: 'p1',
     title: 'Grand Pas Classique',
     composer: 'Auber',
-    detail: 'Opening, full ensemble',
+    detail: 'Eröffnung, Ensemble',
     minutes: 12,
   },
   {
     id: 'p2',
-    title: 'Swan Lake — The White Act',
-    composer: 'Tchaikovsky',
-    detail: 'Pas de deux and corps de ballet',
+    title: 'Schwanensee — Weißer Akt',
+    composer: 'Tschaikowski',
+    detail: 'Pas de deux und Corps de ballet',
     minutes: 26,
   },
   {
     id: 'p3',
-    title: 'Don Quixote — Wedding Pas de Deux',
+    title: 'Don Quijote — Hochzeits-Pas-de-deux',
     composer: 'Minkus',
-    detail: 'Principals of the evening',
+    detail: 'Solisten des Abends',
     minutes: 14,
   },
   {
     id: 'p4',
-    title: 'Contemporary Interlude',
-    composer: 'World premiere',
-    detail: 'Choreographed for this evening alone',
+    title: 'Zeitgenössisches Zwischenspiel',
+    composer: 'Uraufführung',
+    detail: 'Choreografie eigens für diesen Abend',
     minutes: 18,
   },
   {
     id: 'p5',
     title: 'Paquita — Finale',
     composer: 'Minkus',
-    detail: 'The complete company',
+    detail: 'Gesamtes Ensemble',
     minutes: 22,
   },
 ];
 
 export const categories: readonly DemoCategory[] = [
-  { id: 'stalls', name: 'Stalls', detail: 'Rows 1–12, centre', price: 9_500 },
-  { id: 'circle', name: 'Dress Circle', detail: 'Raised view, side', price: 7_500 },
-  { id: 'upper', name: 'Upper Circle', detail: 'Upper tier, unobstructed', price: 4_500 },
-  { id: 'box', name: 'Box', detail: 'Four seats, private access', price: 14_000 },
+  { id: 'parkett', name: 'Parkett', detail: 'Reihe 1–12, mittig', price: 9_500 },
+  { id: 'rang-1', name: 'Erster Rang', detail: 'Erhöhte Sicht, seitlich', price: 7_500 },
+  { id: 'rang-2', name: 'Zweiter Rang', detail: 'Oberer Rang, freie Sicht', price: 4_500 },
+  { id: 'loge', name: 'Loge', detail: 'Vier Plätze, eigener Zugang', price: 14_000 },
 ];
 
 /**
@@ -109,8 +89,8 @@ export const categories: readonly DemoCategory[] = [
  * be refused rather than confirmed and apologised for afterwards.
  */
 export const remainingByScenario: Record<string, Record<string, number>> = {
-  presale: { stalls: 42, circle: 26, upper: 78, box: 6 },
-  final: { stalls: 3, circle: 0, upper: 11, box: 0 },
+  vorverkauf: { parkett: 42, 'rang-1': 26, 'rang-2': 78, loge: 6 },
+  endspurt: { parkett: 3, 'rang-1': 0, 'rang-2': 11, loge: 0 },
 };
 
 /** The house limit on one reservation. */

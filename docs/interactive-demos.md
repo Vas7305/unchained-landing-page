@@ -126,71 +126,24 @@ scenario resets the same way, for the same reason.
 
 | project | frame | language | workflow demonstrated | scenarios |
 |---|---|---|---|---|
-| TanCerca | browser | es | browse merchants → basket → checkout → live order tracking | new / returning customer |
+| TanCerca | phone | es | browse merchants → basket → checkout → live order tracking | new / returning customer |
 | Lanna Kamilina | browser | ru | service → master → date and time → contact → confirmed | one |
-| Lazara Sersa | browser | en | filter portfolio → keyboard-driven viewer → dated enquiry | one |
-| Klassisches Ballett | browser | en | programme → seat categories → reservation | pre-sale / final seats |
-| Mensalere | browser | en | four-way filtered directory → profile → appointment | one |
+| Lazara Sersa | browser | en | **the product's own frontend** — filter, gallery, inquiry dialog | one |
+| Klassisches Ballett | browser | de | programme → seat categories → reservation | pre-sale / final seats |
+| Mensalere | browser | en | **the product's own frontend** — directory, profile, availability, booking | one |
 | Frito | phone | es | onboarding → discovery → match → conversation | new user / with matches |
 | Unchained OS | desktop | en | pipeline → compare → allocate capital → commit | pipeline / allocation |
-| VectorForge | desktop | en + es rail | trace recipe → version history → icon package → batch | one |
+| VectorForge | desktop | en | trace recipe → version history → icon package → batch | one |
 
-### Fidelity: the palettes come from the products' own token files
+### Why each demo is in its product's own language
 
-These demos are shown to prospects as "this is what we built for them", so a
-demo in a colour the product does not use is not a stylistic liberty — it is a
-false statement about our own work.
-
-Six of the eight products have their source on this machine, and each of them
-keeps a design-token file that its own components consume. `lib/demo/registry.ts`
-**copies those files** rather than approximating them, so a demo and its product
-cannot disagree:
-
-| demo | token source |
-|---|---|
-| TanCerca | `/d/Tancerca/src/index.css` (HSL, converted) |
-| Lanna Kamilina | `/d/Lanna-Kamilina/src/styles/index.css` |
-| Lazara Sersa | `/d/Sersa Sarria/styles/tokens.css` |
-| Mensalere | `/d/Mensalere/src/styles/index.css` |
-| Frito | `/d/Frito/src/constants/tokens.ts` |
-| VectorForge | `/d/VectorForge-V-1.0/src/styles/tokens.css` |
-
-The two without a reachable source — **Klassisches Ballett** (not pursued) and
-**Unchained OS** (not on this machine) — are sampled from the screenshots in
-`public/work/` instead, decoded pixel by pixel: dominant colours for grounds and
-surfaces, a chroma filter for the accents. Both are marked as sampled in the
-registry.
-
-This mattered. The first pass invented its palettes and every one was wrong;
-screenshot sampling then corrected the grounds but still missed two accents that
-only the token files carry — **Lanna Kamilina's is a muted bronze `#8e6a4c`**
-("a punctuation mark, never a background wash"), and **Mensalere's is a sage
-`#73877a`** with documented AA-safe siblings for text. Neither is visible in a
-hero screenshot.
-
-**When a product is redesigned, re-copy its tokens. Never adjust by eye.**
-
-Structure follows the same rule where there is evidence for it: Unchained OS
-has the product's left rail with its real section names and sub-labels, its
-header with the page title and account chip, and its real KPI labels; VectorForge
-has its rail in the product's own Spanish alongside an otherwise-English
-workspace. Sections that exist in the product but are not reconstructed here are
-**named in a muted "also in the product" list** rather than faked as dead
-navigation.
-
-### Language follows the product, not the project's name
-
-A Cuban marketplace is in Spanish and a Moscow salon in Russian — but the
-screenshots also corrected two assumptions this work started with. Klassisches
-Ballett has a German *name* and an English *site* (CAST · THE EXPERIENCE ·
-PERFORMANCES · ABOUT, "RESERVE YOUR EVENING"), and Mensalere is English too
-("Talking to someone can be the first step"). Both demos were rebuilt in the
-language the product actually ships.
-
-The **shell** around each demo is fully translated into all six site locales
-(16 keys × 6 files), and `demo.langNote` tells the visitor why the product
-inside may read differently. Each demo surface carries its own `lang` attribute
-so screen readers switch voice at the boundary.
+A Cuban marketplace is in Spanish, a Moscow salon in Russian, a German gala in
+German — because that is what the product *is*. Translating a product's
+interface into six languages it does not have would be showing something we did
+not build. The **shell** around each demo is fully translated into all six site
+locales (16 new keys × 6 files), and `demo.langNote` tells the visitor why the
+product inside reads differently. The demo surface carries its own `lang`
+attribute so screen readers switch voice at the boundary.
 
 ### Deterministic failure paths
 
@@ -343,53 +296,30 @@ Fixed:
 | Chained `.filter().map()` ×5 | fixed — `flatMap`, plus a hoisted `STANDARD_TARGET_IDS` that removed a duplicated chain. |
 | High complexity in `ProjectDetail` | fixed — hero CTAs extracted into `HeroActions`. |
 | Giant component (Lazara Sersa) | fixed — regions extracted into sibling components, the shape TanCerca already used. |
-| Pure function rebuilt per render (`filterStyle`) | fixed — hoisted to module scope. Introduced by the fidelity pass. |
-| Static map rebuilt per render (`PAGE_TITLE`) | fixed — hoisted to module scope. Introduced by the fidelity pass. |
 
-Reconsidered and then fixed anyway:
+Assessed and **not** changed, with reasons:
 
-- **`js-set-map-lookups` ×7** — first assessed as negligible, and on the numbers
-  they were: `.includes()` over arrays of at most ten items. But the `Set`
-  version is no less readable and states the intent — *membership*, not a scan —
-  so all seven were converted rather than argued over.
-- **`no-array-index-as-key`** (Frito chat) — the list is append-only, so a render
-  index really was stable. It was stable *by accident of how the reducer happens
-  to work today*, though, and anything that ever inserted or removed a message
-  would have corrupted the rendered list silently. Messages now carry an `id`
-  assigned at append, which makes the invariant explicit.
+- **`no-prevent-default` ×3** — these forms have no endpoint. `preventDefault`
+  is what stops a demo form from navigating; removing it breaks the demo, and
+  moving to a click handler would lose Enter-to-submit.
+- **`no-array-index-as-key`** (Frito chat) — the message list is append-only:
+  nothing is inserted, removed or reordered, which is exactly the condition
+  under which index keys are correct.
+- **`async-await-in-loop`** (VectorForge batch) — the queue is deliberately
+  sequential and reports per-item status. Parallelising it would destroy what
+  it demonstrates.
+- **`js-set-map-lookups` ×6** — `.includes()` over arrays of at most ten items,
+  inside loops of at most ten. Converting these to `Set`s would add allocation
+  and indirection for no measurable gain.
 
-Argued for twice, then fixed properly on the third look:
-
-- **`no-prevent-default` ×3** — the defence was that these forms have no
-  endpoint, so `preventDefault` is the only thing stopping a demo from
-  navigating away, and dropping the `<form>` would cost Enter-to-submit. All
-  true, and all beside the point: this project is on **React 19**, where
-  `<form action={fn}>` suppresses the native submission itself. Every form
-  semantic is kept and the handler no longer blocks navigation by hand.
-- **`async-await-in-loop`** (VectorForge batch) — the defence was that the queue
-  is deliberately sequential, which is right; running it concurrently would
-  finish sooner and demonstrate nothing. But the loop was in the *component*,
-  and this file's own contract says every asynchronous thing about a demo lives
-  in `lib/demo/service.ts`. The pacing moved there as `simulateEach`, which
-  takes a `start` callback that may return a settle function — the natural
-  shape for "mark it running, wait, mark it finished". `latencyScale` now
-  applies to the batch queue too, which it did not before.
-
-**React Doctor: 100 / 100, no issues found.**
-
-**Now done:** `no-giant-component` and `no-high-complexity-react-function` are
-clear across all eight demos. Every screen or panel is its own component in the
-same file, taking `{ state, dispatch }` and owning the condition that used to
-wrap it — the shape TanCerca always had. Two further findings surfaced by that
-refactor were fixed with it: the booking wizard's four steps became four
-components, and `DemoModal` now reads its `onClose` through a ref so the
-document key listener subscribes to `open` alone instead of being torn down and
-rebuilt on every render (`prefer-use-effect-event`).
-
-**What remains, and why it stays.** Eleven findings, all four categories
-assessed above as false positives: `js-set-map-lookups` ×6, `no-prevent-default`
-×3, `no-array-index-as-key`, `async-await-in-loop`. Each is a deliberate
-decision with its reason recorded here, not deferred work.
+**Outstanding, recipe proven, awaiting sign-off:** `no-giant-component` and
+`no-high-complexity-react-function` still fire on six demo `App.tsx` files
+(Frito, Klassisches Ballett, Lanna Kamilina, Mensalere, Unchained OS,
+VectorForge). The fix is the one applied to Lazara Sersa and already present in
+TanCerca — extract each screen or panel into a sibling component in the same
+file, taking `{ state, dispatch }`. It is mechanical and behaviour-preserving,
+but it touches six large files with no rendering tests behind them, so it was
+left for a deliberate pass rather than folded into this one.
 
 ## 10. Adding a ninth demo
 
@@ -404,3 +334,75 @@ decision with its reason recorded here, not deferred work.
 
 Nothing else. No shared file needs to learn the new product's name, and the
 route, shell, frame, controls, reset and CTAs all pick it up from the registry.
+
+---
+
+## Vendored product frontends
+
+Two demos no longer approximate their product — they run the product's own
+frontend. The recipe is the same each time and is worth following exactly.
+
+### What gets copied, and what gets adapted
+
+| | Lazara Sersa | Mensalere |
+|---|---|---|
+| source | `/d/Sersa Sarria` | `/d/Mensalere` |
+| stack | Next 16 / React 19 / CSS modules | Vite 8 / React 19 / Tailwind v4 |
+| files vendored | 44 + 25 photographs | 44 |
+| styling strategy | rescoped stylesheet | namespaced tokens |
+| adaptations | 3 | 3 |
+
+**Lazara Sersa.** Its `tokens.css` and `base.css` were mechanically rewritten
+from `:root`/`html`/`body` onto one class in `vendor/styles/surface.module.css`,
+so the product's design system applies inside the demo and cannot escape it.
+
+**Mensalere.** Tailwind tokens cannot be scoped that way — `@theme` is global —
+and the product and this site both define `--color-primary`, `--color-border`
+and `--radius-md` with *different values*. Registering them unprefixed would
+have silently restyled the whole website. So every token was prefixed `ms-` in
+`app/globals.css` and the same prefix applied to 298 utility class names across
+28 vendored files by script. Verified in the production CSS: the site keeps
+`--color-primary: var(--primary)` and `--radius-md: calc(var(--radius) - 2px)`
+while the product gets `--color-ms-primary: #73877a` and `--radius-ms-md: 8px`.
+
+### The adaptations, and only these
+
+Each vendored tree has a short, documented list of changes. Everything else is
+the product's code verbatim, so re-copying it later is an overwrite rather than
+a merge.
+
+- **Routing.** Both products navigate — Lazara Sersa through a `DirectionalLink`
+  that calls `useRouter().push()`, Mensalere through react-router-dom in nine
+  files. A real navigation would carry the visitor off this site, so each has an
+  adapter (`vendor/navigation/DirectionalLink.tsx`, `vendor/router.tsx`) that
+  keeps the props and the class contract and reports the destination to the demo
+  instead. Both render `<button>`, because an anchor that does not navigate is a
+  lie to assistive technology.
+- **One severed outbound call.** Lazara Sersa's inquiry dialog ended at
+  `window.open('wa.me/…')` — the only request either tree could make. Removed;
+  the validation and the composed brief still run.
+- **One real phone number.** `content/site.ts` carried the studio's actual
+  WhatsApp number. Replaced with a reserved fictional one.
+- **Dependencies.** Mensalere imports ten Radix primitives individually; this
+  site ships the unified `radix-ui` package that re-exports all of them, so the
+  imports were repointed rather than adding dependencies. Its messaging feature
+  needs `@tanstack/react-query`, which this site does not have and the booking
+  journey does not use — those three files were dropped rather than pulling in
+  a query client.
+
+### Why Mensalere needed almost no isolation work
+
+Its `services/` layer is already backed by a mock store with simulated latency,
+and has no `fetch`, no environment variable and no database anywhere in it. The
+application was already built the way §12 describes, so the demo imports that
+layer rather than reimplementing it. `psychologistService.list()` and
+`availabilityService.getDays()` in the demo are the product's own functions.
+
+### What this removed
+
+Both demos' hand-written approximations are deleted — 403 lines for Lazara
+Sersa, a directory-and-diary reimplementation for Mensalere. What remains in
+`lib/demo/apps/<slug>/state.ts` is only the selection each product keeps in its
+URL: which filter is active, whose profile is open, which day and slot are
+chosen. Their tests shrank accordingly, because the product's own components
+and services are tested in the product's own repository.

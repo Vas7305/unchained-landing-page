@@ -1,0 +1,14 @@
+.tag {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  border: var(--hairline) solid var(--divider-strong);
+  border-radius: var(--radius-0);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-meta);
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+}

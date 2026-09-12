@@ -1,0 +1,231 @@
+/* ===========================================================================
+   LAZARA SERSA — DESIGN TOKENS
+   Single source of truth for colour, type, space, grid, radius and motion.
+   Values come from the brand documentation in /Guía. Do not hardcode raw
+   values in components — extend this file instead.
+   =========================================================================== */
+
+:root {
+  /* -------------------------------------------------------------------------
+     01 — COLOUR (Brand Identity §11 — warm luxury revision)
+     Still restrained, still photography-led, but the neutral axis is warm
+     rather than grey. Nothing here is "somber" — the darkest surface is a warm
+     noir, not #000.
+
+     DERIVED FROM THE LOCKUP, NOT CHOSEN. Two of these are sampled straight out
+     of the brand artwork in public/brand, and the rest are built on its hue
+     (12.4°) so the whole page belongs to the same dusty rose family as the
+     mark:
+       --color-paper       the artwork's own ground — 90 % of its pixels
+       --color-rose-taupe  the LS monogram
+     Re-sample both with scripts/prepare-lockup.mjs, which prints them, if the
+     artwork is ever replaced. The near-black the name is set in is what the
+     noir below is pulled towards.
+     ---------------------------------------------------------------------- */
+  --color-noir: #191412; /* the lockup's ink, warmed off pure black */
+  --color-plum: #3a2f2c; /* softer sibling for secondary text + hovers */
+  --color-porcelain: #faf4f2; /* rose-warm off-white — primary surface */
+  --color-blush: #f2e4e0; /* powder blush — secondary surface */
+  --color-champagne: #e0c6c0; /* tinted surface / decorative fills */
+  --color-rose-taupe: #be968e; /* SAMPLED — the monogram itself */
+  --color-rose-gold: #b07261; /* accent — rules, underlines, marks (not body text) */
+
+  --color-paper: #e9d2cc; /* SAMPLED — the lockup's own ground, hero surface */
+
+  /* Text-safe siblings. The decorative tones above are deliberately light;
+     these two carry the same warmth while clearing WCAG AA (Brand Identity
+     §62 — "editorial does not mean unusable"). Solved against --color-paper,
+     the darkest light surface either one ever sits on — the hero — so they
+     clear it on porcelain and blush by a wide margin:
+       --color-taupe-deep     on paper → 4.57:1 · on porcelain → 6.06:1
+       --color-rose-gold-deep on paper → 4.58:1 · on porcelain → 6.06:1
+     They share a hue and differ in saturation: muted metadata reads as warm
+     grey, the accent as copper. Neither clears AA on --color-champagne
+     (4.1:1), which is why no block sets that surface under body text. */
+  --color-taupe-deep: #6e5853;
+  --color-rose-gold-deep: #8c4b39;
+
+  /* ---- Semantic aliases — components reference these, never the raw hexes */
+  --surface-primary: var(--color-porcelain);
+  --surface-secondary: var(--color-blush);
+  --surface-tertiary: var(--color-champagne);
+  --surface-paper: var(--color-paper);
+  --surface-inverse: var(--color-noir);
+
+  --text-primary: var(--color-noir);
+  --text-secondary: var(--color-plum);
+  --text-muted: var(--color-taupe-deep);
+
+  /* Dividers carry the ink's warmth so hairlines never read as cold grey. */
+  --divider: rgba(25, 20, 18, 0.13);
+  --divider-strong: rgba(25, 20, 18, 0.24);
+
+  /* On inverse (noir) surfaces */
+  --text-on-inverse: var(--color-porcelain);
+  --text-on-inverse-muted: var(--color-rose-taupe);
+  --divider-inverse: rgba(250, 244, 242, 0.18);
+
+  /* Accent — used for rules, underlines and small marks, never for running
+     text on its own. Reach for --accent-text when it has to be legible type. */
+  --accent: var(--color-rose-gold);
+  --accent-text: var(--color-rose-gold-deep);
+  --accent-soft: rgba(176, 114, 97, 0.3);
+
+  /* Interaction — hover is a colour shift only, never elevation or scale-up */
+  --interactive-hover: var(--color-plum);
+  --interactive-hover-inverse: var(--color-rose-taupe);
+  --focus-ring: var(--color-rose-gold-deep);
+  --focus-ring-inverse: var(--color-champagne);
+
+  /* Placeholder imagery (Brand Identity §69) */
+  --placeholder-stripe: rgba(25, 20, 18, 0.055);
+  --placeholder-stripe-inverse: rgba(250, 244, 242, 0.07);
+
+  /* -------------------------------------------------------------------------
+     02 — TYPOGRAPHY (Brand Identity §14–§18)
+     A Didone for display, a geometric sans for everything functional — the
+     masthead-and-caption pairing of high-end beauty and fashion publishing.
+     Families are injected by next/font in app/layout.tsx.
+     ---------------------------------------------------------------------- */
+  /* Fallbacks are sturdy on purpose. This stack is what renders during the
+     font swap, and a hairline Didone (Didot, Bodoni MT) reintroduces exactly
+     the legibility problem the loaded face was chosen to solve. */
+  --font-serif: var(--font-display-serif), "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-body-sans), "Futura", "Century Gothic", "Avenir Next", system-ui, sans-serif;
+
+  /* Fluid scale (§17). clamp() keeps mobile expressive without overrides. */
+  --text-display: clamp(48px, 8vw, 120px);
+  --text-h1: clamp(36px, 5vw, 72px);
+  --text-h2: clamp(28px, 3.6vw, 48px);
+  --text-h3: clamp(22px, 2.6vw, 32px);
+  --text-body: 17px;
+  --text-body-lg: 19px;
+  --text-small: 14px;
+  --text-meta: 11px;
+
+  --leading-display: 1.02;
+  --leading-h1: 1.08;
+  --leading-heading: 1.14;
+  --leading-body: 1.6;
+  --leading-relaxed: 1.75;
+
+  /* Tracking (§18). Didone capitals need air, not compression — the wordmark
+     and display sizes open up slightly rather than tightening as a humanist
+     serif would. Metadata stays generously letterspaced. */
+  --tracking-display: 0.012em;
+  --tracking-heading: 0.004em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.08em;
+  --tracking-meta: 0.16em;
+  --tracking-wordmark: 0.05em;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  /* -------------------------------------------------------------------------
+     03 — SPACING (Brand Identity §21) — 4px base scale
+     ---------------------------------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+  --space-40: 160px;
+  --space-48: 192px;
+
+  /* Section rhythm — fluid so mobile keeps editorial breathing room
+     without collapsing to cramped padding. */
+  --section-y: clamp(var(--space-16), 11vw, var(--space-32));
+  --section-y-tight: clamp(var(--space-12), 7vw, var(--space-20));
+  --section-y-loose: clamp(var(--space-24), 15vw, var(--space-48));
+
+  /* -------------------------------------------------------------------------
+     04 — LAYOUT & GRID (Brand Identity §19–§20)
+     12 desktop / 8 tablet / 4 mobile. Set by media queries in base.css.
+     ---------------------------------------------------------------------- */
+  --container-max: 1440px;
+  --measure-narrow: 46ch; /* short editorial statements */
+  --measure: 58ch; /* body copy — comfortable reading length */
+  --grid-columns: 4;
+  --grid-gutter: 16px;
+  --page-gutter: 20px;
+  --header-height: 72px;
+
+  /* -------------------------------------------------------------------------
+     05 — RADIUS & BORDERS (Brand Identity §34, §37)
+     ---------------------------------------------------------------------- */
+  --radius-0: 0px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --hairline: 1px;
+
+  /* -------------------------------------------------------------------------
+     06 — MOTION (Brand Identity §53)
+     Slow, deliberate, no overshoot. No bounce, no elastic, no parallax.
+     ---------------------------------------------------------------------- */
+  --duration-fast: 200ms;
+  --duration-base: 400ms;
+  --duration-slow: 700ms;
+  --duration-reveal: 900ms;
+  --ease-editorial: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --reveal-distance: 14px;
+  /* Photographs settle in from very slightly under-size, the way a print is
+     laid down rather than dropped. Small enough to feel like focus, not zoom. */
+  --reveal-image-scale: 0.985;
+
+  /* -------------------------------------------------------------------------
+     07 — ELEVATION
+     Photographs carry no shadow. Depth comes from the photography itself and
+     from negative space (Brand Identity §37) — the frame sits flat on the
+     paper. The scrolled header is the single exception on the site.
+
+     Header: an opaque bar — it takes the surface fill like any other block —
+     lifted by a rose-gold glow once scrolled. No scrim and no blur; see
+     SiteHeader.module.css for why the blur is a deliberate absence.
+     ---------------------------------------------------------------------- */
+  --header-glow:
+    0 1px 0 0 rgba(25, 20, 18, 0.06),
+    0 10px 30px -18px rgba(25, 20, 18, 0.42),
+    0 0 44px -6px rgba(176, 114, 97, 0.26);
+  --header-glow-inverse:
+    0 1px 0 0 rgba(250, 244, 242, 0.12),
+    0 10px 30px -18px rgba(8, 5, 4, 0.55),
+    0 0 44px -6px rgba(224, 198, 192, 0.22);
+
+  --z-header: 100;
+  --z-skip-link: 200;
+}
+
+/* Tablet — 8 columns */
+@media (min-width: 640px) {
+  :root {
+    --grid-columns: 8;
+    --grid-gutter: 20px;
+    --page-gutter: 28px;
+    --header-height: 80px;
+  }
+}
+
+/* Desktop — 12 columns, final brand gutter/margin values */
+@media (min-width: 1024px) {
+  :root {
+    --grid-columns: 12;
+    --grid-gutter: 24px;
+    --page-gutter: 32px;
+    --header-height: 88px;
+  }
+}
+
+@media (min-width: 1600px) {
+  :root {
+    --page-gutter: 48px;
+  }
+}

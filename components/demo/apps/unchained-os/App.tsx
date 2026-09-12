@@ -3,7 +3,6 @@
 import { useEffect, useReducer, type Dispatch } from 'react';
 import {
   ArrowUpRight,
-  Bell,
   Check,
   ChevronRight,
   LayoutDashboard,
@@ -12,7 +11,6 @@ import {
   Search,
   Wallet,
   X,
-  Zap,
 } from 'lucide-react';
 import DemoButton from '@/components/demo/ui/DemoButton';
 import DemoStatus from '@/components/demo/ui/DemoStatus';
@@ -41,6 +39,7 @@ import {
   createInitialState,
   dryPowder,
   portfolioCost,
+  portfolioValue,
   reducer,
   remainingAfterAllocation,
   rows,
@@ -70,14 +69,6 @@ const stageTone: Record<Stage, string> = {
   Passed: 'var(--d-danger)',
 };
 
-/** What the application titles each screen. Fixed, so it is not rebuilt. */
-const PAGE_TITLE: Record<State['tab'], string> = {
-  dashboard: 'Capital Dashboard',
-  pipeline: 'Pipeline',
-  compare: 'Deal Comparator',
-  allocation: 'Capital',
-};
-
 function StagePill({ stage }: { stage: Stage }) {
   return (
     <span
@@ -98,13 +89,10 @@ function Kpi({
   label,
   value,
   sub,
-  tone,
 }: {
   label: string;
   value: string;
   sub?: string;
-  /** The dashboard colours some figures — deployed violet, returns green. */
-  tone?: string;
 }) {
   return (
     <div
@@ -114,19 +102,10 @@ function Kpi({
       <p className='text-[10px] uppercase tracking-widest text-[var(--d-muted)]'>
         {label}
       </p>
-      <p className='text-lg font-bold tabular-nums mt-1' style={{ color: tone }}>
-        {value}
-      </p>
+      <p className='text-lg font-bold tabular-nums mt-1'>{value}</p>
       {sub && <p className='text-[11px] text-[var(--d-muted)] mt-0.5'>{sub}</p>}
     </div>
   );
-}
-
-/** Last quarter's gain, expressed per month. Derived, like everything else. */
-function monthlyReturn(): number {
-  const last = navSeries[navSeries.length - 1];
-  const prev = navSeries[navSeries.length - 2];
-  return Math.round((last - prev) / 3);
 }
 
 /**
@@ -184,10 +163,11 @@ function NavChart() {
 /**
  * One component per view.
  *
- * The console has four and a detail drawer, and holding all five in one
- * function meant scrolling past the pipeline table to change the allocation
- * screen. Each reads its own slice through the same selectors the whole demo
- * uses, so no view can see another's locals.
+ * The console has four, and holding them in one function meant scrolling past
+ * the pipeline table to reach the allocation screen. Each reads its own slice
+ * through the same selectors the whole demo uses, so no view can see another's
+ * locals. This product's source is not on this machine, so the split is
+ * permanent rather than a stopgap for a later vendoring.
  */
 interface PanelProps {
   state: State;
@@ -197,55 +177,26 @@ interface PanelProps {
 function DashboardPanel({ state }: PanelProps) {
   return (
   <DemoTabPanel id='dashboard' active={state.tab}>
-    {/* The product opens on a violet banner over the KPI row. */}
-    <div
-      className='p-4 mb-3 text-center'
-      style={{
-        borderRadius: 'var(--d-radius)',
-        background:
-          'linear-gradient(120deg, color-mix(in oklab, var(--d-accent) 55%, #1a0b2e), color-mix(in oklab, var(--d-accent) 22%, #12081f))',
-      }}
-    >
-      <span
-        className='inline-grid place-items-center w-10 h-10 mb-2'
-        style={{
-          borderRadius: 'var(--d-radius)',
-          background: 'color-mix(in oklab, var(--d-accent) 45%, transparent)',
-          color: '#fff',
-        }}
-      >
-        <Zap size={18} aria-hidden='true' className='fill-current' />
-      </span>
-      <h2 className='text-base font-bold'>{fund.name}</h2>
-      <p className='text-[11px] text-[var(--d-fg)]/70 mt-1'>
-        Vintage {fund.vintage} · {usdM(fund.size)} committed across{' '}
-        {investors.length} investors
-      </p>
-    </div>
-
-    {/* Labels as the dashboard writes them. */}
     <div className='grid grid-cols-2 lg:grid-cols-4 gap-3'>
       <Kpi
-        label='Total capital'
+        label='Committed capital'
         value={usdM(fund.size)}
         sub={`${investors.length} investors`}
       />
       <Kpi
         label='Deployed'
         value={usdM(fund.deployed + committedTotal(state))}
-        tone='var(--d-accent)'
-        sub={`${percent((fund.deployed + committedTotal(state)) / fund.size, 'en-US', 0)} of the fund`}
+        sub={percent(
+          (fund.deployed + committedTotal(state)) / fund.size,
+          'en-US',
+          0,
+        )}
       />
+      <Kpi label='Portfolio value' value={usdM(portfolioValue())} />
       <Kpi
-        label='Monthly returns'
-        value={usdM(monthlyReturn())}
-        tone='var(--d-positive)'
-        sub='Active portfolio'
-      />
-      <Kpi
-        label='Portfolio ROI'
-        value={percent(tvpi() - 1, 'en-US', 2)}
-        sub={`On ${usdM(portfolioCost())} invested`}
+        label='TVPI'
+        value={`${tvpi().toFixed(2)}×`}
+        sub={`on ${usdM(portfolioCost())} invested`}
       />
     </div>
 
@@ -696,49 +647,50 @@ function AllocationPanel({ state, dispatch, onCommit }: PanelProps & { onCommit:
     </p>
 
     <ul className='flex flex-col gap-2'>
+      {/* One pass: select and render together. */}
       {rows(state).flatMap((row) =>
         row.currentStage === 'IC' || row.allocated > 0 ? (
-          <li
-            key={row.id}
-            className='p-3 bg-[var(--d-surface)] border border-[var(--d-border)]'
-            style={{ borderRadius: 'var(--d-radius)' }}
-          >
-            <div className='flex items-center justify-between gap-3 mb-2'>
-              <div className='min-w-0'>
-                <p className='text-xs font-bold'>{row.name}</p>
-                <p className='text-[10px] text-[var(--d-muted)]'>
-                  Asking {usdM(row.ask)} · score {row.score}
-                </p>
-              </div>
-              <StagePill stage={row.currentStage} />
+        <li
+          key={row.id}
+          className='p-3 bg-[var(--d-surface)] border border-[var(--d-border)]'
+          style={{ borderRadius: 'var(--d-radius)' }}
+        >
+          <div className='flex items-center justify-between gap-3 mb-2'>
+            <div className='min-w-0'>
+              <p className='text-xs font-bold'>{row.name}</p>
+              <p className='text-[10px] text-[var(--d-muted)]'>
+                Asking {usdM(row.ask)} · score {row.score}
+              </p>
             </div>
+            <StagePill stage={row.currentStage} />
+          </div>
 
-            <label className='block'>
-              <span className='flex justify-between text-[11px] mb-1'>
-                <span className='text-[var(--d-muted)]'>Cheque</span>
-                <span className='font-bold tabular-nums'>
-                  {usdM(row.allocated)}
-                </span>
+          <label className='block'>
+            <span className='flex justify-between text-[11px] mb-1'>
+              <span className='text-[var(--d-muted)]'>Cheque</span>
+              <span className='font-bold tabular-nums'>
+                {usdM(row.allocated)}
               </span>
-              <input
-                type='range'
-                min={0}
-                max={row.ask}
-                step={100_000_00}
-                value={row.allocated}
-                onChange={(event) =>
-                  dispatch({
-                    type: 'allocate',
-                    dealId: row.id,
-                    amount: Number(event.target.value),
-                  })
-                }
-                aria-label={`Cheque for ${row.name}`}
-                aria-valuetext={usdM(row.allocated)}
-                className='w-full accent-[var(--d-accent)]'
-              />
-            </label>
-          </li>
+            </span>
+            <input
+              type='range'
+              min={0}
+              max={row.ask}
+              step={100_000_00}
+              value={row.allocated}
+              onChange={(event) =>
+                dispatch({
+                  type: 'allocate',
+                  dealId: row.id,
+                  amount: Number(event.target.value),
+                })
+              }
+              aria-label={`Cheque for ${row.name}`}
+              aria-valuetext={usdM(row.allocated)}
+              className='w-full accent-[var(--d-accent)]'
+            />
+          </label>
+        </li>
         ) : (
           []
         ),
@@ -786,8 +738,7 @@ function AllocationPanel({ state, dispatch, onCommit }: PanelProps & { onCommit:
 export default function UnchainedOsDemo({ scenarioId }: DemoAppProps) {
   const [state, dispatch] = useReducer(reducer, scenarioId, createInitialState);
 
-  // Only what the shell itself draws: the rail's comparison badge and the
-  // detail drawer. Each panel derives its own rows.
+  // Only what the shell itself draws: the tab badge and the detail drawer.
   const comparison = compareRows(state);
   const open = state.openDealId ? findDeal(state.openDealId) : undefined;
   const openRow = rows(state).find((row) => row.id === state.openDealId);
@@ -818,133 +769,55 @@ export default function UnchainedOsDemo({ scenarioId }: DemoAppProps) {
   }
 
   return (
-    <div className='h-full flex text-[13px] min-w-[48rem]'>
-      {/* ── Navigation rail ─────────────────────────────────────────────
-          The product's own left rail: a violet logo tile, then items that
-          each carry a label and the one-line description the application
-          shows under it. */}
-      <aside className='w-52 shrink-0 border-r border-[var(--d-border)] bg-[var(--d-surface)] flex flex-col'>
-        <div className='flex items-center gap-2.5 px-3 py-3.5 border-b border-[var(--d-border)]'>
-          <span
-            className='w-8 h-8 grid place-items-center shrink-0'
-            style={{
-              borderRadius: 'var(--d-radius)',
-              background: 'var(--d-accent)',
-              color: 'var(--d-accent-fg)',
-            }}
-          >
-            <Zap size={16} aria-hidden='true' className='fill-current' />
-          </span>
-          <span className='min-w-0'>
-            <span className='block text-sm font-bold leading-tight'>
-              Unchained
-            </span>
-            <span className='block text-[10px] text-[var(--d-muted)]'>
-              Deal Analyzer
-            </span>
-          </span>
-        </div>
-
-        <div className='flex-1 min-h-0 overflow-y-auto py-1'>
-          <DemoTabs
-            variant='sidebar'
-            orientation='vertical'
-            label='Sections'
-            active={state.tab}
-            onChange={(tab) =>
-              dispatch({ type: 'setTab', tab: tab as State['tab'] })
-            }
-            tabs={[
-              {
-                id: 'dashboard',
-                label: 'Dashboard',
-                sublabel: 'Capital overview',
-                icon: <LayoutDashboard size={13} aria-hidden='true' />,
-              },
-              {
-                id: 'pipeline',
-                label: 'Pipeline',
-                sublabel: 'CRM stages',
-                icon: <Layers size={13} aria-hidden='true' />,
-              },
-              {
-                id: 'compare',
-                label: 'Deal Comparator',
-                sublabel: 'Rank & compare',
-                icon: <Scale size={13} aria-hidden='true' />,
-                badge: comparison.length || undefined,
-              },
-              {
-                id: 'allocation',
-                label: 'Capital',
-                sublabel: 'Allocation engine',
-                icon: <Wallet size={13} aria-hidden='true' />,
-              },
-            ]}
-          />
-
-          {/* The rest of the product's rail. Named rather than faked: these
-              sections exist, and this demo does not reconstruct them. */}
-          <p className='px-3 pt-4 pb-1.5 text-[10px] uppercase tracking-widest text-[var(--d-muted)]'>
-            Also in the product
-          </p>
-          <ul className='px-3 pb-3 flex flex-col gap-1.5'>
-            {[
-              ['Deal Analyzer', 'Analyze & project'],
-              ['Performance', 'Projected vs actual'],
-              ['Investors', 'Multi-investor'],
-              ['Fund', 'Fund dashboard'],
-            ].map(([name, detail]) => (
-              <li key={name} className='text-[11px] text-[var(--d-muted)]/70'>
-                <span className='block'>{name}</span>
-                <span className='block text-[10px]'>{detail}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </aside>
-
-      <div className='flex-1 min-w-0 flex flex-col'>
-        {/* ── Application header ────────────────────────────────────────── */}
-        <header className='shrink-0 flex items-center gap-4 px-4 h-14 border-b border-[var(--d-border)]'>
-          <h1 className='text-base font-bold tracking-tight truncate'>
-            {PAGE_TITLE[state.tab]}
-          </h1>
-
-          <p className='ml-auto text-[11px] text-[var(--d-muted)] tabular-nums shrink-0 hidden sm:block'>
+    <div className='h-full flex flex-col text-[13px]'>
+      {/* ── Console header ──────────────────────────────────────────────── */}
+      <header className='shrink-0 px-4 pt-3 border-b border-[var(--d-border)]'>
+        <div className='flex items-center justify-between gap-4 pb-2.5'>
+          <div className='flex items-baseline gap-2 min-w-0'>
+            <p className='text-sm font-bold tracking-tight'>{fund.name}</p>
+            <p className='text-[11px] text-[var(--d-muted)] truncate'>
+              Vintage {fund.vintage} · {usdM(fund.size)} committed
+            </p>
+          </div>
+          <p className='text-[11px] text-[var(--d-muted)] tabular-nums shrink-0'>
             Dry powder{' '}
             <span className='font-bold text-[var(--d-fg)]'>
               {usdM(dryPowder(state))}
             </span>
           </p>
+        </div>
 
-          <Bell
-            size={15}
-            aria-hidden='true'
-            className='text-[var(--d-muted)] shrink-0'
-          />
+        <DemoTabs
+          label='Console'
+          active={state.tab}
+          onChange={(tab) => dispatch({ type: 'setTab', tab: tab as State['tab'] })}
+          tabs={[
+            {
+              id: 'dashboard',
+              label: 'Dashboard',
+              icon: <LayoutDashboard size={13} aria-hidden='true' />,
+            },
+            {
+              id: 'pipeline',
+              label: 'Pipeline',
+              icon: <Layers size={13} aria-hidden='true' />,
+            },
+            {
+              id: 'compare',
+              label: 'Compare',
+              icon: <Scale size={13} aria-hidden='true' />,
+              badge: comparison.length || undefined,
+            },
+            {
+              id: 'allocation',
+              label: 'Allocation',
+              icon: <Wallet size={13} aria-hidden='true' />,
+            },
+          ]}
+        />
+      </header>
 
-          <div className='flex items-center gap-2 shrink-0'>
-            <span
-              className='w-7 h-7 grid place-items-center rounded-full text-[11px] font-bold'
-              style={{
-                background: 'var(--d-accent)',
-                color: 'var(--d-accent-fg)',
-              }}
-              aria-hidden='true'
-            >
-              U
-            </span>
-            <span className='hidden lg:block leading-tight'>
-              <span className='block text-[11px] font-medium'>Investor</span>
-              <span className='block text-[10px] text-[var(--d-muted)]'>
-                Manager
-              </span>
-            </span>
-          </div>
-        </header>
-
-        <div className='flex-1 min-h-0 overflow-y-auto p-4'>
+      <div className='flex-1 min-h-0 overflow-y-auto p-4'>
         {/* ── Dashboard ─────────────────────────────────────────────────── */}
         <DashboardPanel state={state} dispatch={dispatch} />
 
@@ -956,7 +829,6 @@ export default function UnchainedOsDemo({ scenarioId }: DemoAppProps) {
 
         {/* ── Allocation ────────────────────────────────────────────────── */}
         <AllocationPanel state={state} dispatch={dispatch} onCommit={commit} />
-        </div>
       </div>
 
       {/* ── Deal detail ─────────────────────────────────────────────────── */}

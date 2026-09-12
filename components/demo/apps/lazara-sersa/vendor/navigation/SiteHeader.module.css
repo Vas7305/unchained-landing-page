@@ -1,0 +1,151 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  width: 100%;
+  /* Solid, always. The bar used to be transparent at rest and a 20 % scrim once
+     scrolled; it is now an opaque band that content passes behind rather than
+     through. Nothing shows through it, so the wordmark and the nav sit on a
+     fixed ground at every scroll position and on every route. */
+  background-color: var(--surface-primary);
+  box-shadow: none;
+  transition: box-shadow var(--duration-base) var(--ease-editorial);
+}
+
+/* Laid over full-bleed hero imagery, on the one page whose hero must start at
+   y=0. Fixed rather than absolute so the bar keeps its place once the hero has
+   scrolled away beneath it — `sticky` cannot do this without reserving flow
+   space and pushing the hero off the top of the viewport.
+   `width` is left to the insets so the bar cannot end up wider than the
+   viewport once the scrollbar gutter is accounted for. */
+.overlay {
+  position: fixed;
+  inset: 0 0 auto 0;
+  width: auto;
+}
+
+/* Now that the bar is opaque it has to agree with what it is lifted onto. The
+   hero's ground is the lockup's own paper stock, not porcelain, and the two are
+   close enough that a porcelain bar would not read as a header — only as a band
+   of slightly wrong white across the top of the brand artwork. The overlay
+   takes the paper instead, so at rest there is no seam.
+   `:not()` keeps this off the inverse tone, whose fill comes from base.css. */
+.overlay:not([data-surface="inverse"]) {
+  background-color: var(--surface-paper);
+}
+
+/* ---------------------------------------------------------------------------
+   SCROLLED
+   The fill no longer changes — only the glow arrives, so the bar reads as
+   lifting off the page once content is passing behind it rather than as
+   appearing. Rose gold, the metal of the mark, not a material shadow.
+
+   NO BACKDROP-FILTER, and now no reason to want one: a blurred backdrop has to
+   be re-rendered every frame the page moves, and what sits behind this bar is
+   photography carrying large-radius shadows. Rasterising that plus a 14px blur,
+   60 times a second, on the thread driving the scroll, is what once made the
+   movement look like stop motion. An opaque fill composites for free.
+   ------------------------------------------------------------------------ */
+.header[data-scrolled="true"] {
+  box-shadow: var(--header-glow);
+}
+
+/* The inverse fill comes from the generic `[data-surface="inverse"]` rule in
+   base.css, which paints it fully opaque — which is now exactly what the bar
+   wants. Only the glow needs stating here. */
+.header[data-surface="inverse"][data-scrolled="true"] {
+  box-shadow: var(--header-glow-inverse);
+}
+
+/* The bar's height is fixed and never responds to scroll.
+   It used to compress once scrolled, which reflowed the whole document from a
+   sticky element: content jumped, and near the threshold the shorter document
+   pushed the scroll position back under it, so the state flipped back and
+   forth and the bar visibly shook. Only paint — colour, blur, glow — is
+   allowed to change on scroll. */
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-block: var(--space-6);
+}
+
+.wordmark {
+  display: inline-block;
+  font-family: var(--font-serif);
+  font-size: 19px;
+  line-height: 1;
+  letter-spacing: var(--tracking-wordmark);
+  color: var(--text-primary);
+  transition: color var(--duration-fast) var(--ease-editorial);
+}
+
+.wordmark:hover {
+  color: var(--interactive-hover);
+}
+
+.wordmarkName {
+  white-space: nowrap;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.navLink {
+  position: relative;
+  display: inline-block;
+  padding-block: var(--space-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+  color: var(--text-primary);
+  border-bottom: var(--hairline) solid transparent;
+  transition:
+    color var(--duration-fast) var(--ease-editorial),
+    border-color var(--duration-fast) var(--ease-editorial);
+}
+
+.navLink:hover {
+  color: var(--interactive-hover);
+  border-bottom-color: currentColor;
+}
+
+.navLink[aria-current="page"] {
+  border-bottom-color: currentColor;
+}
+
+/* Mobile art direction: wordmark on its own line, nav spread beneath it.
+   No hamburger — this brand has no icon set (Brand Identity §35). */
+@media (max-width: 559px) {
+  .nav {
+    justify-content: space-between;
+    gap: var(--space-3);
+    width: 100%;
+  }
+}
+
+@media (min-width: 560px) {
+  .inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-8);
+    min-height: var(--header-height);
+    padding-block: var(--space-4);
+  }
+}
+
+@media (min-width: 1024px) {
+  .wordmark {
+    font-size: 20px;
+  }
+
+  .nav {
+    gap: var(--space-8);
+  }
+}

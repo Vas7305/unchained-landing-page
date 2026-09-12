@@ -40,15 +40,16 @@ import {
  * the stepper before the reservation has to be refused.
  */
 
-const EUR = (cents: number) => money(cents, 'EUR', 'en-GB');
+const EUR = (cents: number) => money(cents, 'EUR', 'de-DE');
 
 
 /**
  * One component per screen.
  *
- * The evening has four of them and they share nothing but the reducer, so
- * holding all four in one function only made the file long. Each derives what
- * it needs from the same selectors the rest of the demo uses.
+ * The evening's four screens share nothing but the reducer, so each is its own
+ * component and owns the condition that used to wrap it. This demo has no
+ * source repository to vendor from — the project was not pursued — so the
+ * split is permanent rather than a stopgap.
  */
 interface ScreenProps {
   state: State;
@@ -60,9 +61,9 @@ function ProgrammeScreen({ state, dispatch }: ScreenProps) {
 
   return (
     <div className='max-w-2xl'>
-      <h2 className='text-sm font-bold tracking-wide mb-1'>Programme</h2>
+      <h2 className='text-sm font-bold tracking-wide mb-1'>Programm</h2>
       <p className='text-xs text-[var(--d-muted)] mb-4'>
-        Five works, {totalRuntime} minutes on stage, one interval.
+        Fünf Stücke, {totalRuntime} Minuten Bühnenzeit, eine Pause.
       </p>
 
       <ol className='flex flex-col divide-y divide-[var(--d-border)]'>
@@ -89,7 +90,7 @@ function ProgrammeScreen({ state, dispatch }: ScreenProps) {
         size='lg'
         onClick={() => dispatch({ type: 'goto', screen: 'tickets' })}
       >
-        Reserve your evening
+        Plätze reservieren
       </DemoButton>
     </div>
   );
@@ -97,17 +98,17 @@ function ProgrammeScreen({ state, dispatch }: ScreenProps) {
 
 function SeatsScreen({ state, dispatch }: ScreenProps) {
   if (state.screen !== 'tickets') return null;
-
+  
   const rows = categoryRows(state);
   const seats = seatCount(state);
 
   return (
     <div className='max-w-2xl'>
       <h2 className='text-sm font-bold tracking-wide mb-1'>
-        Seat categories
+        Platzkategorien
       </h2>
       <p className='text-xs text-[var(--d-muted)] mb-4'>
-        At most {MAX_PER_ORDER} seats per reservation.
+        Höchstens {MAX_PER_ORDER} Plätze pro Reservierung.
       </p>
 
       <ul className='flex flex-col gap-2'>
@@ -128,11 +129,11 @@ function SeatsScreen({ state, dispatch }: ScreenProps) {
               <p className='text-[11px] mt-1'>
                 {row.soldOut ? (
                   <span className='text-[var(--d-danger)]'>
-                    Sold out
+                    Ausverkauft
                   </span>
                 ) : (
                   <span className='text-[var(--d-muted)]'>
-                    {row.remaining} {row.remaining === 1 ? 'seat' : 'seats'} left
+                    noch {row.remaining} {row.remaining === 1 ? 'Platz' : 'Plätze'}
                   </span>
                 )}
               </p>
@@ -153,7 +154,7 @@ function SeatsScreen({ state, dispatch }: ScreenProps) {
                     qty: row.qty - 1,
                   })
                 }
-                aria-label={`One fewer seat in ${row.name}`}
+                aria-label={`Einen Platz weniger in ${row.name}`}
                 style={{ borderRadius: 'var(--d-radius)' }}
                 className='w-9 h-9 grid place-items-center border border-[var(--d-border)] disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-[var(--d-ring)]'
               >
@@ -161,7 +162,7 @@ function SeatsScreen({ state, dispatch }: ScreenProps) {
               </button>
               <span
                 className='w-6 text-center text-sm font-bold tabular-nums'
-                aria-label={`${row.qty} seats in ${row.name}`}
+                aria-label={`${row.qty} Plätze in ${row.name}`}
               >
                 {row.qty}
               </span>
@@ -175,7 +176,7 @@ function SeatsScreen({ state, dispatch }: ScreenProps) {
                     qty: row.qty + 1,
                   })
                 }
-                aria-label={`One more seat in ${row.name}`}
+                aria-label={`Einen Platz mehr in ${row.name}`}
                 style={{ borderRadius: 'var(--d-radius)' }}
                 className='w-9 h-9 grid place-items-center border border-[var(--d-border)] disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-[var(--d-ring)]'
               >
@@ -188,7 +189,7 @@ function SeatsScreen({ state, dispatch }: ScreenProps) {
 
       {seats >= MAX_PER_ORDER && (
         <DemoStatus tone='info' className='mt-3'>
-          You have reached the maximum of {MAX_PER_ORDER} seats.
+          Sie haben das Maximum von {MAX_PER_ORDER} Plätzen erreicht.
         </DemoStatus>
       )}
 
@@ -198,18 +199,18 @@ function SeatsScreen({ state, dispatch }: ScreenProps) {
       >
         <div className='flex justify-between'>
           <dt className='text-[var(--d-muted)]'>
-            {seats} {seats === 1 ? 'seat' : 'seats'}
+            {seats} {seats === 1 ? 'Platz' : 'Plätze'}
           </dt>
           <dd className='tabular-nums'>{EUR(subtotal(state))}</dd>
         </div>
         <div className='flex justify-between'>
-          <dt className='text-[var(--d-muted)]'>Booking fee</dt>
+          <dt className='text-[var(--d-muted)]'>Bearbeitungsgebühr</dt>
           <dd className='tabular-nums'>
             {EUR(seats === 0 ? 0 : HANDLING_FEE)}
           </dd>
         </div>
         <div className='flex justify-between pt-1.5 mt-1 border-t border-[var(--d-border)]'>
-          <dt className='font-bold'>Total</dt>
+          <dt className='font-bold'>Gesamt</dt>
           <dd className='font-bold tabular-nums'>{EUR(total(state))}</dd>
         </div>
       </dl>
@@ -220,24 +221,20 @@ function SeatsScreen({ state, dispatch }: ScreenProps) {
           icon={<ArrowLeft size={13} aria-hidden='true' />}
           onClick={() => dispatch({ type: 'goto', screen: 'programm' })}
         >
-          Back
+          Zurück
         </DemoButton>
         <DemoButton
           disabled={seats === 0}
           onClick={() => dispatch({ type: 'goto', screen: 'daten' })}
         >
-          Continue to reservation
+          Weiter zur Reservierung
         </DemoButton>
       </div>
     </div>
   );
 }
 
-function DetailsScreen({
-  state,
-  dispatch,
-  onSubmit,
-}: ScreenProps & { onSubmit: () => void }) {
+function DetailsScreen({ state, dispatch, onSubmit }: ScreenProps & { onSubmit: () => void }) {
   if (state.screen !== 'daten') return null;
 
   const seats = seatCount(state);
@@ -251,27 +248,23 @@ function DetailsScreen({
     };
   }
 
-  // A React 19 form action rather than onSubmit + preventDefault: React stops
-  // the native submission itself, so the demo keeps every form semantic —
-  // implicit submission on Enter, label association, the lot — without the
-  // handler having to block navigation by hand.
   return (
     <form className='max-w-sm flex flex-col gap-3' action={() => void onSubmit()}>
-      <h2 className='text-sm font-bold tracking-wide'>Your details</h2>
+      <h2 className='text-sm font-bold tracking-wide'>Ihre Angaben</h2>
       <p className='text-xs text-[var(--d-muted)]'>
-        {seats} {seats === 1 ? 'seat' : 'seats'} · {EUR(total(state))}. Tickets
-        will be held for you at the box office.
+        {seats} {seats === 1 ? 'Platz' : 'Plätze'} · {EUR(total(state))}.
+        Die Karten liegen an der Abendkasse bereit.
       </p>
 
       <DemoInput label='Name' autoComplete='off' {...field('name')} />
       <DemoInput
-        label='Email'
+        label='E-Mail'
         type='email'
         autoComplete='off'
         {...field('email')}
       />
       <DemoInput
-        label='Phone'
+        label='Telefon'
         inputMode='tel'
         autoComplete='off'
         {...field('phone')}
@@ -286,10 +279,10 @@ function DetailsScreen({
           icon={<ArrowLeft size={13} aria-hidden='true' />}
           onClick={() => dispatch({ type: 'goto', screen: 'tickets' })}
         >
-          Back
+          Zurück
         </DemoButton>
         <DemoButton type='submit' pending={state.submitting}>
-          {state.submitting ? 'Reserving…' : 'Confirm reservation'}
+          {state.submitting ? 'Wird reserviert…' : 'Verbindlich reservieren'}
         </DemoButton>
       </div>
     </form>
@@ -311,9 +304,10 @@ function ConfirmationScreen({ state, dispatch }: ScreenProps) {
       >
         <Check size={22} aria-hidden='true' />
       </span>
-      <h2 className='text-lg font-bold'>Reservation confirmed</h2>
+      <h2 className='text-lg font-bold'>Reservierung bestätigt</h2>
       <p className='text-sm text-[var(--d-muted)] leading-relaxed'>
-        Thank you, {reservation.name}. Your reservation number is{' '}
+        Vielen Dank, {reservation.name}. Ihre Reservierungsnummer
+        lautet{' '}
         <span className='font-bold text-[var(--d-fg)]'>
           {reservation.code}
         </span>
@@ -335,7 +329,7 @@ function ConfirmationScreen({ state, dispatch }: ScreenProps) {
           </li>
         ))}
         <li className='flex justify-between font-bold pt-1'>
-          <span>Total</span>
+          <span>Gesamt</span>
           <span className='tabular-nums'>{EUR(reservation.total)}</span>
         </li>
       </ul>
@@ -345,7 +339,7 @@ function ConfirmationScreen({ state, dispatch }: ScreenProps) {
         className='mt-3'
         onClick={() => dispatch({ type: 'goto', screen: 'tickets' })}
       >
-        Reserve more seats
+        Weitere Plätze reservieren
       </DemoButton>
     </div>
   );
@@ -354,6 +348,7 @@ function ConfirmationScreen({ state, dispatch }: ScreenProps) {
 export default function KlassischesBalletDemo({ scenarioId }: DemoAppProps) {
   const [state, dispatch] = useReducer(reducer, scenarioId, createInitialState);
 
+  // Only what the poster header needs; each screen derives its own.
   const galaDate = demoDate(gala.dateOffset);
 
   async function submit() {
@@ -385,7 +380,7 @@ export default function KlassischesBalletDemo({ scenarioId }: DemoAppProps) {
         </div>
         <div className='relative px-6 py-5'>
           <p className='text-[10px] tracking-[0.35em] uppercase text-[var(--d-accent)]'>
-            {gala.eyebrow}
+            {gala.city} · Ein Abend
           </p>
           <h1 className='text-2xl md:text-3xl font-bold tracking-wide mt-1'>
             {gala.title}
@@ -397,16 +392,24 @@ export default function KlassischesBalletDemo({ scenarioId }: DemoAppProps) {
             </span>
             <span className='inline-flex items-center gap-1.5'>
               <Clock size={12} aria-hidden='true' />
-              {longDate(galaDate, 'en-GB')} · doors {gala.doors}, curtain {gala.curtain}
+              {longDate(galaDate, 'de-DE')} · Einlass {gala.doors}, Beginn{' '}
+              {gala.curtain}
             </span>
           </p>
         </div>
       </header>
 
       <div className='flex-1 min-h-0 overflow-y-auto px-6 py-5'>
+        {/* ── Programme ─────────────────────────────────────────────────── */}
         <ProgrammeScreen state={state} dispatch={dispatch} />
+
+        {/* ── Seats ─────────────────────────────────────────────────────── */}
         <SeatsScreen state={state} dispatch={dispatch} />
+
+        {/* ── Details ───────────────────────────────────────────────────── */}
         <DetailsScreen state={state} dispatch={dispatch} onSubmit={submit} />
+
+        {/* ── Confirmation ──────────────────────────────────────────────── */}
         <ConfirmationScreen state={state} dispatch={dispatch} />
       </div>
     </div>

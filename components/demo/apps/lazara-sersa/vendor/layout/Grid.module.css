@@ -1,0 +1,41 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+  column-gap: var(--grid-gutter);
+}
+
+.gap-gutter {
+  row-gap: var(--grid-gutter);
+}
+
+.gap-loose {
+  row-gap: var(--space-16);
+}
+
+/* Uneven vertical rhythm keeps a gallery from reading as a card grid. */
+.gap-editorial {
+  row-gap: clamp(var(--space-12), 7vw, var(--space-24));
+}
+
+/* Mobile: items are full width and read as a vertical sequence.
+   The desktop asymmetry is deliberately not preserved (master brief §53). */
+.item {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .item {
+    grid-column: span var(--span-md);
+  }
+}
+
+@media (min-width: 1024px) {
+  .item {
+    grid-column: span var(--span-lg);
+  }
+
+  .positioned {
+    grid-column: var(--start-lg) / span var(--span-lg);
+  }
+}

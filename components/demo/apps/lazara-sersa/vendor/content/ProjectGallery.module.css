@@ -1,0 +1,11 @@
+.gallery {
+  align-items: start;
+}
+
+/* Vertical offset on alternating items breaks the row rhythm and creates the
+   asymmetry the brand asks for. Desktop only — mobile stays a clean sequence. */
+@media (min-width: 1024px) {
+  .offset {
+    margin-top: var(--space-24);
+  }
+}

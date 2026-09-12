@@ -1,0 +1,123 @@
+.figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hero mode: the container defines the crop, not the image's own ratio. */
+.fill,
+.fill .frame {
+  height: 100%;
+}
+
+/* The frame reserves the crop before the file loads — no layout shift. */
+.frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--surface-secondary);
+}
+
+[data-surface="inverse"] .frame {
+  background-color: var(--color-plum);
+}
+
+.image {
+  object-fit: cover;
+  /* THE OUTERMOST PIXELS ARE NEVER SHOWN.
+     The lookbook frames were cut out of contact sheets, and a sheet's cell
+     edge leaves residue — a pale fringe, a remnant of a caption bar — along
+     the border of the crop. scripts/slice-lookbook.mjs insets each frame to
+     take it out, but the files are only ~190px wide and are displayed around
+     four times that, so a single pixel of anything left behind is drawn as a
+     four-pixel band and reads as a bevel around the photograph.
+
+     Holding the image a few percent oversize keeps its own border outside the
+     frame permanently, so no edge artefact can reach the page whatever the
+     source file does. It costs about 2% off each side of the crop and buys
+     immunity from a whole class of defect that is otherwise invisible until
+     it is on screen. Confirmed by the behaviour it mimics: the fringe already
+     vanished on hover, where the old scale did exactly this by accident.
+
+     Hover then lifts it a little further. The image is the interaction — it
+     should barely register as an effect (Brand Identity §53). */
+  transform: scale(1.04);
+  transition: transform var(--duration-slow) var(--ease-editorial);
+}
+
+.figure[data-interactive="true"]:hover .image,
+.figure[data-interactive="true"]:focus-within .image {
+  transform: scale(1.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image,
+  .figure[data-interactive="true"]:hover .image,
+  .figure[data-interactive="true"]:focus-within .image {
+    transition: none;
+    /* Holds the inset — `none` here would put the frame's own border back on
+       screen. This preference is about motion, not about showing the artefact. */
+    transform: scale(1.04);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   PLACEHOLDER
+   Deliberately reads as unfinished. Diagonal hairline stripes plus an explicit
+   label, so it can never be mistaken for photography.
+   ------------------------------------------------------------------------ */
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--placeholder-stripe) 0,
+    var(--placeholder-stripe) 1px,
+    transparent 1px,
+    transparent 9px
+  );
+  border: var(--hairline) solid var(--divider);
+}
+
+.placeholderLabel {
+  font-family: var(--font-sans);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-inline: var(--space-4);
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------------------
+   CAPTION / CREDIT
+   ------------------------------------------------------------------------ */
+.caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-6);
+  margin-top: var(--space-3);
+}
+
+.captionText {
+  font-family: var(--font-sans);
+  font-size: var(--text-small);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.credit {
+  margin-left: auto;
+  font-family: var(--font-sans);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}

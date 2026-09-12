@@ -1,0 +1,28 @@
+.link {
+  display: inline-block;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  border-bottom: var(--hairline) solid var(--divider-strong);
+  padding-bottom: 2px;
+  transition:
+    color var(--duration-fast) var(--ease-editorial),
+    border-color var(--duration-fast) var(--ease-editorial);
+}
+
+.link:hover {
+  color: var(--interactive-hover);
+  border-bottom-color: currentColor;
+}
+
+.meta {
+  font-size: var(--text-meta);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+}
+
+.body {
+  font-size: var(--text-small);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}

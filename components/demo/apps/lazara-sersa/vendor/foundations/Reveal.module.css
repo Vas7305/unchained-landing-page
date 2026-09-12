@@ -1,0 +1,43 @@
+.reveal {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance));
+  transition:
+    opacity var(--duration-reveal) var(--ease-out-soft) var(--reveal-delay, 0ms),
+    transform var(--duration-reveal) var(--ease-out-soft) var(--reveal-delay, 0ms);
+  /* No `will-change` here. It would hold every not-yet-revealed block on its
+     own compositor layer for as long as it waits — twenty-five large ones at
+     once on the work index, all of them costing memory and compositing on
+     every frame of the scroll. Browsers promote a transform/opacity transition
+     when it starts anyway; the one frame that saves is not worth the rest. */
+}
+
+/* Photography: the same rise, arriving from fractionally under-size so the
+   frame and its shadow settle onto the page together. The scale is small
+   enough to read as the image coming into focus, never as a zoom. */
+.image {
+  transform: translateY(var(--reveal-distance)) scale(var(--reveal-image-scale));
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Never withhold content from users who cannot or do not run the animation. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal.image {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+@media (scripting: none) {
+  .reveal,
+  .reveal.image {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

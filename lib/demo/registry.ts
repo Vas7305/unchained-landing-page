@@ -21,60 +21,36 @@ import type { DemoDefinition } from './types';
  * project removed from the panel loses its demo route with it, and a demo
  * added here stays invisible until the project it belongs to is published.
  *
- * ─── The theme is not decoration, and it is not invented ──────────────────
- * §17: the visitor should feel they are using the product. A prospect looking
- * at these demos is being told "this is what we built for them" — so a demo in
- * a colour the product does not use is not a stylistic liberty, it is a false
- * statement about our own work.
+ * ─── The theme is not decoration ──────────────────────────────────────────
+ * §17: the visitor should feel they are using the product, not reading a
+ * presentation about it. Eight products rendered in this website's palette
+ * would all look like this website. Each entry therefore carries the product's
+ * own colours, radius and type, which the shared primitives resolve through
+ * CSS custom properties — one DemoButton that is correct in a Caribbean
+ * marketplace and in a private-equity console.
  *
- * Every value below is therefore TAKEN FROM THE PRODUCT, not chosen. Six of
- * the eight are copied out of the product's own design-token file — the same
- * file its components consume — so the demo and the product cannot disagree:
- *
- *   tancerca         /d/Tancerca/src/index.css              (HSL, converted)
- *   lanna-kamilina   /d/Lanna-Kamilina/src/styles/index.css
- *   lazara-sersa     /d/Sersa Sarria/styles/tokens.css
- *   mensalere        /d/Mensalere/src/styles/index.css
- *   frito            /d/Frito/src/constants/tokens.ts
- *   vector-forge     /d/VectorForge-V-1.0/src/styles/tokens.css
- *
- * The two without a reachable source — `klassisches-ballet`, which was not
- * pursued, and `unchained-os`, which is not on this machine — are sampled from
- * the screenshots in public/work/ instead, decoded pixel by pixel: dominant
- * colours for grounds and surfaces, a chroma filter for the brand accents.
- * Those two are marked as sampled where they appear below.
- *
- * When a product is redesigned, re-copy its tokens. Never adjust by eye: the
- * first pass of this work did, and every palette it produced was wrong.
- *
- * Contrast note: every `--d-muted` was checked against both `--d-bg` and
- * `--d-surface`, and every `--d-accent-fg` against its accent.
+ * Contrast note: every `--d-muted` below was chosen to stay legible on both
+ * `--d-bg` and `--d-surface`, and every `--d-accent-fg` against its accent.
  */
 export const demoRegistry: Record<string, DemoDefinition> = {
   /* ── Marketplace and delivery, consumer side ───────────────────────────── */
   tancerca: {
-    // Shown in a browser, because that is what the sampled screenshot is: the
-    // marketplace as a visitor meets it, tropical sky band and all.
-    frame: 'browser',
+    frame: 'phone',
     lang: 'es',
-    surfaceLabel: 'tancercadeti.com',
+    surfaceLabel: 'TanCerca',
     theme: {
-      // From the product's own tokens (/d/Tancerca/src/index.css), converted
-      // from HSL: primary `161 85% 27%`, background `0 0% 99%`, foreground
-      // `220 20% 10%`, muted-foreground `220 9% 44%`, border `220 13% 91%`,
-      // secondary `161 20% 95%`, radius 0.6rem.
-      '--d-bg': '#fcfcfc',
+      '--d-bg': '#f4f1ec',
       '--d-surface': '#ffffff',
-      '--d-surface-2': '#f0f5f3',
-      '--d-border': '#e5e7eb',
-      '--d-fg': '#141920',
-      '--d-muted': '#666d7a',
-      '--d-accent': '#0a7f5a',
+      '--d-surface-2': '#faf7f3',
+      '--d-border': '#e4ded5',
+      '--d-fg': '#231d18',
+      '--d-muted': '#6d6157',
+      '--d-accent': '#c8481f',
       '--d-accent-fg': '#ffffff',
-      '--d-ring': '#0a7f5a',
-      '--d-positive': '#0a7f5a',
-      '--d-danger': '#c2321f',
-      '--d-radius': '10px',
+      '--d-ring': '#a63a17',
+      '--d-positive': '#2f7d4f',
+      '--d-danger': '#b3261e',
+      '--d-radius': '14px',
     },
     scenarios: [
       {
@@ -96,24 +72,19 @@ export const demoRegistry: Record<string, DemoDefinition> = {
     frame: 'browser',
     lang: 'ru',
     surfaceLabel: 'lannakamilina.ru',
-    // No global serif: the site sets its display type in serif but keeps the
-    // navigation and body in a letterspaced sans, so the switch is made per
-    // element in the demo rather than across the whole surface.
+    fontFamily: 'Georgia, "Times New Roman", serif',
     theme: {
-      // From the product's own tokens (/d/Lanna-Kamilina/src/styles/index.css).
-      // Its accent is a muted bronze, not the ink this demo first assumed —
-      // "a punctuation mark, never a background wash", as that file puts it.
-      '--d-bg': '#f5f2ec',
+      '--d-bg': '#f7f3ee',
       '--d-surface': '#ffffff',
-      '--d-surface-2': '#efeae1',
-      '--d-border': '#ded6c9',
-      '--d-fg': '#191512',
-      '--d-muted': '#7b7268',
-      '--d-accent': '#8e6a4c',
-      '--d-accent-fg': '#f5f2ec',
-      '--d-ring': '#6d4f37',
-      '--d-positive': '#4b6b4f',
-      '--d-danger': '#8a3f36',
+      '--d-surface-2': '#f2ebe3',
+      '--d-border': '#e0d5c8',
+      '--d-fg': '#2b2019',
+      '--d-muted': '#6b5c50',
+      '--d-accent': '#8c3a52',
+      '--d-accent-fg': '#fdf8f4',
+      '--d-ring': '#732c42',
+      '--d-positive': '#41684c',
+      '--d-danger': '#a32d24',
       '--d-radius': '4px',
     },
     scenarios: [{ id: 'zapis', label: 'Онлайн-запись' }],
@@ -125,12 +96,15 @@ export const demoRegistry: Record<string, DemoDefinition> = {
     frame: 'browser',
     lang: 'en',
     surfaceLabel: 'lazarasersa.com',
-    fontFamily: 'Georgia, "Times New Roman", serif',
     theme: {
-      // From the product's own tokens (/d/Sersa Sarria/styles/tokens.css),
-      // which are themselves sampled from the brand lockup: paper #e9d2cc is
-      // the artwork's ground and rose-taupe #be968e is the LS monogram. Body
-      // text uses the AA-safe siblings that file documents.
+      // Copied from the product's own /d/Sersa Sarria/styles/tokens.css, whose
+      // values are themselves sampled from the brand lockup: `paper` #e9d2cc is
+      // the artwork's ground and `rose-taupe` #be968e is the LS monogram.
+      //
+      // These drive the *frame* around the demo — its address bar and window
+      // chrome. Inside the frame the product's full stylesheet is in force
+      // through vendor/styles/surface.module.css, so this is deliberately the
+      // same palette rather than a second opinion about it.
       '--d-bg': '#e9d2cc',
       '--d-surface': '#faf4f2',
       '--d-surface-2': '#f2e4e0',
@@ -151,40 +125,33 @@ export const demoRegistry: Record<string, DemoDefinition> = {
   /* ── Single-night gala: programme and seat reservation ─────────────────── */
   'klassisches-ballet': {
     frame: 'browser',
-    // English, not German. The screenshot's own navigation reads CAST · THE
-    // EXPERIENCE · PERFORMANCES · ABOUT and its call to action is "RESERVE
-    // YOUR EVENING": the company is being introduced to a European audience in
-    // English. The demo followed the project's German name into the wrong
-    // language until the screenshot was read.
-    lang: 'en',
-    surfaceLabel: 'klassischesballett.com',
+    lang: 'de',
+    surfaceLabel: 'klassisches-ballett-gala.de',
     fontFamily: 'Georgia, "Times New Roman", serif',
     theme: {
-      // Sampled: near-black ground #030303, gold #c9a84d (the reserve button),
-      // lighter gold #d6c06a (the italic display line), white #fffdfc.
-      '--d-bg': '#030303',
-      '--d-surface': '#0d0c0a',
-      '--d-surface-2': '#16140f',
-      '--d-border': '#2a2620',
-      '--d-fg': '#fffdfc',
-      '--d-muted': '#a79e8c',
-      '--d-accent': '#c9a84d',
+      '--d-bg': '#0b0f18',
+      '--d-surface': '#131926',
+      '--d-surface-2': '#1a2231',
+      '--d-border': '#2a3446',
+      '--d-fg': '#f2ece0',
+      '--d-muted': '#a79f8f',
+      '--d-accent': '#c9a961',
       '--d-accent-fg': '#14100a',
-      '--d-ring': '#d6c06a',
-      '--d-positive': '#8fb183',
+      '--d-ring': '#dcc083',
+      '--d-positive': '#8bb083',
       '--d-danger': '#d9736a',
       '--d-radius': '2px',
     },
     scenarios: [
       {
-        id: 'presale',
-        label: 'Pre-sale',
-        hint: 'Every category is still available.',
+        id: 'vorverkauf',
+        label: 'Vorverkauf',
+        hint: 'Alle Kategorien sind verfügbar.',
       },
       {
-        id: 'final',
-        label: 'Final seats',
-        hint: 'Two categories have already sold out.',
+        id: 'endspurt',
+        label: 'Letzte Plätze',
+        hint: 'Zwei Kategorien sind bereits ausverkauft.',
       },
     ],
     load: () => import('@/components/demo/apps/klassisches-ballet/App'),
@@ -193,16 +160,17 @@ export const demoRegistry: Record<string, DemoDefinition> = {
   /* ── Psychology consultations: directory and appointment booking ───────── */
   mensalere: {
     frame: 'browser',
-    // English. The screenshot reads "Talking to someone can be the first step",
-    // "Find the right psychology professional", How it works · Professionals ·
-    // Login. Spanish was this demo's assumption, not the product's language.
+    // English, not Spanish. The vendored frontend is the product's own, and
+    // the product ships in English — "Find the right professional", "How it
+    // works", "Login". The Spanish here was this demo's assumption before the
+    // application's source was read.
     lang: 'en',
     surfaceLabel: 'mensalere.com',
     theme: {
-      // From the product's own tokens (/d/Mensalere/src/styles/index.css).
-      // Its brand colour is a muted sage, and that file documents the darker
-      // siblings used wherever the colour carries text, with the measured
-      // contrast ratios beside them.
+      // Copied from the product's own /d/Mensalere/src/styles/index.css.
+      // These drive the *frame* around the demo; inside it the same tokens are
+      // in force through the `ms-`-namespaced @theme in app/globals.css, so
+      // this is the same palette rather than a second opinion about it.
       '--d-bg': '#f9f8f5',
       '--d-surface': '#ffffff',
       '--d-surface-2': '#e9eee9',
@@ -226,22 +194,18 @@ export const demoRegistry: Record<string, DemoDefinition> = {
     lang: 'es',
     surfaceLabel: 'Frito',
     theme: {
-      // From the product's own tokens (/d/Frito/src/constants/tokens.ts),
-      // whose header reads "DO NOT modify values. These are the ONLY valid
-      // design tokens." Fire #fc3803 is the accent, #22c55e is the like
-      // button, and the app's borders are white at 8%.
-      '--d-bg': '#080808',
-      '--d-surface': '#121212',
-      '--d-surface-2': '#181818',
-      '--d-border': 'rgba(255,255,255,0.08)',
-      '--d-fg': '#ffffff',
-      '--d-muted': '#a1a1aa',
-      '--d-accent': '#fc3803',
+      '--d-bg': '#100d18',
+      '--d-surface': '#1a1526',
+      '--d-surface-2': '#241d33',
+      '--d-border': '#352c4a',
+      '--d-fg': '#f6f2ff',
+      '--d-muted': '#aca0c6',
+      '--d-accent': '#ff4d6d',
       '--d-accent-fg': '#ffffff',
-      '--d-ring': '#ff663d',
-      '--d-positive': '#22c55e',
-      '--d-danger': '#fc3803',
-      '--d-radius': '16px',
+      '--d-ring': '#ff7d95',
+      '--d-positive': '#4ecf9a',
+      '--d-danger': '#ff6b6b',
+      '--d-radius': '22px',
     },
     scenarios: [
       { id: 'registro', label: 'Usuario nuevo', hint: 'Empieza en el registro.' },
@@ -258,23 +222,19 @@ export const demoRegistry: Record<string, DemoDefinition> = {
   'unchained-os': {
     frame: 'desktop',
     lang: 'en',
-    surfaceLabel: 'Unchained — Deal Analyzer',
+    surfaceLabel: 'Unchained OS — Fund I',
     theme: {
-      // Sampled from the application itself, not a marketing page: ground
-      // #09090b, panels and cards #18181c, the violet of the logo tile and the
-      // active navigation item #915ec8, and the green #19c48b the dashboard
-      // uses for returns. Blue was this demo's invention.
-      '--d-bg': '#09090b',
-      '--d-surface': '#18181c',
-      '--d-surface-2': '#202027',
-      '--d-border': '#2a2a31',
-      '--d-fg': '#ededf0',
-      '--d-muted': '#8e8e99',
-      '--d-accent': '#915ec8',
-      '--d-accent-fg': '#ffffff',
-      '--d-ring': '#af83c4',
-      '--d-positive': '#19c48b',
-      '--d-danger': '#ef4444',
+      '--d-bg': '#0b0d11',
+      '--d-surface': '#14171e',
+      '--d-surface-2': '#1b1f28',
+      '--d-border': '#262c38',
+      '--d-fg': '#e8ecf3',
+      '--d-muted': '#8e99ab',
+      '--d-accent': '#5b8def',
+      '--d-accent-fg': '#08101f',
+      '--d-ring': '#7ba5f5',
+      '--d-positive': '#3fbf85',
+      '--d-danger': '#e2685e',
       '--d-radius': '8px',
     },
     scenarios: [
@@ -296,24 +256,20 @@ export const demoRegistry: Record<string, DemoDefinition> = {
   'vector-forge': {
     frame: 'desktop',
     lang: 'en',
-    surfaceLabel: 'VectorForge',
+    surfaceLabel: 'VectorForge 1.0',
     theme: {
-      // From the product's own tokens (/d/VectorForge-V-1.0/src/styles/
-      // tokens.css). The workstation's chrome is #0a0e13, its panels #121821,
-      // its raised surfaces #1b2430, and its accent ramp runs
-      // #006d5b → #0a8f76 → #1fb896 → #5be0c0.
-      '--d-bg': '#0b0f14',
-      '--d-surface': '#121821',
-      '--d-surface-2': '#1b2430',
-      '--d-border': '#2b3440',
-      '--d-fg': '#ecf1f6',
-      '--d-muted': '#8a95a4',
-      '--d-accent': '#0a8f76',
+      '--d-bg': '#15171c',
+      '--d-surface': '#1d2027',
+      '--d-surface-2': '#252932',
+      '--d-border': '#323744',
+      '--d-fg': '#e9ecf2',
+      '--d-muted': '#919aab',
+      '--d-accent': '#6d5efc',
       '--d-accent-fg': '#ffffff',
-      '--d-ring': '#5be0c0',
-      '--d-positive': '#34c759',
-      '--d-danger': '#fc3803',
-      '--d-radius': '12px',
+      '--d-ring': '#9488ff',
+      '--d-positive': '#41c08a',
+      '--d-danger': '#e2685e',
+      '--d-radius': '6px',
     },
     scenarios: [{ id: 'trace', label: 'Trace & package' }],
     load: () => import('@/components/demo/apps/vector-forge/App'),

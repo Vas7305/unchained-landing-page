@@ -111,18 +111,11 @@ export function simulate<T>(
 /**
  * A queue worked through one item at a time, reporting as it goes.
  *
- * ─── Why this is not `Promise.all` ────────────────────────────────────────
- * Because the product is not. A batch queue that reports "running", then
- * "done", per item, in order, is the thing being demonstrated; running the
- * items concurrently would finish sooner and show nothing. The sequencing is
- * the feature.
- *
- * ─── And why the loop lives here rather than in the view ──────────────────
- * This module's contract is that everything asynchronous about a demo happens
- * in it. A component that awaits its way down a list has quietly taken over
- * pacing, which is this file's job — and a reviewer then has to check two
- * places to answer "how long does this demo take, and can it be sped up for a
- * test". `latencyScale` applies here and nowhere else.
+ * Sequential on purpose: a batch that reports "running" then "done" per item,
+ * in order, is the thing being demonstrated — running the items concurrently
+ * would finish sooner and show nothing. The loop lives here rather than in a
+ * view because this module's contract is that everything asynchronous about a
+ * demo happens in it, and `latencyScale` therefore applies to batches too.
  *
  * `start` may return a settle function, called after the delay: the natural
  * shape for "mark it running, wait, mark it finished".

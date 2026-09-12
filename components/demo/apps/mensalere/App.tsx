@@ -1,604 +1,397 @@
 'use client';
 
-import { useReducer, type Dispatch } from 'react';
 import {
-  ArrowLeft,
-  Check,
-  Filter,
-  Globe,
-  Monitor,
-  Users,
-} from 'lucide-react';
-import DemoButton from '@/components/demo/ui/DemoButton';
-import DemoStatus from '@/components/demo/ui/DemoStatus';
-import { DemoInput, DemoSelect, DemoTextarea } from '@/components/demo/ui/DemoField';
-import { DemoAvatar } from '@/components/demo/ui/DemoArtwork';
-import { DEMO_LATENCY, simulate } from '@/lib/demo/service';
-import { dayLabel, demoDate, longDate, money } from '@/lib/demo/format';
-import { track } from '@/lib/analytics';
+  useEffect,
+  useReducer,
+  useState,
+  type Dispatch,
+} from 'react';
+
 import type { DemoAppProps } from '@/lib/demo/types';
 import {
-  SESSION_MINUTES,
-  findProfessional,
-  languagesOffered,
-  slotKey,
-  specialties,
-  type Modality,
-} from '@/lib/demo/apps/mensalere/data';
-import {
   activeFilterCount,
-  bookAppointment,
   canBook,
-  chosen,
   createInitialState,
-  daySlots,
-  diaryDays,
-  matches,
   reducer,
   type Action,
-  type BookingForm,
   type State,
 } from '@/lib/demo/apps/mensalere/state';
 
+import { Wordmark } from './vendor/brand/wordmark';
+import { AvailabilityCalendar } from './vendor/domain/availability-calendar';
+import { FictionalDataNotice } from './vendor/domain/fictional-data-notice';
+import { PsychologistCard } from './vendor/domain/psychologist-card';
+import { VerifiedMark } from './vendor/domain/verified-mark';
+import {
+  availabilityService,
+  type DayAvailability,
+} from './vendor/services/availabilityService';
+import { CATEGORY_LABELS } from './vendor/services/mock/catalog';
+import { psychologistService } from './vendor/services/psychologistService';
+import type { AvailabilitySlot, Psychologist } from './vendor/services/types';
+import { Button } from './vendor/ui/button';
+import { Card, CardBody } from './vendor/ui/card';
+import { Input } from './vendor/ui/input';
+import { Portrait } from './vendor/ui/portrait';
+import { setDemoNavigate } from './vendor/router-bridge';
+
 /**
- * Mensalere — directory, profile, booking.
+ * One component per screen, so the shell is only wiring.
  *
- * The filters are the point of the first screen, so they are always visible
- * and the result count moves as they change; the empty state says which
- * criteria produced it rather than pretending the directory is short.
+ * The shell holds three async reads and the branch between them; keeping the
+ * two screens' markup in the same function made a control-flow knot out of
+ * what is really "a list, or one professional".
  */
-
-const EUR = (cents: number) => money(cents, 'EUR', 'en-GB', { decimals: 0 });
-
-const modalityLabel: Record<Modality, string> = {
-  online: 'Online',
-  presencial: 'In person',
-};
-
-
-/**
- * One component per screen.
- *
- * They share nothing but the reducer, so each is its own component and derives
- * what it needs from the same selectors the rest of the demo uses. Each also
- * owns the condition that used to wrap it.
- */
-interface ScreenProps {
+function ProfileScreen({
+  state,
+  dispatch,
+  profile,
+  days,
+  loadingDays,
+  slots,
+  month,
+}: {
   state: State;
   dispatch: Dispatch<Action>;
-}
-
-function DirectoryScreen({ state, dispatch }: ScreenProps) {
-  if (state.screen !== 'directorio') return null;
-  
-  const results = matches(state);
-
+  profile: Psychologist;
+  days: DayAvailability[];
+  loadingDays: boolean;
+  slots: AvailabilitySlot[];
+  month: Date;
+}) {
   return (
-    <div className='p-5'>
-      <h1 className='text-lg font-bold tracking-tight'>
-        Find the right professional
-      </h1>
-      <p className='text-xs text-[var(--d-muted)] mt-1 mb-4'>
-        {SESSION_MINUTES}-minute sessions, online or in person.
-      </p>
-
-      <div
-        className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3'
-        role='group'
-        aria-label='Filters'
-      >
-        <DemoSelect
-          label='Specialty'
-          value={state.filters.specialty}
-          onChange={(event) =>
-            dispatch({
-              type: 'filter',
-              name: 'specialty',
-              value: event.target.value,
-            })
-          }
-        >
-          <option value=''>Any</option>
-          {specialties.map((item) => (
-            <option key={item} value={item}>
-              {item}
-            </option>
-          ))}
-        </DemoSelect>
-
-        <DemoSelect
-          label='Language'
-          value={state.filters.language}
-          onChange={(event) =>
-            dispatch({
-              type: 'filter',
-              name: 'language',
-              value: event.target.value,
-            })
-          }
-        >
-          <option value=''>Any</option>
-          {languagesOffered.map((item) => (
-            <option key={item} value={item}>
-              {item}
-            </option>
-          ))}
-        </DemoSelect>
-
-        <DemoSelect
-          label='Format'
-          value={state.filters.modality}
-          onChange={(event) =>
-            dispatch({
-              type: 'filter',
-              name: 'modality',
-              value: event.target.value,
-            })
-          }
-        >
-          <option value=''>Any</option>
-          <option value='online'>Online</option>
-          <option value='presencial'>In person</option>
-        </DemoSelect>
-
-        <DemoSelect
-          label='Maximum fee'
-          value={String(state.filters.maxFee)}
-          onChange={(event) =>
-            dispatch({
-              type: 'filter',
-              name: 'maxFee',
-              value: Number(event.target.value),
-            })
-          }
-        >
-          <option value='0'>No limit</option>
-          <option value='6000'>Up to €60</option>
-          <option value='7000'>Up to €70</option>
-          <option value='8000'>Up to €80</option>
-        </DemoSelect>
-      </div>
-
-      <div className='flex items-center gap-3 mt-4 mb-3'>
-        <p
-          className='text-xs text-[var(--d-muted)] flex items-center gap-1.5'
-          role='status'
-          aria-live='polite'
-        >
-          <Filter size={12} aria-hidden='true' />
-          {results.length}{' '}
-          {results.length === 1
-            ? 'professional available'
-            : 'professionals available'}
-        </p>
-        {activeFilterCount(state) > 0 && (
-          <DemoButton
-            size='sm'
+        /* ── Profile and diary ─────────────────────────────────────── */
+        <div className='mt-6'>
+          <Button
             variant='ghost'
-            onClick={() => dispatch({ type: 'clearFilters' })}
+            onClick={() => dispatch({ type: 'closeProfile' })}
           >
-            Clear filters ({activeFilterCount(state)})
-          </DemoButton>
-        )}
-      </div>
+            ← Back to the directory
+          </Button>
 
-      {results.length === 0 ? (
-        <div
-          style={{ borderRadius: 'var(--d-radius)' }}
-          className='p-6 text-center border border-dashed border-[var(--d-border)]'
-        >
-          <p className='text-sm font-medium'>
-            No professionals match all of those criteria.
-          </p>
-          <p className='text-xs text-[var(--d-muted)] mt-1'>
-            Try widening the fee or the format.
-          </p>
-        </div>
-      ) : (
-        <ul className='grid grid-cols-1 lg:grid-cols-2 gap-3'>
-          {results.map((item) => (
-            <li key={item.id}>
-              <button
-                type='button'
-                onClick={() =>
-                  dispatch({ type: 'openProfile', professionalId: item.id })
-                }
-                style={{ borderRadius: 'var(--d-radius)' }}
-                className='w-full h-full text-left p-4 bg-[var(--d-surface)] border border-[var(--d-border)] hover:border-[var(--d-accent)] transition-colors duration-200 flex gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--d-ring)]'
-              >
-                <DemoAvatar name={item.name} size={44} />
-                <span className='min-w-0 flex-1'>
-                  <span className='block text-sm font-semibold'>
-                    {item.name}
-                  </span>
-                  <span className='block text-xs text-[var(--d-muted)]'>
-                    {item.headline}
-                  </span>
-                  <span className='flex flex-wrap gap-1.5 mt-2'>
-                    {item.modalities.map((modality) => (
-                      <span
-                        key={modality}
-                        className='text-[10px] px-1.5 py-0.5 bg-[var(--d-surface-2)] text-[var(--d-muted)]'
-                        style={{ borderRadius: 'calc(var(--d-radius) / 2)' }}
-                      >
-                        {modalityLabel[modality]}
-                      </span>
-                    ))}
-                    <span
-                      className='text-[10px] px-1.5 py-0.5 bg-[var(--d-surface-2)] text-[var(--d-muted)]'
-                      style={{ borderRadius: 'calc(var(--d-radius) / 2)' }}
-                    >
-                      {item.languages.join(' · ')}
-                    </span>
-                  </span>
-                  <span className='block text-xs font-semibold mt-2'>
-                    {EUR(item.fee)} / session
-                  </span>
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-function ProfileScreen({ state, dispatch }: ScreenProps) {
-  const person = chosen(state);
-  if (state.screen !== 'perfil' || !person) return null;
-  
-  const slots = daySlots(state);
-
-  return (
-    <div className='p-5 max-w-3xl'>
-      <DemoButton
-        variant='ghost'
-        size='sm'
-        icon={<ArrowLeft size={13} aria-hidden='true' />}
-        onClick={() => dispatch({ type: 'goto', screen: 'directorio' })}
-      >
-        Back to the list
-      </DemoButton>
-
-      <div className='flex gap-4 mt-4'>
-        <DemoAvatar name={person.name} size={64} />
-        <div className='min-w-0'>
-          <h1 className='text-lg font-bold tracking-tight'>{person.name}</h1>
-          <p className='text-xs text-[var(--d-muted)]'>{person.headline}</p>
-          <p className='text-[11px] text-[var(--d-muted)] mt-1'>
-            Registration no. {person.licence} · {person.years} years in practice · {person.city}
-          </p>
-        </div>
-      </div>
-
-      <p className='text-sm leading-relaxed mt-4'>{person.approach}</p>
-
-      <dl className='grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4 text-xs'>
-        <div>
-          <dt className='text-[var(--d-muted)]'>Specialties</dt>
-          <dd className='mt-0.5'>{person.specialties.join(', ')}</dd>
-        </div>
-        <div>
-          <dt className='text-[var(--d-muted)] flex items-center gap-1'>
-            <Globe size={11} aria-hidden='true' /> Languages
-          </dt>
-          <dd className='mt-0.5'>{person.languages.join(', ')}</dd>
-        </div>
-        <div>
-          <dt className='text-[var(--d-muted)]'>Session</dt>
-          <dd className='mt-0.5'>
-            {SESSION_MINUTES} min · {EUR(person.fee)}
-          </dd>
-        </div>
-      </dl>
-
-      {/* Modality */}
-      {person.modalities.length > 1 && (
-        <fieldset className='mt-5'>
-          <legend className='text-xs font-semibold mb-2'>Format</legend>
-          <div className='flex gap-2'>
-            {person.modalities.map((modality) => (
-              <label
-                key={modality}
-                style={{ borderRadius: 'var(--d-radius)' }}
-                className={
-                  'flex items-center gap-2 px-4 min-h-11 text-sm cursor-pointer border transition-colors duration-150 ' +
-                  (state.modality === modality
-                    ? 'border-[var(--d-accent)] text-[var(--d-accent)]'
-                    : 'border-[var(--d-border)] text-[var(--d-muted)]')
-                }
-              >
-                <input
-                  type='radio'
-                  name='modality'
-                  value={modality}
-                  checked={state.modality === modality}
-                  onChange={() => dispatch({ type: 'setModality', modality })}
-                  className='sr-only'
-                />
-                {modality === 'online' ? (
-                  <Monitor size={14} aria-hidden='true' />
-                ) : (
-                  <Users size={14} aria-hidden='true' />
-                )}
-                {modalityLabel[modality]}
-              </label>
-            ))}
+          <div className='mt-4 flex gap-5'>
+            {/* The product's own portrait: it draws a monogram when there
+                is no photograph, which is the case for every professional in
+                the mock catalogue — the application refuses to stand a stock
+                or generated face in for a real clinician. */}
+            <Portrait
+              name={profile.name}
+              src={profile.photoUrl}
+              ratio='square'
+              className='w-28 shrink-0'
+            />
+            <div>
+              <h1 className='text-ms-body-lg flex items-center gap-2 font-semibold'>
+                {profile.name}
+                {profile.verified ? <VerifiedMark /> : null}
+              </h1>
+              <p className='text-ms-muted text-ms-small'>{profile.title}</p>
+              <p className='text-ms-small mt-2'>{profile.headline}</p>
+              <p className='text-ms-muted text-ms-caption mt-2'>
+                {profile.specialties
+                  .map((id) => CATEGORY_LABELS[id])
+                  .join(' · ')}
+              </p>
+            </div>
           </div>
-        </fieldset>
-      )}
 
-      {/* Diary */}
-      <h2 className='text-xs font-semibold mt-5 mb-2'>Next available appointments</h2>
-      <div className='flex gap-1.5 overflow-x-auto pb-2' role='group' aria-label='Day'>
-        {diaryDays().map((day) => (
-          <button
-            key={day.offset}
-            type='button'
-            onClick={() => dispatch({ type: 'setDay', dayOffset: day.offset })}
-            aria-pressed={state.dayOffset === day.offset}
-            style={{ borderRadius: 'var(--d-radius)' }}
-            className={
-              'shrink-0 px-3 min-h-11 text-xs border transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-[var(--d-ring)] ' +
-              (state.dayOffset === day.offset
-                ? 'border-[var(--d-accent)] bg-[var(--d-accent)] text-[var(--d-accent-fg)]'
-                : 'border-[var(--d-border)] bg-[var(--d-surface)]')
-            }
-          >
-            {dayLabel(day.date, 'en-GB')}
-          </button>
-        ))}
-      </div>
+          <div className='mt-6 grid gap-5 md:grid-cols-2'>
+            <AvailabilityCalendar
+              days={days}
+              isLoading={loadingDays}
+              selected={state.selectedDate}
+              onSelect={(date) => dispatch({ type: 'selectDate', date })}
+              month={month}
+              onMonthChange={() => {}}
+            />
 
-      <div className='flex flex-wrap gap-1.5 mt-2' role='group' aria-label='Time'>
-        {slots.map((slot) => (
-          <button
-            key={slot.time}
-            type='button'
-            disabled={!slot.available}
-            onClick={() => dispatch({ type: 'setTime', time: slot.time })}
-            aria-pressed={state.time === slot.time}
-            style={{ borderRadius: 'var(--d-radius)' }}
-            className={
-              'px-4 min-h-11 text-xs border transition-colors duration-150 disabled:opacity-35 disabled:line-through disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-[var(--d-ring)] ' +
-              (state.time === slot.time
-                ? 'border-[var(--d-accent)] bg-[var(--d-accent)] text-[var(--d-accent-fg)]'
-                : 'border-[var(--d-border)] bg-[var(--d-surface)]')
-            }
-          >
-            {slot.time}
-          </button>
-        ))}
-      </div>
+            <Card>
+              <CardBody>
+                <h2 className='text-ms-small font-semibold'>Available times</h2>
 
-      {slots.every((slot) => !slot.available) && (
-        <DemoStatus tone='info' className='mt-3'>
-          No times are free that day. Try another.
-        </DemoStatus>
-      )}
+                {state.selectedDate ? (
+                  <ul className='mt-3 flex flex-wrap gap-2'>
+                    {/* One pass: a day can hold a dozen slots and most are
+                        taken, so selecting and rendering together avoids
+                        building an intermediate array on every render. */}
+                    {slots.flatMap((slot) =>
+                      slot.available ? (
+                        <li key={slot.start}>
+                          <Button
+                            variant={
+                              state.selectedSlotId === slot.start
+                                ? 'primary'
+                                : 'secondary'
+                            }
+                            size='sm'
+                            onClick={() =>
+                              dispatch({
+                                type: 'selectSlot',
+                                slotId: slot.start,
+                              })
+                            }
+                          >
+                            {SLOT_TIME.format(new Date(slot.start))}
+                          </Button>
+                        </li>
+                      ) : (
+                        []
+                      ),
+                    )}
+                  </ul>
+                ) : (
+                  <p className='text-ms-muted text-ms-caption mt-3'>
+                    Choose a day to see its times.
+                  </p>
+                )}
 
-      <DemoStatus tone='error' className='mt-3'>
-        {state.failure}
-      </DemoStatus>
-
-      <DemoButton
-        className='mt-4'
-        size='lg'
-        disabled={!canBook(state)}
-        onClick={() => dispatch({ type: 'goto', screen: 'reserva' })}
-      >
-        Continue
-      </DemoButton>
-    </div>
+                {state.bookedRef ? (
+                  <p className='text-ms-primary-strong text-ms-small mt-4 font-medium'>
+                    Appointment held — reference {state.bookedRef}.
+                  </p>
+                ) : (
+                  <Button
+                    className='mt-4'
+                    disabled={!canBook(state)}
+                    onClick={() =>
+                      dispatch({
+                        type: 'booked',
+                        reference: `MS-${String(slots.length * 37 + 100).padStart(4, '0')}`,
+                      })
+                    }
+                  >
+                    Hold this appointment
+                  </Button>
+                )}
+              </CardBody>
+            </Card>
+          </div>
+        </div>
   );
 }
 
-function BookingScreen({ state, dispatch, onSubmit }: ScreenProps & { onSubmit: () => void }) {
-  const person = chosen(state);
-  if (state.screen !== 'reserva' || !person) return null;
-
+function DirectoryScreen({
+  state,
+  dispatch,
+  results,
+  listing,
+}: {
+  state: State;
+  dispatch: Dispatch<Action>;
+  results: Psychologist[];
+  listing: boolean;
+}) {
   return (
-    <form
-      className='p-5 max-w-sm flex flex-col gap-3'
-      onSubmit={(event) => {
-        event.preventDefault();
-        void onSubmit();
-      }}
-    >
-      <DemoButton
-        type='button'
-        variant='ghost'
-        size='sm'
-        icon={<ArrowLeft size={13} aria-hidden='true' />}
-        onClick={() => dispatch({ type: 'goto', screen: 'perfil' })}
-      >
-        Change the time
-      </DemoButton>
+        /* ── Directory ─────────────────────────────────────────────── */
+        <div className='mt-6'>
+          <h1 className='text-ms-body-lg font-semibold'>
+            Find the right professional
+          </h1>
 
-      <h1 className='text-base font-bold tracking-tight'>Confirm the appointment</h1>
-      <p className='text-xs text-[var(--d-muted)]'>
-        {person.name} · {longDate(demoDate(state.dayOffset), 'en-GB')} at{' '}
-        {state.time} ·{' '}
-        {state.modality ? modalityLabel[state.modality] : ''} ·{' '}
-        {EUR(person.fee)}
-      </p>
+          <div className='mt-4 flex flex-wrap items-end gap-3'>
+            <Input
+              aria-label='Search by name, focus or specialty'
+              placeholder='Search by name, focus or specialty'
+              value={state.filters.query ?? ''}
+              onChange={(event) =>
+                dispatch({
+                  type: 'filter',
+                  filters: { query: event.target.value },
+                })
+              }
+              className='min-w-64 flex-1'
+            />
+            {activeFilterCount(state) > 0 ? (
+              <Button
+                variant='ghost'
+                onClick={() => dispatch({ type: 'clearFilters' })}
+              >
+                Clear filters
+              </Button>
+            ) : null}
+          </div>
 
-      <DemoInput
-        label='Name'
-        autoComplete='off'
-        value={state.form.name}
-        error={state.errors.name}
-        onChange={(event) =>
-          dispatch({ type: 'field', name: 'name', value: event.target.value })
-        }
-      />
-      <DemoInput
-        label='Email'
-        type='email'
-        autoComplete='off'
-        value={state.form.email}
-        error={state.errors.email}
-        onChange={(event) =>
-          dispatch({ type: 'field', name: 'email', value: event.target.value })
-        }
-      />
-      <DemoTextarea
-        label='What brings you here (optional)'
-        rows={3}
-        hint='In this demo none of this leaves your browser.'
-        value={state.form.reason}
-        onChange={(event) =>
-          dispatch({ type: 'field', name: 'reason', value: event.target.value })
-        }
-      />
+          <p className='text-ms-muted text-ms-caption mt-3' role='status'>
+            {listing
+              ? 'Searching…'
+              : `${results.length} ${results.length === 1 ? 'professional' : 'professionals'}`}
+          </p>
 
-      <label className='flex items-start gap-2.5 text-xs leading-relaxed cursor-pointer'>
-        <input
-          type='checkbox'
-          checked={state.form.consent}
-          onChange={(event) =>
-            dispatch({
-              type: 'field',
-              name: 'consent',
-              value: event.target.checked,
-            })
-          }
-          aria-invalid={state.errors.consent ? true : undefined}
-          className='mt-0.5 w-4 h-4 shrink-0 accent-[var(--d-accent)]'
-        />
-        <span>
-          I agree to my details being processed to arrange this appointment.
-          {state.errors.consent && (
-            <span className='block text-[var(--d-danger)] font-medium mt-0.5'>
-              {state.errors.consent}
-            </span>
-          )}
-        </span>
-      </label>
-
-      <DemoStatus tone='error'>{state.failure}</DemoStatus>
-
-      <DemoButton type='submit' block pending={state.submitting}>
-        {state.submitting ? 'Booking…' : 'Book the appointment'}
-      </DemoButton>
-    </form>
+          <ul className='mt-4 grid gap-4 md:grid-cols-2'>
+            {results.map((psychologist) => (
+              <li key={psychologist.id}>
+                <PsychologistCard psychologist={psychologist} />
+              </li>
+            ))}
+          </ul>
+        </div>
   );
 }
 
-function ConfirmedScreen({ state, dispatch }: ScreenProps) {
-  const appointment = state.appointment;
-  if (state.screen !== 'confirmado' || !appointment) return null;
+/**
+ * One formatter, built once.
+ *
+ * Constructing an `Intl.DateTimeFormat` per slot per render is the expensive
+ * part of `toLocaleTimeString`, and a day can hold a dozen slots. The timezone
+ * is fixed too: the product's diary is in local wall-clock time, and letting
+ * the runtime pick would make the same slot read differently depending on where
+ * the page is rendered.
+ */
+const SLOT_TIME = new Intl.DateTimeFormat('en-GB', {
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: 'UTC',
+});
 
-  return (
-    <div className='p-6 max-w-md mx-auto flex flex-col items-center text-center gap-3'>
-      <span
-        className='w-12 h-12 grid place-items-center rounded-full'
-        style={{
-          background: 'color-mix(in oklab, var(--d-positive) 15%, transparent)',
-          color: 'var(--d-positive)',
-        }}
-      >
-        <Check size={22} aria-hidden='true' />
-      </span>
-      <h1 className='text-lg font-bold tracking-tight'>Appointment confirmed</h1>
-      <p className='text-sm text-[var(--d-muted)] leading-relaxed'>
-        {findProfessional(appointment.professionalId)?.name} ·{' '}
-        {longDate(demoDate(appointment.dayOffset), 'en-GB')} at{' '}
-        {appointment.time}
-        <br />
-        {modalityLabel[appointment.modality]} ·{' '}
-        {EUR(appointment.fee)}
-      </p>
-      <p className='text-xs text-[var(--d-muted)]'>
-        Reference{' '}
-        <span className='font-bold text-[var(--d-fg)]'>
-          {appointment.code}
-        </span>
-      </p>
-      <DemoButton
-        variant='secondary'
-        onClick={() => dispatch({ type: 'goto', screen: 'directorio' })}
-      >
-        Back to the list
-      </DemoButton>
-    </div>
-  );
-}
-
+/**
+ * Mensalere — the product's own frontend, running on the product's own mock
+ * service layer.
+ *
+ * ─── What is the product's, and what is the demo's ────────────────────────
+ * The cards, the calendar, the portraits, the buttons, the inputs, the
+ * verified mark, the fictional-data notice and the whole UI kit under
+ * `vendor/` are the application's files, copied from its repository. So is
+ * every service behind them: `psychologistService.list()` and
+ * `availabilityService.getDays()` are the product's, reading the product's
+ * `services/mock/` store with the product's own simulated latency.
+ *
+ * That mock layer is why this demo needed almost no isolation work. The
+ * application is already frontend-only — no fetch, no environment, no
+ * database anywhere in `services/` or `lib/` — so §12's "Frontend → Adapter →
+ * Mock Repository → Local Data" was already how it was built.
+ *
+ * The demo supplies three things:
+ *   1. Namespaced design tokens. The product and this site both define
+ *      `--color-primary` and `--radius-md` with different values, so every
+ *      token was prefixed `ms-` in app/globals.css and the same prefix applied
+ *      to the vendored class names. Without that, opening this demo would
+ *      restyle the whole website.
+ *   2. A router adapter (`vendor/router.tsx`). The product is a react-router
+ *      SPA; a real navigation here would leave the site.
+ *   3. The selection the product keeps in its URL — see lib/demo/apps/
+ *      mensalere/state.ts.
+ */
 export default function MensalereDemo({ scenarioId }: DemoAppProps) {
   const [state, dispatch] = useReducer(reducer, scenarioId, createInitialState);
 
-  // Only what `submit` needs; each screen derives its own.
-  const person = chosen(state);
+  /**
+   * Each async read is stored WITH the request it answers, and "loading" is
+   * derived by comparing that key to what is being asked for now.
+   *
+   * The obvious shape — a `loading` flag set at the top of the effect — sets
+   * state synchronously during an effect and costs a second render pass on
+   * every keystroke in the search field. Keying the result instead means one
+   * state write per answer and no flag to keep in step with it.
+   */
+  const [listed, setListed] = useState<{
+    key: string;
+    items: Psychologist[];
+  } | null>(null);
+  const [loaded, setLoaded] = useState<{
+    id: string;
+    profile: Psychologist;
+    days: DayAvailability[];
+  } | null>(null);
+  const [slotted, setSlotted] = useState<{
+    key: string;
+    slots: AvailabilitySlot[];
+  } | null>(null);
+  const [month] = useState(() => new Date());
 
-  async function submit() {
-    dispatch({ type: 'submit' });
+  const filterKey = JSON.stringify(state.filters);
+  const slotKey = `${state.selectedId ?? ''}|${state.selectedDate ?? ''}`;
 
-    const result = await simulate(
-      () => bookAppointment(state),
-      DEMO_LATENCY.normal,
-    );
+  const results = listed?.key === filterKey ? listed.items : [];
+  const listing = listed?.key !== filterKey;
+  const profile = loaded?.id === state.selectedId ? loaded.profile : null;
+  const days = loaded?.id === state.selectedId ? loaded.days : [];
+  const loadingDays = state.selectedId !== null && loaded?.id !== state.selectedId;
+  const slots = slotted?.key === slotKey ? slotted.slots : [];
 
-    if (result.ok) {
-      dispatch({ type: 'submitSucceeded', appointment: result.value });
-      track('demo_completed', { project: 'mensalere', workflow: 'appointment' });
-    } else {
-      const contested =
-        result.failure.code === 'taken' && person !== undefined && state.time !== null;
+  // Link activations inside vendored components report here instead of routing.
+  useEffect(() => {
+    setDemoNavigate((to) => {
+      const id = to.split('/').filter(Boolean).pop();
+      if (id) dispatch({ type: 'openProfile', id });
+    });
+  }, []);
 
-      dispatch({
-        type: 'submitFailed',
-        message: result.failure.message,
-        field: result.failure.field as keyof BookingForm | undefined,
-        blockSlot: contested
-          ? slotKey(person.id, state.dayOffset, state.time as string)
-          : undefined,
-      });
-    }
-  }
+  // The product's own directory service, with the product's own filters.
+  useEffect(() => {
+    let live = true;
+    const key = filterKey;
+
+    void psychologistService.list(JSON.parse(key)).then((found) => {
+      if (live) setListed({ key, items: found });
+    });
+
+    return () => {
+      live = false;
+    };
+  }, [filterKey]);
+
+  useEffect(() => {
+    const id = state.selectedId;
+    if (!id) return;
+
+    let live = true;
+
+    void Promise.all([
+      psychologistService.get(id),
+      availabilityService.getDays(id, new Date(), 35),
+    ]).then(([found, availability]) => {
+      if (live) setLoaded({ id, profile: found, days: availability });
+    });
+
+    return () => {
+      live = false;
+    };
+  }, [state.selectedId]);
+
+  useEffect(() => {
+    const id = state.selectedId;
+    const date = state.selectedDate;
+    if (!id || !date) return;
+
+    let live = true;
+    const key = slotKey;
+
+    void availabilityService.getSlots(id, date, 50).then((found) => {
+      if (live) setSlotted({ key, slots: found });
+    });
+
+    return () => {
+      live = false;
+    };
+  }, [slotKey, state.selectedId, state.selectedDate]);
 
   return (
-    <div className='h-full flex flex-col'>
-      <header className='shrink-0 px-5 py-3.5 border-b border-[var(--d-border)] bg-[var(--d-surface)] flex items-center justify-between gap-4'>
-        {/* The product's own mark, inlined from its favicon.svg, beside the
-            letterspaced wordmark the site actually uses. */}
-        <span className='flex items-center gap-2 shrink-0'>
-          <svg width='22' height='22' viewBox='0 0 32 32' aria-hidden='true'>
-            <rect width='32' height='32' rx='7' fill='#73877A' />
-            <text
-              x='16'
-              y='22'
-              fontFamily='Inter, system-ui, sans-serif'
-              fontSize='17'
-              fontWeight='600'
-              fill='#F9F8F5'
-              textAnchor='middle'
-            >
-              M
-            </text>
-          </svg>
-          <span className='text-sm font-semibold tracking-[0.25em] uppercase'>
-            Mensalere
-          </span>
-        </span>
-        <p className='text-[11px] text-[var(--d-muted)] hidden sm:block'>
-          Private consultations with psychology professionals
-        </p>
+    <div className='bg-ms-background text-ms-text font-ms-sans h-full overflow-y-auto'>
+      <header className='border-ms-border bg-ms-surface border-b px-6 py-4'>
+        <Wordmark />
       </header>
 
-      <div className='flex-1 min-h-0 overflow-y-auto'>
-        {/* ── Directory ─────────────────────────────────────────────────── */}
-        <DirectoryScreen state={state} dispatch={dispatch} />
+      <div className='mx-auto max-w-5xl px-6 py-6'>
+        <FictionalDataNotice />
 
-        {/* ── Profile and diary ─────────────────────────────────────────── */}
-        <ProfileScreen state={state} dispatch={dispatch} />
-
-        {/* ── Booking form ──────────────────────────────────────────────── */}
-        <BookingScreen state={state} dispatch={dispatch} onSubmit={submit} />
-
-        {/* ── Confirmation ──────────────────────────────────────────────── */}
-        <ConfirmedScreen state={state} dispatch={dispatch} />
+        {profile ? (
+          <ProfileScreen
+            state={state}
+            dispatch={dispatch}
+            profile={profile}
+            days={days}
+            loadingDays={loadingDays}
+            slots={slots}
+            month={month}
+          />
+        ) : (
+          <DirectoryScreen
+            state={state}
+            dispatch={dispatch}
+            results={results}
+            listing={listing}
+          />
+        )}
       </div>
     </div>
   );

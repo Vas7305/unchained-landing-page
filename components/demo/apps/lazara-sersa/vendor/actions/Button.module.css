@@ -1,0 +1,68 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 14px 28px;
+  border: var(--hairline) solid transparent;
+  border-radius: var(--radius-0);
+  font-family: var(--font-sans);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-meta);
+  line-height: 1;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-editorial),
+    border-color var(--duration-fast) var(--ease-editorial),
+    color var(--duration-fast) var(--ease-editorial);
+}
+
+.primary {
+  background-color: var(--color-noir);
+  border-color: var(--color-noir);
+  color: var(--color-porcelain);
+}
+
+.primary:hover {
+  background-color: var(--color-plum);
+  border-color: var(--color-plum);
+}
+
+.secondary {
+  background-color: transparent;
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.secondary:hover {
+  background-color: var(--text-primary);
+  color: var(--surface-primary);
+}
+
+/* Text-only CTA. Padding is reduced so it reads as type, not as a control. */
+.ghost {
+  padding: var(--space-2) 0;
+  background-color: transparent;
+  color: var(--text-primary);
+  border-bottom: var(--hairline) solid var(--divider-strong);
+}
+
+/* The rule warms to gold on hover — the one place the accent is allowed to
+   move, so interaction reads as a material change rather than a state change. */
+.ghost:hover {
+  color: var(--interactive-hover);
+  border-bottom-color: var(--accent);
+}
+
+.inverse {
+  background-color: var(--color-porcelain);
+  border-color: var(--color-porcelain);
+  color: var(--color-noir);
+}
+
+.inverse:hover {
+  background-color: var(--color-rose-taupe);
+  border-color: var(--color-rose-taupe);
+}

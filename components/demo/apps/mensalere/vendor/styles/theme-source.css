@@ -1,0 +1,180 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   MENSALERE design tokens
+   Source of truth: Guía/Brand and Frontend Design Guide.md §10 (color),
+   §13 (type scale), §15 (spacing), §17 (radius), §18 (shadows), §64 (tokens).
+
+   Components MUST consume these tokens. Do not hardcode brand values.
+   --------------------------------------------------------------------------- */
+
+@theme {
+  /* Color — §10. No colors beyond this set (§11). */
+  --color-background: #f9f8f5; /* Warm White  */
+  --color-surface: #ffffff; /* White       */
+  --color-text: #20201f; /* Charcoal    */
+  --color-muted: #6f706d; /* Muted Gray  */
+  --color-border: #e6e4df; /* Soft Gray   */
+  --color-primary: #73877a; /* Muted Sage  */
+  --color-primary-soft: #e9eee9; /* Soft Sage   */
+  --color-error: #b85c5c;
+  --color-warning: #a27b45;
+
+  /* ---------------------------------------------------------------------
+     Derived shades. No new hue is introduced (§11): each is the documented
+     colour darkened until it meets WCAG 2.2 AA for text (§55).
+
+     The documented values above stay authoritative for surfaces, fills,
+     borders, indicators and focus rings, where 3:1 is the requirement and
+     they pass. The *-strong values are used only where the colour carries
+     text, because the documented shades measure below 4.5:1 there:
+
+       white on #73877A ....... 3.84   white on #637469 ....... 4.96
+       #73877A on #F9F8F5 ..... 3.61   #637469 on #F9F8F5 ..... 4.67
+       #B85C5C on #F9F8F5 ..... 4.19   #9C4E4E on #F9F8F5 ..... 5.47
+       #A27B45 on #F6EFE4 ..... 3.37   #856539 on #F6EFE4 ..... 4.69
+
+     This is a documented conflict between §10/§21 and §55; see the project
+     README. Reverting is a one-line change per token.
+     --------------------------------------------------------------------- */
+  --color-primary-strong: #637469;
+  --color-primary-hover: #55645a;
+  --color-primary-active: #4a5850;
+  --color-error-strong: #9c4e4e;
+  --color-error-soft: #f5eaea;
+  --color-warning-strong: #856539;
+  --color-warning-soft: #f6efe4;
+
+  /* Typography — §12, §13 */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --text-caption: 0.8125rem; /* 13px */
+  --text-caption--line-height: 1.4;
+  --text-small: 0.875rem; /* 14px */
+  --text-small--line-height: 1.5;
+  --text-body: 1rem; /* 16px */
+  --text-body--line-height: 1.6;
+  --text-body-lg: 1.125rem; /* 18px */
+  --text-body-lg--line-height: 1.6;
+  /* Headings are fluid between the mobile and desktop ends of the documented
+     scale (§13), so a large headline never has to be re-set per breakpoint and
+     never overflows a 320px viewport. The clamped ends stay inside the ranges
+     the guide allows. */
+  --text-h3: clamp(1.375rem, 1.29rem + 0.35vw, 1.5rem); /* 22 → 24px */
+  --text-h3--line-height: 1.3;
+  --text-h3--letter-spacing: -0.012em;
+  --text-h2: clamp(1.75rem, 1.5rem + 1.05vw, 2.125rem); /* 28 → 34px */
+  --text-h2--line-height: 1.2;
+  --text-h2--letter-spacing: -0.018em;
+  --text-h1: clamp(2.25rem, 1.86rem + 1.65vw, 2.875rem); /* 36 → 46px */
+  --text-h1--line-height: 1.1;
+  --text-h1--letter-spacing: -0.024em;
+  --text-display: clamp(2.5rem, 1.55rem + 4vw, 4rem); /* 40 → 64px */
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.032em;
+
+  /* Radius — §17 */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-DEFAULT: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Shadow — §18. One elevation, used sparingly. */
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.06);
+  --shadow-raised: 0 8px 28px rgba(0, 0, 0, 0.08);
+
+  /* Layout — §16 */
+  --container-content: 1200px;
+}
+
+/* Spacing — §15. Tailwind's 4px scale already covers 4/8/12/16/20/24/32/40/48/
+   64/80/96/120 as 1/2/3/4/5/6/8/10/12/16/20/24/30. No override needed. */
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 600; /* §14 default heading weight */
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  /* Visible focus everywhere — §55. Never remove without a replacement. */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-primary-soft);
+    color: var(--color-text);
+  }
+
+  /* §56 — motion is an enhancement, never a requirement. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Skip link — keyboard users land here first (§55). */
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: 0.5rem;
+    z-index: 100;
+    transform: translateY(-200%);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    padding: 0.75rem 1rem;
+    font-size: var(--text-small);
+    font-weight: 500;
+    box-shadow: var(--shadow-soft);
+    transition: transform 150ms ease;
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+}
+
+@utility text-balance-safe {
+  text-wrap: pretty;
+}

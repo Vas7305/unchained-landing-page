@@ -1,255 +1,67 @@
-import { fail, ok, type DemoResult } from '@/lib/demo/service';
 import {
-  ENQUIRY_WINDOW_DAYS,
-  bookedOffsets,
-  findService,
-  nextFreeOffset,
-  works,
-  type DemoWork,
-  type Discipline,
-} from './data';
+  getProject,
+  getProjects,
+} from '@/components/demo/apps/lazara-sersa/vendor/content/projects';
+import type {
+  Project,
+  ProjectCategory,
+} from '@/components/demo/apps/lazara-sersa/vendor/content/types';
 
 /**
- * Lazara Sersa — a portfolio with a diary behind it.
+ * Lazara Sersa — the demo's data layer.
  *
- * ─── Why a portfolio site is worth demonstrating at all ───────────────────
- * A gallery on its own is a static page and §5 rules out shipping one. What
- * makes this product a product is what surrounds the pictures: filtering that
- * keeps its place, a viewer that can be driven from the keyboard, and an
- * enquiry form that knows which dates are already committed and says so
- * instead of accepting a booking that cannot happen. That last part is the
- * whole reason the artist needed software rather than an inbox.
+ * ─── Much smaller than it used to be, on purpose ──────────────────────────
+ * This module previously carried a filter, a lightbox index, an enquiry form,
+ * its validation and a diary of committed dates — a parallel implementation of
+ * a product we had not read. The demo now runs the product's own components,
+ * and those already own their form state, their validation and their layout.
+ * What is left here is the only thing the product delegated to the router:
+ * which discipline is selected, and which project is open.
+ *
+ * The portfolio itself is not duplicated either. `getProjects` and
+ * `getProject` are the application's own selectors over its own content file,
+ * imported rather than re-typed, so the demo cannot drift from the real work.
  */
-
-export interface EnquiryForm {
-  name: string;
-  email: string;
-  serviceId: string;
-  /** Days from the demo anchor, as a string because it comes from a <select>. */
-  dateOffset: string;
-  message: string;
-}
-
-export interface Enquiry {
-  reference: string;
-  name: string;
-  serviceId: string;
-  dateOffset: number;
-}
-
 export interface State {
   scenarioId: string;
-  /** Null shows every discipline. */
-  discipline: Discipline | null;
-  /** Index into the *filtered* list, or null when the viewer is closed. */
-  lightbox: number | null;
-  enquiryOpen: boolean;
-  form: EnquiryForm;
-  errors: Partial<Record<keyof EnquiryForm, string>>;
-  submitting: boolean;
-  failure: string | null;
-  /** A date the diary suggested after refusing the one that was asked for. */
-  suggestion: number | null;
-  enquiry: Enquiry | null;
-}
-
-export function createInitialState(scenarioId: string): State {
-  return {
-    scenarioId,
-    discipline: null,
-    lightbox: null,
-    enquiryOpen: false,
-    form: {
-      name: '',
-      email: '',
-      serviceId: 'bridal',
-      dateOffset: '',
-      message: '',
-    },
-    errors: {},
-    submitting: false,
-    failure: null,
-    suggestion: null,
-    enquiry: null,
-  };
+  /** `undefined` is the unfiltered overview, exactly as the product means it. */
+  category?: ProjectCategory;
+  /** The project whose images are open, by slug. */
+  openSlug: string | null;
 }
 
 export type Action =
-  | { type: 'filter'; discipline: Discipline | null }
-  | { type: 'openLightbox'; index: number }
-  | { type: 'closeLightbox' }
-  | { type: 'step'; delta: number }
-  | { type: 'openEnquiry'; serviceId?: string }
-  | { type: 'closeEnquiry' }
-  | { type: 'field'; name: keyof EnquiryForm; value: string }
-  | { type: 'acceptSuggestion' }
-  | { type: 'submit' }
-  | { type: 'submitFailed'; message: string; field?: keyof EnquiryForm; suggestion?: number }
-  | { type: 'submitSucceeded'; enquiry: Enquiry };
+  | { type: 'filter'; category?: ProjectCategory }
+  | { type: 'open'; slug: string }
+  | { type: 'close' };
+
+export function createInitialState(scenarioId: string): State {
+  return { scenarioId, category: undefined, openSlug: null };
+}
 
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'filter':
-      // Closing the viewer matters: its index refers to the filtered list, and
-      // a new filter makes that index mean a different picture.
-      return { ...state, discipline: action.discipline, lightbox: null };
+      // Changing the filter closes an open project: it may not be in the new
+      // set, and leaving it open would show work the filter excludes.
+      return { ...state, category: action.category, openSlug: null };
 
-    case 'openLightbox':
-      return { ...state, lightbox: action.index };
+    case 'open':
+      return { ...state, openSlug: action.slug };
 
-    case 'closeLightbox':
-      return { ...state, lightbox: null };
-
-    case 'step': {
-      if (state.lightbox === null) return state;
-      const list = visibleWorks(state);
-      if (list.length === 0) return state;
-      // Wraps, so the arrow keys never dead-end at either edge.
-      const next = (state.lightbox + action.delta + list.length) % list.length;
-      return { ...state, lightbox: next };
-    }
-
-    case 'openEnquiry':
-      return {
-        ...state,
-        enquiryOpen: true,
-        lightbox: null,
-        form: action.serviceId
-          ? { ...state.form, serviceId: action.serviceId }
-          : state.form,
-      };
-
-    case 'closeEnquiry':
-      return { ...state, enquiryOpen: false, failure: null };
-
-    case 'field': {
-      const errors = { ...state.errors };
-      delete errors[action.name];
-      return {
-        ...state,
-        form: { ...state.form, [action.name]: action.value },
-        errors,
-        failure: null,
-        // The suggestion belonged to the date that was just changed.
-        suggestion: action.name === 'dateOffset' ? null : state.suggestion,
-      };
-    }
-
-    case 'acceptSuggestion':
-      return state.suggestion === null
-        ? state
-        : {
-            ...state,
-            form: { ...state.form, dateOffset: String(state.suggestion) },
-            suggestion: null,
-            failure: null,
-            errors: {},
-          };
-
-    case 'submit':
-      return { ...state, submitting: true, failure: null, errors: {} };
-
-    case 'submitFailed':
-      return {
-        ...state,
-        submitting: false,
-        failure: action.field ? null : action.message,
-        errors: action.field ? { [action.field]: action.message } : {},
-        suggestion: action.suggestion ?? null,
-      };
-
-    case 'submitSucceeded':
-      return {
-        ...state,
-        submitting: false,
-        enquiry: action.enquiry,
-        failure: null,
-        suggestion: null,
-      };
+    case 'close':
+      return { ...state, openSlug: null };
 
     default:
       return state;
   }
 }
 
-/* ── Selectors ─────────────────────────────────────────────────────────── */
-
-export function visibleWorks(state: State): DemoWork[] {
-  return state.discipline === null
-    ? [...works]
-    : works.filter((work) => work.discipline === state.discipline);
+/** The product's own selector, applied to the demo's selection. */
+export function visibleProjects(state: State): Project[] {
+  return getProjects(state.category);
 }
 
-export function lightboxWork(state: State): DemoWork | undefined {
-  if (state.lightbox === null) return undefined;
-  return visibleWorks(state)[state.lightbox];
-}
-
-/** The dates the enquiry form offers, with the committed ones marked. */
-export function enquiryDates(): { offset: number; booked: boolean }[] {
-  return Array.from({ length: ENQUIRY_WINDOW_DAYS }, (_, offset) => ({
-    offset,
-    booked: bookedOffsets.includes(offset),
-  }));
-}
-
-/* ── Decisions ─────────────────────────────────────────────────────────── */
-
-export function validate(
-  form: EnquiryForm,
-): Partial<Record<keyof EnquiryForm, string>> {
-  const errors: Partial<Record<keyof EnquiryForm, string>> = {};
-
-  if (form.name.trim().length < 2) {
-    errors.name = 'Please tell me who you are.';
-  }
-
-  // Deliberately permissive: something@something.something. A stricter
-  // pattern rejects real addresses, which is a worse failure than accepting
-  // a typo the reply will bounce off.
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.trim())) {
-    errors.email = 'A valid email address, so I can reply.';
-  }
-
-  if (form.dateOffset === '') {
-    errors.dateOffset = 'Pick the date you have in mind.';
-  }
-
-  if (form.message.trim().length < 12) {
-    errors.message = 'A sentence about the job helps me answer properly.';
-  }
-
-  return errors;
-}
-
-export function sendEnquiry(state: State): DemoResult<Enquiry> {
-  const errors = validate(state.form);
-  const firstBad = (Object.keys(errors) as (keyof EnquiryForm)[])[0];
-  if (firstBad) {
-    return fail('invalid', errors[firstBad] as string, firstBad);
-  }
-
-  const offset = Number(state.form.dateOffset);
-
-  if (bookedOffsets.includes(offset)) {
-    return fail(
-      'unavailable',
-      'That date is already committed. The nearest free date is offered below.',
-      'dateOffset',
-    );
-  }
-
-  const service = findService(state.form.serviceId);
-
-  return ok({
-    reference: `LS-${(offset * 137 + (service?.name.length ?? 0) * 11 + 200).toString(36).toUpperCase().padStart(4, '0')}`,
-    name: state.form.name.trim(),
-    serviceId: state.form.serviceId,
-    dateOffset: offset,
-  });
-}
-
-/** What to offer when a date is refused. */
-export function suggestionFor(offset: number): number | null {
-  return nextFreeOffset(offset + 1);
+export function openProject(state: State): Project | undefined {
+  return state.openSlug ? getProject(state.openSlug) : undefined;
 }

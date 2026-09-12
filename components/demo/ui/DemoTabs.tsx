@@ -21,8 +21,6 @@ export interface DemoTab {
   id: string;
   label: string;
   icon?: ReactNode;
-  /** Second line under the label. Products whose navigation carries one. */
-  sublabel?: string;
   /** Optional count or state shown after the label. */
   badge?: string | number;
 }
@@ -33,36 +31,24 @@ export default function DemoTabs({
   onChange,
   label,
   variant = 'bar',
-  orientation = 'horizontal',
 }: {
   tabs: readonly DemoTab[];
   active: string;
   onChange: (id: string) => void;
   /** Names the tablist for assistive technology. */
   label: string;
-  /**
-   * `bar` sits on a surface; `pill` floats on the page ground; `sidebar` is a
-   * vertical rail, which is what several of these products actually use.
-   */
-  variant?: 'bar' | 'pill' | 'sidebar';
-  orientation?: 'horizontal' | 'vertical';
+  /** `bar` sits on a surface; `pill` floats on the page ground. */
+  variant?: 'bar' | 'pill';
 }) {
   const refs = useRef<Record<string, HTMLButtonElement | null>>({});
-  const vertical = orientation === 'vertical';
 
   function onKeyDown(event: React.KeyboardEvent) {
     const index = tabs.findIndex((tab) => tab.id === active);
     if (index < 0) return;
 
-    // A vertical tablist is driven by Up and Down; a horizontal one by Left
-    // and Right. Using the wrong pair is the usual way this pattern is got
-    // wrong, and it is the pair screen-reader users are told to press.
-    const forward = vertical ? 'ArrowDown' : 'ArrowRight';
-    const back = vertical ? 'ArrowUp' : 'ArrowLeft';
-
     let next = index;
-    if (event.key === forward) next = (index + 1) % tabs.length;
-    else if (event.key === back) next = (index - 1 + tabs.length) % tabs.length;
+    if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+    else if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
     else if (event.key === 'Home') next = 0;
     else if (event.key === 'End') next = tabs.length - 1;
     else return;
@@ -77,14 +63,11 @@ export default function DemoTabs({
     <div
       role='tablist'
       aria-label={label}
-      aria-orientation={vertical ? 'vertical' : undefined}
       onKeyDown={onKeyDown}
       className={
-        variant === 'sidebar'
-          ? 'flex flex-col'
-          : variant === 'bar'
-            ? 'flex items-stretch gap-1 border-b border-[var(--d-border)] overflow-x-auto'
-            : 'flex items-center gap-1.5 overflow-x-auto'
+        variant === 'bar'
+          ? 'flex items-stretch gap-1 border-b border-[var(--d-border)] overflow-x-auto'
+          : 'flex items-center gap-1.5 overflow-x-auto'
       }
     >
       {tabs.map((tab) => {
@@ -103,46 +86,19 @@ export default function DemoTabs({
             onClick={() => onChange(tab.id)}
             style={variant === 'pill' ? { borderRadius: 'var(--d-radius)' } : undefined}
             className={
-              (variant === 'sidebar'
-                ? 'w-full text-left flex items-start gap-2.5 px-3 py-2.5 border-l-2 text-xs font-medium transition-colors duration-150 '
-                : 'inline-flex items-center gap-2 px-3 min-h-10 text-xs font-medium whitespace-nowrap transition-colors duration-150 ') +
+              'inline-flex items-center gap-2 px-3 min-h-10 text-xs font-medium whitespace-nowrap transition-colors duration-150 ' +
               'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--d-ring)] ' +
-              (variant === 'sidebar'
+              (variant === 'bar'
                 ? selected
-                  ? 'border-[var(--d-accent)] bg-[color-mix(in_oklab,var(--d-accent)_14%,transparent)] text-[var(--d-fg)]'
-                  : 'border-transparent text-[var(--d-muted)] hover:text-[var(--d-fg)] hover:bg-[var(--d-surface-2)]'
-                : variant === 'bar'
-                  ? selected
-                    ? 'text-[var(--d-fg)] border-b-2 border-[var(--d-accent)] -mb-px'
-                    : 'text-[var(--d-muted)] border-b-2 border-transparent hover:text-[var(--d-fg)] -mb-px'
-                  : selected
-                    ? 'bg-[var(--d-accent)] text-[var(--d-accent-fg)]'
-                    : 'bg-[var(--d-surface-2)] text-[var(--d-muted)] hover:text-[var(--d-fg)]')
+                  ? 'text-[var(--d-fg)] border-b-2 border-[var(--d-accent)] -mb-px'
+                  : 'text-[var(--d-muted)] border-b-2 border-transparent hover:text-[var(--d-fg)] -mb-px'
+                : selected
+                  ? 'bg-[var(--d-accent)] text-[var(--d-accent-fg)]'
+                  : 'bg-[var(--d-surface-2)] text-[var(--d-muted)] hover:text-[var(--d-fg)]')
             }
           >
-            {variant === 'sidebar' ? (
-              <>
-                <span
-                  className='mt-0.5 shrink-0'
-                  style={{ color: selected ? 'var(--d-accent)' : undefined }}
-                >
-                  {tab.icon}
-                </span>
-                <span className='min-w-0'>
-                  <span className='block truncate'>{tab.label}</span>
-                  {tab.sublabel && (
-                    <span className='block text-[10px] text-[var(--d-muted)] truncate'>
-                      {tab.sublabel}
-                    </span>
-                  )}
-                </span>
-              </>
-            ) : (
-              <>
-                {tab.icon}
-                {tab.label}
-              </>
-            )}
+            {tab.icon}
+            {tab.label}
             {tab.badge !== undefined && (
               <span
                 className={

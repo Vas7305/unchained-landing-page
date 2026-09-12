@@ -204,15 +204,15 @@ export function validate(
   const errors: Partial<Record<keyof ReservationForm, string>> = {};
 
   if (form.name.trim().length < 3) {
-    errors.name = 'Please give your full name.';
+    errors.name = 'Bitte geben Sie Ihren vollständigen Namen an.';
   }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.trim())) {
-    errors.email = 'Please give a valid email address.';
+    errors.email = 'Bitte geben Sie eine gültige E-Mail-Adresse an.';
   }
 
   if (form.phone.replace(/\D/g, '').length < 7) {
-    errors.phone = 'Please give a phone number for any queries.';
+    errors.phone = 'Bitte geben Sie eine Telefonnummer für Rückfragen an.';
   }
 
   return errors;
@@ -222,13 +222,13 @@ export function reserve(state: State): DemoResult<Reservation> {
   const seats = seatCount(state);
 
   if (seats === 0) {
-    return fail('empty', 'Please choose at least one seat.');
+    return fail('empty', 'Bitte wählen Sie mindestens einen Platz.');
   }
 
   if (seats > MAX_PER_ORDER) {
     return fail(
       'limit',
-      `A single reservation can hold at most ${MAX_PER_ORDER} seats.`,
+      `Pro Reservierung sind höchstens ${MAX_PER_ORDER} Plätze möglich.`,
     );
   }
 
@@ -241,8 +241,8 @@ export function reserve(state: State): DemoResult<Reservation> {
       return fail(
         'unavailable',
         left === 0
-          ? `${category?.name} has sold out.`
-          : `Only ${left} seats remain in ${category?.name}.`,
+          ? `${category?.name} ist ausverkauft.`
+          : `In der Kategorie ${category?.name} sind nur noch ${left} Plätze frei.`,
       );
     }
   }

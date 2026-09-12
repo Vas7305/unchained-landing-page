@@ -1,0 +1,19 @@
+.section {
+  position: relative;
+}
+
+.default {
+  padding-block: var(--section-y);
+}
+
+.tight {
+  padding-block: var(--section-y-tight);
+}
+
+.loose {
+  padding-block: var(--section-y-loose);
+}
+
+.none {
+  padding-block: 0;
+}

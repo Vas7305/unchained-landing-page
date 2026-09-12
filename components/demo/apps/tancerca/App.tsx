@@ -11,6 +11,7 @@ import {
   Search,
   ShoppingBag,
   Star,
+  Store,
   Truck,
 } from 'lucide-react';
 import DemoButton from '@/components/demo/ui/DemoButton';
@@ -66,14 +67,6 @@ import {
  * like it would in the product.
  */
 
-/**
- * The marketplace's own header.
- *
- * Wordmark, the pill search field the site leads with, and the two account
- * actions — the arrangement tancercadeti.com actually uses, in the green it
- * actually uses. The back control appears only inside a flow, where the site
- * has one.
- */
 function Header({
   state,
   onBack,
@@ -88,57 +81,40 @@ function Header({
   const count = cartCount(state);
 
   return (
-    <header className='shrink-0 border-b border-[var(--d-border)] bg-[var(--d-surface)]'>
-      <div className='max-w-5xl mx-auto flex items-center gap-3 px-4 py-2.5'>
-        {onBack ? (
-          <button
-            type='button'
-            onClick={onBack}
-            aria-label='Volver'
-            className='p-2 -ml-2 text-[var(--d-muted)] hover:text-[var(--d-fg)] focus-visible:outline-2 focus-visible:outline-[var(--d-ring)]'
-          >
-            <ArrowLeft size={18} aria-hidden='true' />
-          </button>
-        ) : null}
-
-        {/* The marketplace's own mark, inlined from its logo-mark.svg. */}
-        <span className='flex items-center gap-1.5 shrink-0'>
-          <svg width='22' height='22' viewBox='0 0 40 40' fill='none' aria-hidden='true'>
-            <circle cx='14' cy='20' r='10' fill='#059669' />
-            <circle cx='26' cy='20' r='10' fill='#E85D04' opacity='0.85' />
-            <circle cx='20' cy='20' r='5.5' fill='white' />
-          </svg>
-          <span className='text-lg font-bold tracking-tight'>
-            <span style={{ color: 'var(--d-accent)' }}>Tan</span>
-            <span className='text-[var(--d-fg)]'>Cerca</span>
-          </span>
-        </span>
-
-        <h1 className='flex-1 min-w-0 text-sm font-semibold truncate text-[var(--d-muted)]'>
-          {title}
-        </h1>
-
-        <span className='hidden md:inline text-xs text-[var(--d-muted)] shrink-0'>
-          Iniciar sesión
-        </span>
-
+    <header className='flex items-center gap-2 px-3 py-3 border-b border-[var(--d-border)] bg-[var(--d-surface)] shrink-0'>
+      {onBack ? (
         <button
           type='button'
-          onClick={onCart}
-          className='relative p-2 text-[var(--d-fg)] focus-visible:outline-2 focus-visible:outline-[var(--d-ring)] shrink-0'
-          aria-label={`Carrito, ${count} ${count === 1 ? 'artículo' : 'artículos'}`}
+          onClick={onBack}
+          aria-label='Volver'
+          className='p-2 -ml-1 text-[var(--d-muted)] hover:text-[var(--d-fg)] focus-visible:outline-2 focus-visible:outline-[var(--d-ring)]'
         >
-          <ShoppingBag size={19} aria-hidden='true' />
-          {count > 0 && (
-            <span
-              aria-hidden='true'
-              className='absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 grid place-items-center text-[10px] font-bold rounded-full bg-[var(--d-accent)] text-[var(--d-accent-fg)]'
-            >
-              {count}
-            </span>
-          )}
+          <ArrowLeft size={18} aria-hidden='true' />
         </button>
-      </div>
+      ) : (
+        <span className='w-9 h-9 grid place-items-center text-[var(--d-accent)]'>
+          <Store size={18} aria-hidden='true' />
+        </span>
+      )}
+
+      <h1 className='flex-1 text-sm font-bold truncate'>{title}</h1>
+
+      <button
+        type='button'
+        onClick={onCart}
+        className='relative p-2 text-[var(--d-fg)] focus-visible:outline-2 focus-visible:outline-[var(--d-ring)]'
+        aria-label={`Carrito, ${count} ${count === 1 ? 'artículo' : 'artículos'}`}
+      >
+        <ShoppingBag size={19} aria-hidden='true' />
+        {count > 0 && (
+          <span
+            aria-hidden='true'
+            className='absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 grid place-items-center text-[10px] font-bold rounded-full bg-[var(--d-accent)] text-[var(--d-accent-fg)]'
+          >
+            {count}
+          </span>
+        )}
+      </button>
     </header>
   );
 }
@@ -165,49 +141,30 @@ function HomeScreen({
   const lastMerchant = findMerchant(previousOrder.merchantId);
 
   return (
-    <div className='flex flex-col'>
-      {/* The tropical sky band the marketplace opens on, with the pill search
-          sitting in it — sampled sky #88ceeb into sun glow #fef9c4. */}
-      <div
-        className='px-4 pt-6 pb-7 text-center'
-        style={{
-          background:
-            'radial-gradient(120% 90% at 50% 0%, #fef9c4 0%, #bde2f1 38%, #88ceeb 100%)',
-        }}
-      >
-        <h2 className='text-xl md:text-2xl font-extrabold tracking-tight text-[#0b1f1a]'>
-          Tu tienda online,{' '}
-          <span style={{ color: 'var(--d-accent)' }}>lista en minutos</span>
-        </h2>
-        <p className='mt-1.5 text-xs text-[#0b1f1a]/70'>
-          Compra en los negocios de tu barrio y recibe el pedido en casa.
-        </p>
-
-        <div className='relative max-w-md mx-auto mt-4'>
-          <Search
-            size={15}
-            aria-hidden='true'
-            className='absolute left-4 top-1/2 -translate-y-1/2 text-[var(--d-muted)]'
-          />
-          <input
-            type='search'
-            value={state.query}
-            onChange={(event) =>
-              dispatch({ type: 'search', query: event.target.value })
-            }
-            placeholder='Buscar tiendas o productos…'
-            aria-label='Buscar tiendas o productos'
-            style={{ borderRadius: '9999px' }}
-            className='w-full pl-10 pr-4 min-h-11 text-sm bg-white/90 border border-white/70 shadow-sm placeholder:text-[var(--d-muted)] focus-visible:outline-2 focus-visible:outline-[var(--d-ring)]'
-          />
-        </div>
+    <div className='p-3 flex flex-col gap-3'>
+      <div className='flex items-center gap-2 text-xs text-[var(--d-muted)]'>
+        <MapPin size={13} aria-hidden='true' className='text-[var(--d-accent)]' />
+        <span>Entregando en {findZone(state.form.zoneId)?.name}</span>
       </div>
 
-      <div className='p-4 flex flex-col gap-3'>
-        <div className='flex items-center gap-2 text-xs text-[var(--d-muted)]'>
-          <MapPin size={13} aria-hidden='true' className='text-[var(--d-accent)]' />
-          <span>Entregando en {findZone(state.form.zoneId)?.name}</span>
-        </div>
+      <div className='relative'>
+        <Search
+          size={15}
+          aria-hidden='true'
+          className='absolute left-3 top-1/2 -translate-y-1/2 text-[var(--d-muted)]'
+        />
+        <input
+          type='search'
+          value={state.query}
+          onChange={(event) =>
+            dispatch({ type: 'search', query: event.target.value })
+          }
+          placeholder='Buscar negocio o producto'
+          aria-label='Buscar negocio o producto'
+          style={{ borderRadius: 'var(--d-radius)' }}
+          className='w-full pl-9 pr-3 min-h-11 text-sm bg-[var(--d-surface)] border border-[var(--d-border)] placeholder:text-[var(--d-muted)] focus-visible:outline-2 focus-visible:outline-[var(--d-ring)]'
+        />
+      </div>
 
       {repeatable && lastMerchant && state.cart.length === 0 && (
         <div
@@ -237,7 +194,7 @@ function HomeScreen({
         </p>
       )}
 
-      <ul className='grid grid-cols-1 md:grid-cols-2 gap-2.5'>
+      <ul className='flex flex-col gap-2.5'>
         {list.map((merchant) => (
           <li key={merchant.id}>
             <button
@@ -284,7 +241,6 @@ function HomeScreen({
           </li>
         ))}
       </ul>
-      </div>
     </div>
   );
 }
@@ -855,7 +811,6 @@ export default function TanCercaDemo({ scenarioId }: DemoAppProps) {
       />
 
       <div className='flex-1 min-h-0 overflow-y-auto'>
-       <div className='max-w-5xl mx-auto w-full'>
         {state.screen === 'home' && (
           <HomeScreen state={state} dispatch={dispatch} />
         )}
@@ -871,7 +826,6 @@ export default function TanCercaDemo({ scenarioId }: DemoAppProps) {
         {state.screen === 'tracking' && (
           <TrackingScreen state={state} dispatch={dispatch} />
         )}
-       </div>
       </div>
 
       {state.notice && (

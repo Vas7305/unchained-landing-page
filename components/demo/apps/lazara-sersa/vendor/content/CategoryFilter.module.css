@@ -1,0 +1,51 @@
+.wrapper {
+  /* Long discipline lists scroll horizontally on narrow screens rather than
+     wrapping into an untidy second row. */
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-inline: calc(var(--page-gutter) * -1);
+  padding-inline: var(--page-gutter);
+}
+
+.wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  width: max-content;
+  min-width: 100%;
+}
+
+.tab {
+  display: inline-block;
+  padding-block: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-muted);
+  border-bottom: var(--hairline) solid transparent;
+  transition:
+    color var(--duration-fast) var(--ease-editorial),
+    border-color var(--duration-fast) var(--ease-editorial);
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.tab[data-active="true"] {
+  color: var(--text-primary);
+  border-bottom-color: currentColor;
+}
+
+@media (min-width: 1024px) {
+  .list {
+    gap: var(--space-8);
+  }
+}

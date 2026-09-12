@@ -1,0 +1,9 @@
+.divider {
+  width: 100%;
+  border: none;
+  border-top: var(--hairline) solid var(--divider);
+}
+
+.strong {
+  border-top-color: var(--divider-strong);
+}

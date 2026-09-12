@@ -209,3 +209,65 @@
     scroll-behavior: smooth;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   MENSALERE — the product's own design tokens, namespaced.
+
+   Copied from /d/Mensalere/src/styles/index.css and mechanically prefixed with
+   `ms-`, because the product and this site share token names — both define
+   `--color-primary`, `--color-border` and `--radius-md`, with different values.
+   Registering them here unprefixed would silently restyle the whole website.
+
+   The prefix is applied to the vendored components' class names by the same
+   script, so `bg-primary` in the product reads `bg-ms-primary` here and
+   resolves to the product's sage rather than to this site's.
+
+   Do not edit values. Re-copy from the source when the product changes.
+   --------------------------------------------------------------------------- */
+@theme {
+  --color-ms-background: #f9f8f5;
+  --color-ms-surface: #ffffff;
+  --color-ms-text: #20201f;
+  --color-ms-muted: #6f706d;
+  --color-ms-border: #e6e4df;
+  --color-ms-primary: #73877a;
+  --color-ms-primary-soft: #e9eee9;
+  --color-ms-error: #b85c5c;
+  --color-ms-warning: #a27b45;
+  --color-ms-primary-strong: #637469;
+  --color-ms-primary-hover: #55645a;
+  --color-ms-primary-active: #4a5850;
+  --color-ms-error-strong: #9c4e4e;
+  --color-ms-error-soft: #f5eaea;
+  --color-ms-warning-strong: #856539;
+  --color-ms-warning-soft: #f6efe4;
+  --font-ms-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --text-ms-caption: 0.8125rem;
+  --text-ms-caption--line-height: 1.4;
+  --text-ms-small: 0.875rem;
+  --text-ms-small--line-height: 1.5;
+  --text-ms-body: 1rem;
+  --text-ms-body--line-height: 1.6;
+  --text-ms-body-lg: 1.125rem;
+  --text-ms-body-lg--line-height: 1.6;
+  --text-ms-h3: clamp(1.375rem, 1.29rem + 0.35vw, 1.5rem);
+  --text-ms-h3--line-height: 1.3;
+  --text-ms-h3--letter-spacing: -0.012em;
+  --text-ms-h2: clamp(1.75rem, 1.5rem + 1.05vw, 2.125rem);
+  --text-ms-h2--line-height: 1.2;
+  --text-ms-h2--letter-spacing: -0.018em;
+  --text-ms-h1: clamp(2.25rem, 1.86rem + 1.65vw, 2.875rem);
+  --text-ms-h1--line-height: 1.1;
+  --text-ms-h1--letter-spacing: -0.024em;
+  --text-ms-display: clamp(2.5rem, 1.55rem + 4vw, 4rem);
+  --text-ms-display--line-height: 1.02;
+  --text-ms-display--letter-spacing: -0.032em;
+  --radius-ms-sm: 6px;
+  --radius-ms-md: 8px;
+  --radius-ms-DEFAULT: 10px;
+  --radius-ms-lg: 12px;
+  --radius-ms-xl: 16px;
+  --shadow-ms-soft: 0 4px 20px rgba(0, 0, 0, 0.06);
+  --shadow-ms-raised: 0 8px 28px rgba(0, 0, 0, 0.08);
+  --container-ms-content: 1200px;
+}

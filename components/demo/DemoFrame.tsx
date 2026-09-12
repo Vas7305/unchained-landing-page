@@ -130,20 +130,8 @@ export default function DemoFrame({
       )}
 
       {/* `relative` is the positioning context every DemoModal uses: a dialog
-          inside a demo covers the product, never the website around it.
-
-          Desktop products scroll sideways rather than reflow: a fund console
-          and an image workstation have a minimum usable width, and squeezing
-          one into a phone column would show a layout the product does not
-          have. Phone and browser products fit, so they stay clipped. */}
-      <div
-        className={
-          'relative flex-1 min-h-0 ' +
-          (frame === 'desktop' ? 'overflow-x-auto overflow-y-hidden' : 'overflow-hidden')
-        }
-      >
-        {children}
-      </div>
+          inside a demo covers the product, never the website around it. */}
+      <div className='relative flex-1 min-h-0 overflow-hidden'>{children}</div>
     </div>
   );
 

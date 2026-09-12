@@ -24,31 +24,31 @@ const details: Action[] = [
 
 describe('scenarios', () => {
   it('start from different inventories', () => {
-    const early = createInitialState('presale');
-    const late = createInitialState('final');
+    const early = createInitialState('vorverkauf');
+    const late = createInitialState('endspurt');
 
-    expect(early.remaining['circle']).toBeGreaterThan(0);
-    expect(late.remaining['circle']).toBe(0);
-    expect(late.remaining.box).toBe(0);
+    expect(early.remaining['rang-1']).toBeGreaterThan(0);
+    expect(late.remaining['rang-1']).toBe(0);
+    expect(late.remaining.loge).toBe(0);
   });
 
   it('marks the gone categories as sold out', () => {
-    const rows = categoryRows(createInitialState('final'));
-    expect(rows.find((r) => r.id === 'circle')?.soldOut).toBe(true);
-    expect(rows.find((r) => r.id === 'upper')?.soldOut).toBe(false);
+    const rows = categoryRows(createInitialState('endspurt'));
+    expect(rows.find((r) => r.id === 'rang-1')?.soldOut).toBe(true);
+    expect(rows.find((r) => r.id === 'rang-2')?.soldOut).toBe(false);
   });
 });
 
 describe('choosing seats', () => {
   it('keeps count and money in step', () => {
     const state = run(
-      createInitialState('presale'),
-      { type: 'setQty', categoryId: 'stalls', qty: 2 },
-      { type: 'setQty', categoryId: 'upper', qty: 1 },
+      createInitialState('vorverkauf'),
+      { type: 'setQty', categoryId: 'parkett', qty: 2 },
+      { type: 'setQty', categoryId: 'rang-2', qty: 1 },
     );
 
-    const parkett = findCategory('stalls')?.price ?? 0;
-    const rang2 = findCategory('upper')?.price ?? 0;
+    const parkett = findCategory('parkett')?.price ?? 0;
+    const rang2 = findCategory('rang-2')?.price ?? 0;
 
     expect(seatCount(state)).toBe(3);
     expect(subtotal(state)).toBe(parkett * 2 + rang2);
@@ -56,51 +56,51 @@ describe('choosing seats', () => {
   });
 
   it('charges no handling fee for an empty order', () => {
-    expect(total(createInitialState('presale'))).toBe(0);
+    expect(total(createInitialState('vorverkauf'))).toBe(0);
   });
 
   it('cannot exceed what is left in a category', () => {
     // Three seats left in Parkett in the late scenario.
-    const state = run(createInitialState('final'), {
+    const state = run(createInitialState('endspurt'), {
       type: 'setQty',
-      categoryId: 'stalls',
+      categoryId: 'parkett',
       qty: 10,
     });
 
-    expect(state.selection.stalls).toBe(3);
+    expect(state.selection.parkett).toBe(3);
   });
 
   it('cannot select a sold-out category at all', () => {
-    const state = run(createInitialState('final'), {
+    const state = run(createInitialState('endspurt'), {
       type: 'setQty',
-      categoryId: 'box',
+      categoryId: 'loge',
       qty: 2,
     });
 
-    expect(state.selection.box).toBeUndefined();
+    expect(state.selection.loge).toBeUndefined();
     expect(seatCount(state)).toBe(0);
   });
 
   it('enforces the house limit across categories', () => {
     const state = run(
-      createInitialState('presale'),
-      { type: 'setQty', categoryId: 'stalls', qty: 4 },
-      { type: 'setQty', categoryId: 'upper', qty: 5 },
+      createInitialState('vorverkauf'),
+      { type: 'setQty', categoryId: 'parkett', qty: 4 },
+      { type: 'setQty', categoryId: 'rang-2', qty: 5 },
     );
 
     expect(seatCount(state)).toBe(MAX_PER_ORDER);
-    expect(state.selection['upper']).toBe(MAX_PER_ORDER - 4);
+    expect(state.selection['rang-2']).toBe(MAX_PER_ORDER - 4);
 
     // And the row reports why the stepper stopped.
     const rows = categoryRows(state);
-    expect(rows.find((r) => r.id === 'circle')?.limitReached).toBe(true);
+    expect(rows.find((r) => r.id === 'rang-1')?.limitReached).toBe(true);
   });
 
   it('removes a category when its quantity returns to zero', () => {
     const state = run(
-      createInitialState('presale'),
-      { type: 'setQty', categoryId: 'box', qty: 1 },
-      { type: 'setQty', categoryId: 'box', qty: 0 },
+      createInitialState('vorverkauf'),
+      { type: 'setQty', categoryId: 'loge', qty: 1 },
+      { type: 'setQty', categoryId: 'loge', qty: 0 },
     );
 
     expect(state.selection).toEqual({});
@@ -108,17 +108,17 @@ describe('choosing seats', () => {
 });
 
 describe('reserving', () => {
-  function ready(scenario = 'presale'): State {
+  function ready(scenario = 'vorverkauf'): State {
     return run(
       createInitialState(scenario),
-      { type: 'setQty', categoryId: 'stalls', qty: 2 },
+      { type: 'setQty', categoryId: 'parkett', qty: 2 },
       { type: 'goto', screen: 'daten' },
       ...details,
     );
   }
 
   it('refuses an empty order', () => {
-    const result = reserve(run(createInitialState('presale'), ...details));
+    const result = reserve(run(createInitialState('vorverkauf'), ...details));
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.failure.code).toBe('empty');
   });
@@ -138,9 +138,9 @@ describe('reserving', () => {
     // A selection built while seats existed, against an inventory that no
     // longer has them — the case the stepper alone cannot catch.
     const state: State = {
-      ...ready('final'),
-      selection: { stalls: 3 },
-      remaining: { parkett: 1, 'circle': 0, 'upper': 11, loge: 0 },
+      ...ready('endspurt'),
+      selection: { parkett: 3 },
+      remaining: { parkett: 1, 'rang-1': 0, 'rang-2': 11, loge: 0 },
     };
 
     const result = reserve(state);
@@ -150,7 +150,7 @@ describe('reserving', () => {
 
   it('confirms, prices and then removes the seats from inventory', () => {
     const state = ready();
-    const before = state.remaining.stalls;
+    const before = state.remaining.parkett;
 
     const result = reserve(state);
     expect(result.ok).toBe(true);
@@ -163,7 +163,7 @@ describe('reserving', () => {
 
     const after = run(state, { type: 'submitSucceeded', reservation });
     expect(after.screen).toBe('bestaetigt');
-    expect(after.remaining.stalls).toBe(before - 2);
+    expect(after.remaining.parkett).toBe(before - 2);
     // The basket is emptied, so a second reservation starts clean.
     expect(after.selection).toEqual({});
     expect(seatCount(after)).toBe(0);
@@ -181,8 +181,8 @@ describe('reset', () => {
   it('restores the scenario’s original inventory', () => {
     const state = (() => {
       const s = run(
-        createInitialState('final'),
-        { type: 'setQty', categoryId: 'stalls', qty: 2 },
+        createInitialState('endspurt'),
+        { type: 'setQty', categoryId: 'parkett', qty: 2 },
         { type: 'goto', screen: 'daten' },
         ...details,
       );
@@ -191,12 +191,12 @@ describe('reset', () => {
       return run(s, { type: 'submitSucceeded', reservation: result.value });
     })();
 
-    expect(state.remaining.stalls).toBe(1);
+    expect(state.remaining.parkett).toBe(1);
 
-    const fresh = createInitialState('final');
-    expect(fresh.remaining.stalls).toBe(3);
+    const fresh = createInitialState('endspurt');
+    expect(fresh.remaining.parkett).toBe(3);
     expect(fresh.reservation).toBeNull();
     expect(fresh.screen).toBe('programm');
-    expect(fresh).toEqual(createInitialState('final'));
+    expect(fresh).toEqual(createInitialState('endspurt'));
   });
 });

@@ -1,245 +1,105 @@
 import { describe, expect, it } from 'vitest';
-import { CONTESTED, professionals, slotKey } from './data';
+
+import { psychologistService } from '@/components/demo/apps/mensalere/vendor/services/psychologistService';
+
 import {
   activeFilterCount,
-  bookAppointment,
   canBook,
   createInitialState,
-  daySlots,
-  matches,
   reducer,
-  validate,
   type Action,
   type State,
 } from './state';
 
+/**
+ * The demo's own behaviour, which is only the selection the product keeps in
+ * its URL. The directory, the filtering, the diary and the booking rules are
+ * the application's own service layer and are tested in its own repository —
+ * so what is checked here is that this demo drives that layer, and that it
+ * discards what a change invalidates.
+ */
 function run(state: State, ...actions: Action[]): State {
   return actions.reduce(reducer, state);
 }
 
-const details: Action[] = [
-  { type: 'field', name: 'name', value: 'Irene Wells' },
-  { type: 'field', name: 'email', value: 'irene@example.es' },
-  { type: 'field', name: 'consent', value: true },
-];
+describe('the directory it shows', () => {
+  it('comes from the application’s own service, not a copy', async () => {
+    const all = await psychologistService.list();
 
-describe('the directory', () => {
-  it('shows everyone with no filters applied', () => {
-    const state = createInitialState('find');
-    expect(matches(state)).toHaveLength(professionals.length);
-    expect(activeFilterCount(state)).toBe(0);
+    expect(all.length).toBeGreaterThan(0);
+    expect(all[0]).toHaveProperty('specialties');
   });
 
-  it('applies every filter, including combinations that find nobody', () => {
-    const bySpecialty = run(createInitialState('find'), {
-      type: 'filter',
-      name: 'specialty',
-      value: 'Couples therapy',
-    });
-    expect(matches(bySpecialty).map((p) => p.id)).toEqual(['m-iribarne']);
+  it('filters through that same service', async () => {
+    const all = await psychologistService.list();
+    const filtered = await psychologistService.list({ query: all[0].name });
 
-    // That professional works online only and in Spanish only, so adding
-    // either contradicting criterion has to empty the list rather than
-    // quietly dropping a filter.
-    const contradicted = run(bySpecialty, {
-      type: 'filter',
-      name: 'modality',
-      value: 'presencial',
-    });
-    expect(matches(contradicted)).toHaveLength(0);
-    expect(activeFilterCount(contradicted)).toBe(2);
-  });
-
-  it('filters by language and by fee ceiling', () => {
-    const english = run(createInitialState('find'), {
-      type: 'filter',
-      name: 'language',
-      value: 'English',
-    });
-    expect(matches(english).every((p) => p.languages.includes('English'))).toBe(
-      true,
-    );
-
-    const cheap = run(createInitialState('find'), {
-      type: 'filter',
-      name: 'maxFee',
-      value: 6000,
-    });
-    expect(matches(cheap).every((p) => p.fee <= 6000)).toBe(true);
-    expect(matches(cheap).length).toBeLessThan(professionals.length);
-  });
-
-  it('clears every filter at once', () => {
-    const state = run(
-      createInitialState('find'),
-      { type: 'filter', name: 'specialty', value: 'Depression' },
-      { type: 'filter', name: 'maxFee', value: 6000 },
-      { type: 'clearFilters' },
-    );
-
-    expect(activeFilterCount(state)).toBe(0);
-    expect(matches(state)).toHaveLength(professionals.length);
+    expect(filtered.length).toBeGreaterThan(0);
+    expect(filtered.length).toBeLessThanOrEqual(all.length);
+    expect(filtered.some((p) => p.name === all[0].name)).toBe(true);
   });
 });
 
-describe('the profile', () => {
-  it('preselects the only modality a professional offers', () => {
-    // Marcos works online only.
-    const single = run(createInitialState('find'), {
-      type: 'openProfile',
-      professionalId: 'm-iribarne',
-    });
-    expect(single.modality).toBe('online');
+describe('selection', () => {
+  it('counts only the filters that are actually narrowing', () => {
+    const base = createInitialState('find');
+    expect(activeFilterCount(base)).toBe(0);
 
-    // Elena offers both, so the choice is left to the visitor.
-    const both = run(createInitialState('find'), {
-      type: 'openProfile',
-      professionalId: 'e-ferran',
-    });
-    expect(both.modality).toBeNull();
+    const narrowed = run(base, { type: 'filter', filters: { query: 'anx' } });
+    expect(activeFilterCount(narrowed)).toBe(1);
+    expect(activeFilterCount(run(narrowed, { type: 'clearFilters' }))).toBe(0);
   });
 
-  it('needs a professional, a modality and a time before booking', () => {
-    let state = run(createInitialState('find'), {
-      type: 'openProfile',
-      professionalId: 'e-ferran',
-    });
-    expect(canBook(state)).toBe(false);
-
-    state = run(state, { type: 'setModality', modality: 'online' });
-    expect(canBook(state)).toBe(false);
-
-    const free = daySlots(state).find((slot) => slot.available);
-    state = run(state, { type: 'setTime', time: free?.time ?? '09:00' });
+  it('discards the chosen slot when the day changes', () => {
+    const state = run(
+      createInitialState('find'),
+      { type: 'openProfile', id: 'p-1' },
+      { type: 'selectDate', date: '2026-09-14' },
+      { type: 'selectSlot', slotId: 's-1' },
+    );
     expect(canBook(state)).toBe(true);
+
+    const moved = run(state, { type: 'selectDate', date: '2026-09-15' });
+    expect(moved.selectedSlotId).toBeNull();
+    expect(canBook(moved)).toBe(false);
   });
 
-  it('clears the chosen time when the day changes', () => {
+  it('discards the whole diary selection when another profile opens', () => {
     const state = run(
       createInitialState('find'),
-      { type: 'openProfile', professionalId: 'e-ferran' },
-      { type: 'setModality', modality: 'online' },
-      { type: 'setTime', time: '13:00' },
-      { type: 'setDay', dayOffset: 2 },
+      { type: 'openProfile', id: 'p-1' },
+      { type: 'selectDate', date: '2026-09-14' },
+      { type: 'selectSlot', slotId: 's-1' },
+      { type: 'openProfile', id: 'p-2' },
     );
 
-    expect(state.time).toBeNull();
+    expect(state.selectedId).toBe('p-2');
+    expect(state.selectedDate).toBeNull();
+    expect(state.selectedSlotId).toBeNull();
+    expect(canBook(state)).toBe(false);
   });
 
-  it('renders the same diary every time', () => {
-    const state = run(createInitialState('find'), {
-      type: 'openProfile',
-      professionalId: 'c-nieto',
-    });
-    expect(daySlots(state)).toEqual(daySlots(state));
-  });
-});
+  it('will not book without a professional, a day and a slot', () => {
+    let state = createInitialState('find');
+    expect(canBook(state)).toBe(false);
 
-describe('consent and validation', () => {
-  it('will not book without explicit consent', () => {
-    const form = { name: 'Irene', email: 'irene@example.es', reason: '', consent: false };
-    expect(validate(form).consent).toBeTruthy();
-    expect(validate({ ...form, consent: true }).consent).toBeUndefined();
-  });
+    state = run(state, { type: 'openProfile', id: 'p-1' });
+    expect(canBook(state)).toBe(false);
 
-  it('starts with consent unticked', () => {
-    expect(createInitialState('find').form.consent).toBe(false);
-  });
-});
+    state = run(state, { type: 'selectDate', date: '2026-09-14' });
+    expect(canBook(state)).toBe(false);
 
-describe('booking', () => {
-  function ready(professionalId: string, dayOffset: number, time: string): State {
-    return run(
-      createInitialState('find'),
-      { type: 'openProfile', professionalId },
-      { type: 'setModality', modality: 'online' },
-      { type: 'setDay', dayOffset },
-      { type: 'setTime', time },
-      { type: 'goto', screen: 'reserva' },
-      ...details,
-    );
-  }
-
-  it('refuses an incomplete selection', () => {
-    const result = bookAppointment(createInitialState('find'));
-    expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.failure.code).toBe('incomplete');
-  });
-
-  it('books a free slot with a stable reference', () => {
-    const state = ready('a-puig', 1, '11:00');
-    const first = bookAppointment(state);
-    const second = bookAppointment(state);
-
-    expect(first.ok).toBe(true);
-    if (first.ok && second.ok) {
-      expect(first.value.code).toMatch(/^MS-\d{4}$/);
-      expect(first.value.code).toBe(second.value.code);
-      expect(first.value.modality).toBe('online');
-    }
-  });
-
-  it('loses the contested slot and lets the visitor rebook', () => {
-    let state = ready(
-      CONTESTED.professionalId,
-      CONTESTED.dayOffset,
-      CONTESTED.time,
-    );
-
-    const refused = bookAppointment(state);
-    expect(refused.ok).toBe(false);
-    if (!refused.ok) expect(refused.failure.code).toBe('taken');
-
-    state = run(state, {
-      type: 'submitFailed',
-      message: 'taken',
-      blockSlot: slotKey(
-        CONTESTED.professionalId,
-        CONTESTED.dayOffset,
-        CONTESTED.time,
-      ),
-    });
-
-    expect(state.screen).toBe('perfil');
-    expect(state.time).toBeNull();
-    expect(
-      daySlots(state).find((slot) => slot.time === CONTESTED.time)?.available,
-    ).toBe(false);
-
-    const other = daySlots(state).find((slot) => slot.available);
-    expect(other).toBeDefined();
-    const retried = run(state, { type: 'setTime', time: other?.time ?? '' });
-    expect(bookAppointment(retried).ok).toBe(true);
+    state = run(state, { type: 'selectSlot', slotId: 's-1' });
+    expect(canBook(state)).toBe(true);
   });
 });
 
 describe('reset', () => {
-  it('clears filters, selection, form and the confirmed appointment', () => {
-    const used = (() => {
-      const s = ready('a-puig', 1, '11:00');
-      const result = bookAppointment(s);
-      if (!result.ok) throw new Error('fixture should have been bookable');
-      return run(s, { type: 'submitSucceeded', appointment: result.value });
-    })();
-
-    function ready(id: string, day: number, time: string): State {
-      return run(
-        createInitialState('find'),
-        { type: 'filter', name: 'specialty', value: 'Adult ADHD' },
-        { type: 'openProfile', professionalId: id },
-        { type: 'setModality', modality: 'online' },
-        { type: 'setDay', dayOffset: day },
-        { type: 'setTime', time },
-        ...details,
-      );
-    }
-
-    expect(used.appointment).not.toBeNull();
-
+  it('returns to the unfiltered directory with nothing open', () => {
     const fresh = createInitialState('find');
-    expect(fresh.appointment).toBeNull();
-    expect(fresh.professionalId).toBeNull();
-    expect(fresh.form.consent).toBe(false);
+
+    expect(fresh.selectedId).toBeNull();
+    expect(fresh.bookedRef).toBeNull();
     expect(activeFilterCount(fresh)).toBe(0);
     expect(fresh).toEqual(createInitialState('find'));
   });
