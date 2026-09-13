@@ -71,21 +71,79 @@ function functions(sql) {
 /**
  * SQL with comments and string literals removed, so a match means code.
  *
- * ─── The order matters, and getting it wrong is subtle ────────────────────
- * Comments FIRST. An apostrophe inside a `--` comment — "the module's whole
- * point" — is not a string delimiter, but a stripper that runs literals first
- * reads it as one and swallows everything to the next apostrophe, which can be
- * several lines of real code. That produced a false finding on the one block
- * that had just been fixed, which is the most misleading possible output.
+ * ─── Why this is a scanner and not two regexes ────────────────────────────
+ * It was two regexes: comments stripped first, then literals. The ORDER was
+ * the point — an apostrophe inside a `--` comment ("the module's whole point")
+ * is not a string delimiter, and a stripper that ran literals first swallowed
+ * everything to the next apostrophe.
+ *
+ * Getting that order right fixed one direction and left the other one open,
+ * because the two cases are symmetric: a `--` inside a STRING LITERAL is not a
+ * comment either. 20260914000001 contains
+ *
+ *     IF p_text ~ '-----BEGIN [A-Z ]*PRIVATE KEY-----' THEN
+ *
+ * and the comment-first pass deleted from that first `-----` to the end of the
+ * line, taking the closing quote with it. Every literal in the remaining 1,800
+ * lines was then out of phase, so `strip()` returned nonsense and the checks
+ * built on it silently stopped seeing anything. A check that quietly matches
+ * nothing is worse than no check, and it is invisible precisely because a
+ * passing run looks identical to a correct one.
+ *
+ * No ordering of two independent passes can be right, because each construct
+ * can contain the other. So this walks the text once, left to right, and lets
+ * whichever construct OPENS first consume the other — which is exactly what
+ * Postgres itself does.
  *
  * Replacements keep the line count intact so reported line numbers stay true.
  */
 function strip(sql) {
-  return sql
-    .replace(/--[^\n]*/g, '')
-    .replace(/'(?:[^']|'')*'/g, (match) => "''" + '\n'.repeat(
-      (match.match(/\n/g) ?? []).length,
-    ));
+  let out = '';
+  let i = 0;
+
+  while (i < sql.length) {
+    // A line comment: drop to end of line, leaving the newline in place.
+    if (sql[i] === '-' && sql[i + 1] === '-') {
+      while (i < sql.length && sql[i] !== '\n') i += 1;
+      continue;
+    }
+
+    // A block comment. Postgres nests these; nesting is not reproduced here
+    // because none of these files uses one at all — the branch exists so that
+    // a `/*` cannot be mistaken for code if somebody adds one.
+    if (sql[i] === '/' && sql[i + 1] === '*') {
+      const end = sql.indexOf('*/', i + 2);
+      const segment = sql.slice(i, end === -1 ? sql.length : end + 2);
+      out += '\n'.repeat((segment.match(/\n/g) ?? []).length);
+      i = end === -1 ? sql.length : end + 2;
+      continue;
+    }
+
+    // A string literal, with '' as the escape for a contained apostrophe.
+    if (sql[i] === "'") {
+      let j = i + 1;
+      while (j < sql.length) {
+        if (sql[j] === "'" && sql[j + 1] === "'") {
+          j += 2;
+          continue;
+        }
+        if (sql[j] === "'") {
+          j += 1;
+          break;
+        }
+        j += 1;
+      }
+      const segment = sql.slice(i, j);
+      out += "''" + '\n'.repeat((segment.match(/\n/g) ?? []).length);
+      i = j;
+      continue;
+    }
+
+    out += sql[i];
+    i += 1;
+  }
+
+  return out;
 }
 
 const findings = [];
@@ -212,6 +270,89 @@ for (const file of files) {
           file,
           `line ${line}: an apply-time assertion calls ${called.join(', ')}(), which refuses a caller with no auth.uid() — guard it with unchained_manages_content() and RAISE NOTICE '[skip] …' instead`,
         );
+      }
+    }
+  }
+
+  // ─── NULL-swallowing membership tests ──────────────────────────────────
+  // `NOT (x IN (…))` where x can be NULL is a validator that fails OPEN.
+  // `NULL IN (…)` is NULL, `NOT NULL` is NULL, and a branch on a NULL
+  // condition does not fire — so the value that is MISSING sails through the
+  // test written to reject invalid ones.
+  //
+  // 20260914000001's security_validate_event() shipped with three of these
+  // and accepted an event carrying no severity at all. It read correctly; the
+  // defect was in the three-valued logic, not in the words.
+  //
+  // The safe idiom, used throughout this schema, is
+  // `COALESCE(x, '') NOT IN (…)`, which turns absence into a value that fails
+  // like any other. There are no known-good exceptions in this corpus, so
+  // every finding here is a real one.
+  // strip() preserves the line COUNT but not character offsets, so the line
+  // number is taken from the stripped text (where the match is) and the text
+  // to quote is taken from the original at that line — the stripped version
+  // has had its literals blanked and would read as `p_event ->> ''`.
+  const stripped = strip(sql);
+  const originalLines = sql.split('\n');
+  for (const match of stripped.matchAll(/NOT\s*\(\s*([^()]*?)\s+IN\s*\(/gi)) {
+    if (/COALESCE/i.test(match[1])) continue;
+    const line = stripped.slice(0, match.index).split('\n').length;
+    report(
+      file,
+      `line ${line}: ${originalLines[line - 1]?.trim()} — NOT (x IN (…)) fails OPEN when x is NULL: a MISSING value passes the test written to reject invalid ones. Use COALESCE(x, '') NOT IN (…).`,
+    );
+  }
+
+  // ─── RETURNS TABLE column/variable ambiguity ───────────────────────────
+  // A plpgsql function declared RETURNS TABLE (id uuid, …) turns every one of
+  // those names into a VARIABLE for the whole body. An unqualified column
+  // reference to the same name is then ambiguous, and Postgres refuses it with
+  //
+  //     ERROR:  42702: column reference "id" is ambiguous
+  //
+  // at RUN time, not at CREATE time. The function is created happily, reads
+  // correctly, and fails on its first call — which is where
+  // 20260914000001's security_ingest_as_application() was found, by running
+  // the test suite against a real database rather than by reading it.
+  //
+  // Matching is deliberately narrow: an unqualified OUT-param name directly
+  // after WHERE, AND, OR or RETURNING, followed by an operator. A qualified
+  // reference (`k.id`) carries a dot and is skipped — which is also the fix.
+  // The match is anchored on each function's OWN `AS $tag$ … $tag$`, so the
+  // lazy header cannot run past the end of one function into the next — the
+  // first version of this rule did exactly that and reported two functions
+  // that do not return a table at all.
+  for (const fn of sql.matchAll(
+    /CREATE (?:OR REPLACE )?FUNCTION\s+public\.(\w+)\s*\(([\s\S]*?)\)\s*(RETURNS[\s\S]*?)AS\s+(\$\w*\$)([\s\S]*?)\4/gi,
+  )) {
+    const name = fn[1];
+    const header = fn[3];
+    if (!/LANGUAGE\s+plpgsql/i.test(header)) continue;
+
+    const table = header.match(/RETURNS TABLE\s*\(([\s\S]*?)\)\s*LANGUAGE/i);
+    if (!table) continue;
+
+    // `id UUID, occurred_at TIMESTAMPTZ` -> ['id', 'occurred_at'].
+    const outNames = table[1]
+      .split(',')
+      .map((entry) => entry.trim().split(/\s+/)[0]?.toLowerCase())
+      .filter(Boolean);
+    if (outNames.length === 0) continue;
+
+    const body = strip(fn[5]);
+    for (const outName of new Set(outNames)) {
+      const ambiguous = new RegExp(
+        String.raw`\b(?:WHERE|AND|OR|RETURNING)\s+${outName}\b\s*(?:=|<|>|IS\b|IN\b|INTO\b|,)`,
+        'i',
+      );
+      const hit = body.match(ambiguous);
+      if (hit) {
+        const line = sql.slice(0, fn.index).split('\n').length;
+        report(
+          file,
+          `line ${line}: ${name}() RETURNS TABLE declares "${outName}", and its body references that name unqualified ("${hit[0].trim()}") — Postgres raises 42702 at call time. Qualify it with a table alias.`,
+        );
+        break;
       }
     }
   }
