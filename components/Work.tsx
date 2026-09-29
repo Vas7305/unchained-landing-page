@@ -69,7 +69,7 @@ export default function Work({
     <section
       id='work'
       ref={sectionRef}
-      className='py-24 md:py-28 px-6 bg-secondary/20'
+      className='py-12 md:py-14 px-6'
       aria-labelledby='work-heading'
     >
       <div className='max-w-6xl mx-auto'>
@@ -87,7 +87,9 @@ export default function Work({
           </div>
         )}
 
-        <div className='project-grid mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+        {/* Two columns, not three: each card now carries who the product is
+            for and what it solves, which needs the width. */}
+        <div className='project-grid mt-6 grid grid-cols-1 md:grid-cols-2 gap-6'>
           {others.map((project) => (
             <ProjectCard key={project.slug} project={project} />
           ))}

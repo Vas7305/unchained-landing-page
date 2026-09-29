@@ -8,6 +8,7 @@ import type { Project } from '@/lib/projects';
 import { demoPath, hasDemo } from '@/lib/demo/registry';
 import ProjectVisual from '@/components/ProjectVisual';
 import StatusBadge from '@/components/StatusBadge';
+import ShowcasePitch, { ShowcaseCta } from '@/components/ShowcasePitch';
 import { useTranslation } from '@/lib/i18n/LanguageProvider';
 import { useProjectCopy } from '@/lib/cms/projectCopy';
 
@@ -109,25 +110,34 @@ export default function ProjectCard({ project }: { project: Project }) {
         </p>
       </div>
 
-      <div className='flex items-center justify-between gap-3'>
+      <ShowcasePitch slug={project.slug} />
+
+      <div className='flex flex-wrap items-center justify-between gap-3'>
         {project.year ? (
           <span className='text-xs text-muted-foreground/50'>{project.year}</span>
         ) : (
           <span />
         )}
 
-        {/* Above the stretched link, so it is its own target rather than a
-            piece of the card. */}
-        {demo && (
-          <Link
-            href={demoPath(project.slug)}
-            onClick={() => track('demo_cta_click', { project: project.slug })}
-            className='relative z-10 inline-flex items-center gap-1.5 text-xs font-semibold text-foreground/80 hover:text-foreground border border-border hover:border-foreground/30 rounded-lg px-2.5 py-1.5 transition-colors duration-200'
-          >
-            <PlayCircle size={13} aria-hidden='true' />
-            {t('demo.cardCta')}
-          </Link>
-        )}
+        {/* Both above the stretched link, so each is its own target rather
+            than a piece of the card. */}
+        <div className='relative z-10 flex flex-wrap items-center gap-2'>
+          {demo && (
+            <Link
+              href={demoPath(project.slug)}
+              onClick={() => track('demo_cta_click', { project: project.slug })}
+              className='inline-flex items-center gap-1.5 text-xs font-semibold text-foreground/80 hover:text-foreground border border-border hover:border-foreground/30 rounded-lg px-2.5 py-1.5 transition-colors duration-200'
+            >
+              <PlayCircle size={13} aria-hidden='true' />
+              {t('demo.cardCta')}
+            </Link>
+          )}
+          <ShowcaseCta
+            slug={project.slug}
+            title={copy.title}
+            className='inline-flex items-center gap-1.5 text-xs font-semibold bg-foreground text-background hover:bg-foreground/90 rounded-lg px-2.5 py-1.5 transition-colors duration-200'
+          />
+        </div>
       </div>
     </article>
   );

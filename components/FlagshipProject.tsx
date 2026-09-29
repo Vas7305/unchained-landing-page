@@ -8,6 +8,7 @@ import { demoPath, hasDemo } from '@/lib/demo/registry';
 import type { Project } from '@/lib/projects';
 import ProjectVisual from '@/components/ProjectVisual';
 import StatusBadge from '@/components/StatusBadge';
+import ShowcasePitch, { ShowcaseCta } from '@/components/ShowcasePitch';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
 import { useProjectCopy } from '@/lib/cms/projectCopy';
 
@@ -61,7 +62,9 @@ export default function FlagshipProject({ project }: { project: Project }) {
             </div>
           )}
 
-          <div className='flex flex-col sm:flex-row sm:items-center gap-4 pt-1'>
+          <ShowcasePitch slug={project.slug} />
+
+          <div className='flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 pt-1'>
             <Link
               href={`/work/${project.slug}`}
               onClick={() => track('project_click', { project: project.slug })}
@@ -84,12 +87,17 @@ export default function FlagshipProject({ project }: { project: Project }) {
                 {t('demo.cardCta')}
               </Link>
             )}
-            {copy.outcome && (
-              <p className='text-xs text-muted-foreground/70 leading-relaxed max-w-xs'>
-                {copy.outcome}
-              </p>
-            )}
+            <ShowcaseCta
+              slug={project.slug}
+              title={copy.title}
+              className='inline-flex items-center justify-center gap-2 text-sm font-semibold text-foreground px-4 py-3 underline decoration-border underline-offset-8 hover:decoration-foreground/40 transition-colors duration-200'
+            />
           </div>
+          {copy.outcome && (
+            <p className='text-xs text-muted-foreground/70 leading-relaxed max-w-md'>
+              {copy.outcome}
+            </p>
+          )}
         </div>
 
         {/* Product shot — right half only */}

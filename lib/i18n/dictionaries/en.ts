@@ -24,6 +24,7 @@ export const en = {
   'nav.insights': 'Insights',
   'nav.howWeWork': 'How We Work',
   'nav.faq': 'FAQ',
+  'nav.offers': 'Offers',
   'nav.startProject': 'Start a Project',
   'nav.openMenu': 'Open menu',
   'nav.closeMenu': 'Close menu',
@@ -36,14 +37,87 @@ export const en = {
 
   // ── Hero ──────────────────────────────────────────────────────────────────
   'hero.badge': 'Software · Automation · Growth Systems',
-  'hero.headlineLead': 'Digital Infrastructure',
-  'hero.headlineTail': 'for Businesses Ready to Grow.',
+  'hero.headlineLead': 'We build websites and apps that sell and take bookings',
+  'hero.headlineTail': '— in your language, ready to take payments.',
   'hero.description':
-    'We design and build the software, websites, automation and growth systems a business runs on — architected around how it actually operates, not around a template.',
+    'We design and build software, automation and growth systems around how your business actually works.',
   'hero.scroll': 'Scroll',
   'hero.factFlagship': 'Flagship product shipped',
-  'hero.factInDevelopment': 'Projects in development',
-  'hero.factPillars': 'Capability pillars',
+  'hero.factDemos': 'Interactive demos to try',
+  'hero.factLanguages': 'Languages on this site',
+  'hero.seeOffers': 'Compare the three offers',
+
+  // ── Commercial offers ─────────────────────────────────────────────────────
+  'offers.eyebrow': 'What You Can Buy',
+  'offers.title': 'Three Offers.',
+  'offers.titleAccent': 'Pick Your Starting Point.',
+  'offers.body':
+    'From a website that brings in enquiries to a platform your operation runs on. Every project starts with a free 30-minute intro call, where we tell you what yours involves, how long it takes and what it costs.',
+  'offers.offer': 'Offer',
+  'offers.for': 'Who it’s for',
+  'offers.solves': 'What it solves',
+  'offers.includes': 'What’s included',
+  'offers.languages': 'Languages',
+  'offers.example': 'Try an example',
+  'offers.partOf': 'Part of',
+  'offers.investment': 'Investment',
+  'offers.timeline': 'Timeline',
+  'offers.from': 'From',
+  'offers.quoteOnCall': 'Quoted on the free intro call',
+  'offers.timelineOnCall': 'Agreed on the same call',
+  'offers.note':
+    'Nothing is sold or charged on this site. Every button opens a conversation with a real person, and scope, timeline and price are agreed with you before any work starts.',
+  'offers.a.name': 'Business Website',
+  'offers.a.cta': 'Request Offer A',
+  'offers.a.audience':
+    'Service businesses, professionals and studios that customers need to find, trust and contact.',
+  'offers.a.problem':
+    'People look you up and find an outdated page, a social profile or nothing at all — and contact someone else.',
+  'offers.b.name': 'Sales & Bookings',
+  'offers.b.cta': 'Request Offer B',
+  'offers.b.audience':
+    'Salons, clinics, practices, venues and shops that take appointments, reservations or orders.',
+  'offers.b.problem':
+    'Bookings and orders arrive by phone and chat, and someone has to keep the calendar, the seats or the stock in their head.',
+  'offers.c.name': 'Custom Platform',
+  'offers.c.cta': 'Request Offer C',
+  'offers.c.audience':
+    'Businesses whose operation doesn’t fit off-the-shelf tools — marketplaces, internal systems, multi-sided services.',
+  'offers.c.problem':
+    'The business runs on spreadsheets, manual steps and tools that don’t talk to each other, and it can’t grow past them.',
+  'showcase.for': 'For',
+  'showcase.solves': 'Solves',
+  'showcase.language': 'Interface',
+  'showcase.cta': 'Want one like this?',
+  'showcase.tancerca.audience':
+    'Marketplaces and delivery businesses connecting local merchants with nearby customers.',
+  'showcase.tancerca.problem':
+    'Merchants, customers, orders, delivery and payments kept in sync in one system — instead of three apps and a person in between.',
+  'showcase.lanna-kamilina.audience':
+    'Salons and appointment-based services with several specialists.',
+  'showcase.lanna-kamilina.problem':
+    'Clients book online against live availability, instead of by phone and message.',
+  'showcase.lazara-sersa.audience':
+    'Freelancers, artists and studios whose work sells on its portfolio.',
+  'showcase.lazara-sersa.problem':
+    'A portfolio that presents the work properly and turns interest into a structured enquiry.',
+  'showcase.mensalere.audience':
+    'Practices and platforms offering consultations with professionals.',
+  'showcase.mensalere.problem':
+    'Clients find the right professional and book an appointment online, without the back-and-forth.',
+  'showcase.klassisches-ballet.audience':
+    'Event organisers selling seats for a single date.',
+  'showcase.klassisches-ballet.problem':
+    'The programme, seating categories and reservations in one place, with availability updated as seats sell.',
+  'languages.eyebrow': 'Multilingual',
+  'languages.title': 'We make your business speak',
+  'languages.titleAccent': 'your customers’ language.',
+  'languages.body':
+    'This website runs in six languages — try it below. The products we build do the same: the demos further down the page run in the language their customers actually use.',
+  'languages.site': 'This website',
+  'languages.demos': 'Our demos',
+  'languages.note':
+    'Which languages your own project includes is agreed when we scope it — we don’t assume all six.',
 
   // ── Pain points ───────────────────────────────────────────────────────────
   'pain.eyebrow': 'Sound Familiar?',
@@ -87,7 +161,7 @@ export const en = {
   'work.title': 'Our Work',
   'work.titleAccent': 'Is Our Proof.',
   'work.body':
-    'We are building Unchained Business one project at a time. These are the products, websites and systems we are creating along the way.',
+    'Every project below has an interactive demo — open it and use it the way its customers would. They show what we can build, at its real stage; none of them is presented as a client result.',
   'work.exploreAll': 'Explore all our work',
   'work.note':
     'Projects in development are published here when they launch — named, documented and honest about their status.',
@@ -167,8 +241,8 @@ export const en = {
 
   // ── Engagements ───────────────────────────────────────────────────────────
   'svc.eyebrow': 'Working Together',
-  'svc.title': 'Three Ways to',
-  'svc.titleAccent': 'Start With Us',
+  'svc.title': 'From First Call',
+  'svc.titleAccent': 'to Running System.',
   'svc.body':
     'We don’t sell courses or templates. We architect, build and run the systems your business operates on.',
   'svc.coreBuild': 'The Core Build',
@@ -265,29 +339,6 @@ export const en = {
     'A platform connecting people with psychology professionals for private online consultations, with professional profiles and online appointment booking.',
   'project.mensalere.category': 'Online Consultation Platform',
   'project.mensalere.industry': 'Mental health & wellbeing',
-
-  'project.frito.description':
-    'A mobile dating app for meeting new people in Cuba, with the marketing and download site behind its iOS and Android launch.',
-  'project.frito.category': 'Mobile App',
-  'project.frito.industry': 'Social & dating',
-
-  'project.unchained-os.description':
-    'Our own private equity operating system: deal analysis and comparison, pipeline CRM, capital allocation, multi-investor management and fund performance tracking.',
-  'project.unchained-os.category': 'Internal Software',
-  'project.unchained-os.industry': 'Private equity & investment operations',
-
-  'project.vector-forge.description':
-    'A desktop asset production workstation we built for our own work: it traces raster artwork into clean vector files, retouches and compresses images, and generates the complete icon and favicon packages every launch needs — processed entirely on the machine.',
-  'project.vector-forge.category': 'Desktop Application',
-  'project.vector-forge.industry': 'Design tooling & asset production',
-  'project.vector-forge.summary':
-    'VectorForge is the asset pipeline behind our own projects: a Windows desktop application that converts raster artwork into production-ready SVG, retouches and optimises images, and produces the full icon, favicon and web-asset packages a site or app launch requires — with every file processed on the machine rather than uploaded to a service.',
-  'project.vector-forge.challenge':
-    'Every project we ship needs the same set of assets: a logo as clean SVG, favicons at a dozen sizes, application icons per platform, images compressed without being degraded. Producing them meant a chain of free web converters and one-off scripts — brand artwork uploaded to services we do not control, settings nobody recorded, and output that differed depending on who prepared it and on what day. It was slow on every project, and it was never twice the same.',
-  'project.vector-forge.solution':
-    'We built the pipeline as a desktop application. A Rust core does the work — raster-to-vector tracing in four tuned modes (logo, icon, illustration, precision), SVG rendering and optimisation, classical image adjustments, and icon-set generation — while a React interface keeps every setting visible and every result reviewable before it is committed. Projects keep their assets, versions and lineage on disk, so an enhancement is a new version rather than an overwritten file; a batch queue applies one recipe to a whole folder; and export produces a validated ZIP with a manifest instead of a folder assembled by hand. It ships as a signed Windows installer on its own update channel.',
-  'project.vector-forge.outcome':
-    'A shipped 1.0 in daily use: the tool that now produces the vector, icon and favicon assets behind the rest of this portfolio, running offline on the machine that holds the artwork.',
 
   // ── /work ─────────────────────────────────────────────────────────────────
   'workPage.eyebrow': 'Portfolio',
@@ -658,23 +709,6 @@ export const enLists = {
     'Referral systems',
     'Backend infrastructure',
     'Operational workflows',
-  ],
-
-  'project.vector-forge.services': [
-    'Product architecture',
-    'Product design',
-    'Desktop application development',
-    'Release engineering',
-  ],
-  'project.vector-forge.capabilities': [
-    'Desktop applications (Tauri + Rust)',
-    'Raster-to-vector tracing',
-    'Native image processing',
-    'Icon & favicon generation',
-    'Batch job orchestration',
-    'Offline-first architecture',
-    'Signed installers & auto-update',
-    'Design system implementation',
   ],
 
   'entry.2026-08.built': [

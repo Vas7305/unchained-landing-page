@@ -11,7 +11,7 @@
  * Deliberately. The only module that knows which products exist is
  * lib/demo/registry.ts, which is a mapping and nothing else. Everything the
  * shell, the stage, the frames and the shared UI do is expressed in terms of
- * the types below, so adding a ninth demo means adding a registry entry and a
+ * the types below, so adding another demo means adding a registry entry and a
  * folder — never editing shared infrastructure.
  *
  * ─── The data path a demo is allowed to have ──────────────────────────────
@@ -45,11 +45,11 @@ export type DemoFrame = 'browser' | 'phone' | 'desktop';
  * A demo's own colour identity, as CSS custom properties.
  *
  * The site is one design language and the products are not; a marketplace, a
- * private-equity console and a dating app that all rendered in this site's
+ * salon booking site and a ballet gala that all rendered in this site's
  * palette would demonstrate nothing. So each demo declares its own tokens and
  * the shared UI primitives are written against those names rather than against
  * Tailwind colours — which is what lets one <DemoButton> look correct inside
- * eight different products.
+ * every product in the registry.
  *
  * The `--d-` prefix keeps them from colliding with the site's own `--color-*`
  * and shadcn tokens, which stay in force outside the demo surface.

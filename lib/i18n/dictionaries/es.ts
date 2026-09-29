@@ -14,6 +14,7 @@ export const es: Dictionary = {
   'nav.insights': 'Perspectivas',
   'nav.howWeWork': 'Cómo Trabajamos',
   'nav.faq': 'Preguntas Frecuentes',
+  'nav.offers': 'Ofertas',
   'nav.startProject': 'Iniciar un Proyecto',
   'nav.openMenu': 'Abrir menú',
   'nav.closeMenu': 'Cerrar menú',
@@ -25,14 +26,87 @@ export const es: Dictionary = {
   'language.select': 'Seleccionar idioma',
 
   'hero.badge': 'Software · Automatización · Sistemas de Crecimiento',
-  'hero.headlineLead': 'Infraestructura Digital',
-  'hero.headlineTail': 'para Empresas Listas para Crecer.',
+  'hero.headlineLead': 'Construimos webs y apps para vender y recibir reservas',
+  'hero.headlineTail': '— en tu idioma y listas para cobrar.',
   'hero.description':
-    'Diseñamos y construimos el software, los sitios web, la automatización y los sistemas de crecimiento sobre los que funciona una empresa — pensados en torno a cómo opera realmente, no en torno a una plantilla.',
+    'Diseñamos y construimos software, automatización y sistemas de crecimiento alrededor de cómo realmente funciona tu negocio.',
   'hero.scroll': 'Desliza',
   'hero.factFlagship': 'Producto insignia lanzado',
-  'hero.factInDevelopment': 'Proyectos en desarrollo',
-  'hero.factPillars': 'Pilares de capacidad',
+  'hero.factDemos': 'Demos interactivas para probar',
+  'hero.factLanguages': 'Idiomas en esta web',
+  'hero.seeOffers': 'Compara las tres ofertas',
+
+  // ── Commercial offers ─────────────────────────────────────────────────────
+  'offers.eyebrow': 'Qué Puedes Contratar',
+  'offers.title': 'Tres Ofertas.',
+  'offers.titleAccent': 'Elige Tu Punto de Partida.',
+  'offers.body':
+    'Desde una web que te trae contactos hasta una plataforma sobre la que funciona tu operación. Todo proyecto empieza con una llamada introductoria gratuita de 30 minutos, en la que te decimos qué implica el tuyo, cuánto tarda y cuánto cuesta.',
+  'offers.offer': 'Oferta',
+  'offers.for': 'Para quién es',
+  'offers.solves': 'Qué resuelve',
+  'offers.includes': 'Qué incluye',
+  'offers.languages': 'Idiomas',
+  'offers.example': 'Prueba un ejemplo',
+  'offers.partOf': 'Parte de',
+  'offers.investment': 'Inversión',
+  'offers.timeline': 'Plazo',
+  'offers.from': 'Desde',
+  'offers.quoteOnCall': 'Presupuesto en la llamada gratuita',
+  'offers.timelineOnCall': 'Se acuerda en la misma llamada',
+  'offers.note':
+    'En esta web no se vende ni se cobra nada. Cada botón abre una conversación con una persona real, y el alcance, el plazo y el precio se acuerdan contigo antes de empezar cualquier trabajo.',
+  'offers.a.name': 'Web Comercial',
+  'offers.a.cta': 'Pedir Oferta A',
+  'offers.a.audience':
+    'Negocios de servicios, profesionales y estudios que sus clientes necesitan encontrar, en los que confiar y a los que contactar.',
+  'offers.a.problem':
+    'Te buscan y encuentran una página desactualizada, un perfil en redes o nada — y contactan con otro.',
+  'offers.b.name': 'Ventas y Reservas',
+  'offers.b.cta': 'Pedir Oferta B',
+  'offers.b.audience':
+    'Salones, clínicas, consultas, locales y tiendas que gestionan citas, reservas o pedidos.',
+  'offers.b.problem':
+    'Las reservas y los pedidos llegan por teléfono y por chat, y alguien tiene que llevar la agenda, las plazas o el stock de memoria.',
+  'offers.c.name': 'Plataforma a Medida',
+  'offers.c.cta': 'Pedir Oferta C',
+  'offers.c.audience':
+    'Empresas cuya operación no cabe en herramientas estándar — marketplaces, sistemas internos, servicios con varias partes.',
+  'offers.c.problem':
+    'El negocio funciona con hojas de cálculo, pasos manuales y herramientas que no se hablan entre sí, y no puede crecer más allá de ellas.',
+  'showcase.for': 'Para',
+  'showcase.solves': 'Resuelve',
+  'showcase.language': 'Interfaz',
+  'showcase.cta': '¿Quieres uno así?',
+  'showcase.tancerca.audience':
+    'Marketplaces y negocios de reparto que conectan comercios locales con clientes cercanos.',
+  'showcase.tancerca.problem':
+    'Comercios, clientes, pedidos, reparto y pagos sincronizados en un solo sistema — en lugar de tres apps y una persona en medio.',
+  'showcase.lanna-kamilina.audience':
+    'Salones y servicios con cita previa y varios especialistas.',
+  'showcase.lanna-kamilina.problem':
+    'Los clientes reservan online con disponibilidad en tiempo real, en lugar de por teléfono o mensaje.',
+  'showcase.lazara-sersa.audience':
+    'Freelancers, artistas y estudios cuyo trabajo se vende por su portfolio.',
+  'showcase.lazara-sersa.problem':
+    'Un portfolio que presenta bien el trabajo y convierte el interés en una solicitud ordenada.',
+  'showcase.mensalere.audience':
+    'Consultas y plataformas que ofrecen sesiones con profesionales.',
+  'showcase.mensalere.problem':
+    'Los clientes encuentran al profesional adecuado y reservan cita online, sin idas y venidas.',
+  'showcase.klassisches-ballet.audience':
+    'Organizadores de eventos que venden entradas para una sola fecha.',
+  'showcase.klassisches-ballet.problem':
+    'Programa, categorías de asiento y reservas en un solo lugar, con la disponibilidad actualizada a medida que se vende.',
+  'languages.eyebrow': 'Multilingüe',
+  'languages.title': 'Hacemos que tu negocio hable',
+  'languages.titleAccent': 'el idioma de tus clientes.',
+  'languages.body':
+    'Esta web funciona en seis idiomas — pruébalo aquí abajo. Los productos que construimos hacen lo mismo: las demos que verás más abajo funcionan en el idioma que usan de verdad sus clientes.',
+  'languages.site': 'Esta web',
+  'languages.demos': 'Nuestras demos',
+  'languages.note':
+    'Qué idiomas incluye tu proyecto se acuerda al definir su alcance — no damos por hecho los seis.',
 
   'pain.eyebrow': '¿Te Suena?',
   'pain.title': 'El Negocio Funciona.',
@@ -73,7 +147,7 @@ export const es: Dictionary = {
   'work.title': 'Nuestro Trabajo',
   'work.titleAccent': 'Es Nuestra Prueba.',
   'work.body':
-    'Estamos construyendo Unchained Business proyecto a proyecto. Estos son los productos, sitios web y sistemas que vamos creando por el camino.',
+    'Cada proyecto de abajo tiene una demo interactiva — ábrela y úsala como lo harían sus clientes. Muestran lo que sabemos construir, en su estado real; ninguno se presenta como un resultado de cliente.',
   'work.exploreAll': 'Explorar todo nuestro trabajo',
   'work.note':
     'Los proyectos en desarrollo se publican aquí cuando se lanzan — con nombre, documentados y honestos sobre su estado.',
@@ -152,8 +226,8 @@ export const es: Dictionary = {
     'El uso real te dice cosas que la planificación no puede. Medimos cómo rinde el sistema y lo mejoramos según lo que muestran los datos.',
 
   'svc.eyebrow': 'Trabajar Juntos',
-  'svc.title': 'Tres Formas de',
-  'svc.titleAccent': 'Empezar Con Nosotros',
+  'svc.title': 'De la Primera Llamada',
+  'svc.titleAccent': 'al Sistema en Marcha.',
   'svc.body':
     'No vendemos cursos ni plantillas. Diseñamos, construimos y operamos los sistemas sobre los que funciona tu empresa.',
   'svc.coreBuild': 'La Construcción Central',
@@ -249,31 +323,6 @@ export const es: Dictionary = {
     'Una plataforma que conecta a personas con profesionales de la psicología para consultas privadas online, con perfiles profesionales y reserva de citas en línea.',
   'project.mensalere.category': 'Plataforma de Consulta Online',
   'project.mensalere.industry': 'Salud mental y bienestar',
-
-  'project.frito.description':
-    'Una app móvil de citas para conocer gente nueva en Cuba, con el sitio de marketing y descarga detrás de su lanzamiento en iOS y Android.',
-  'project.frito.category': 'App Móvil',
-  'project.frito.industry': 'Social y citas',
-
-  'project.unchained-os.description':
-    'Nuestro propio sistema operativo de capital privado: análisis y comparación de operaciones, CRM de pipeline, asignación de capital, gestión multiinversor y seguimiento del rendimiento del fondo.',
-  'project.unchained-os.category': 'Software Interno',
-  'project.unchained-os.industry':
-    'Capital privado y operaciones de inversión',
-
-  'project.vector-forge.description':
-    'Una estación de trabajo de escritorio para producción de assets que construimos para nuestro propio trabajo: vectoriza imágenes rasterizadas en archivos vectoriales limpios, retoca y comprime imágenes, y genera los paquetes completos de iconos y favicons que necesita cada lanzamiento — todo procesado en la propia máquina.',
-  'project.vector-forge.category': 'Aplicación de Escritorio',
-  'project.vector-forge.industry':
-    'Herramientas de diseño y producción de assets',
-  'project.vector-forge.summary':
-    'VectorForge es la cadena de producción de assets detrás de nuestros propios proyectos: una aplicación de escritorio para Windows que convierte imágenes rasterizadas en SVG listo para producción, retoca y optimiza imágenes, y produce los paquetes completos de iconos, favicons y assets web que exige el lanzamiento de un sitio o una app — con cada archivo procesado en la máquina en lugar de subirse a un servicio.',
-  'project.vector-forge.challenge':
-    'Cada proyecto que lanzamos necesita el mismo conjunto de assets: un logo en SVG limpio, favicons en una docena de tamaños, iconos de aplicación por plataforma, imágenes comprimidas sin degradarse. Producirlos significaba una cadena de conversores web gratuitos y scripts sueltos — material de marca subido a servicios que no controlamos, ajustes que nadie registraba y resultados que variaban según quién los preparara y qué día. Era lento en todos los proyectos y nunca salía dos veces igual.',
-  'project.vector-forge.solution':
-    'Construimos la cadena como una aplicación de escritorio. Un núcleo en Rust hace el trabajo — vectorización de raster a SVG en cuatro modos afinados (logo, icono, ilustración, precisión), renderizado y optimización de SVG, ajustes clásicos de imagen y generación de juegos de iconos — mientras una interfaz en React mantiene visible cada ajuste y revisable cada resultado antes de confirmarlo. Los proyectos guardan sus assets, versiones y trazabilidad en disco, así que una mejora es una versión nueva y no un archivo sobrescrito; una cola de lotes aplica una misma receta a una carpeta entera; y la exportación produce un ZIP validado con manifiesto en lugar de una carpeta armada a mano. Se distribuye como instalador firmado de Windows con su propio canal de actualizaciones.',
-  'project.vector-forge.outcome':
-    'Un 1.0 publicado y en uso diario: la herramienta que hoy produce los assets vectoriales, iconos y favicons detrás del resto de este portafolio, funcionando sin conexión en la misma máquina donde están los originales.',
 
   'workPage.eyebrow': 'Portafolio',
   'workPage.statusKey': 'Leyenda de estados de proyecto',
@@ -618,23 +667,6 @@ export const esLists: ListDictionary = {
     'Sistemas de referidos',
     'Infraestructura de backend',
     'Flujos operativos',
-  ],
-
-  'project.vector-forge.services': [
-    'Arquitectura de producto',
-    'Diseño de producto',
-    'Desarrollo de aplicaciones de escritorio',
-    'Ingeniería de releases',
-  ],
-  'project.vector-forge.capabilities': [
-    'Aplicaciones de escritorio (Tauri + Rust)',
-    'Vectorización de raster a SVG',
-    'Procesamiento de imagen nativo',
-    'Generación de iconos y favicons',
-    'Orquestación de procesos por lotes',
-    'Arquitectura offline-first',
-    'Instaladores firmados y auto-actualización',
-    'Implementación de design systems',
   ],
 
   'entry.2026-08.built': [

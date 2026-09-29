@@ -45,7 +45,7 @@ export default function Capabilities() {
     <section
       id='what-we-build'
       ref={sectionRef}
-      className='py-24 md:py-28 px-6'
+      className='py-12 md:py-14 px-6'
       aria-labelledby='what-we-build-heading'
     >
       <div className='max-w-5xl mx-auto'>

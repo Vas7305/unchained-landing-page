@@ -59,11 +59,9 @@ export default function Challenge() {
     <section
       id='challenge'
       ref={sectionRef}
-      className='relative py-24 md:py-28 px-6 overflow-hidden'
+      className='relative py-12 md:py-14 px-6 overflow-hidden'
       aria-labelledby='challenge-heading'
     >
-      <div className='absolute inset-0 blueprint-grid' aria-hidden='true' />
-
       <div className='challenge-inner relative max-w-4xl mx-auto'>
         <div className='text-center'>
           <p className='text-xs uppercase tracking-widest text-muted-foreground mb-3 font-medium'>

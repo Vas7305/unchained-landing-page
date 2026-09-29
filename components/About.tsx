@@ -59,7 +59,7 @@ export default function About() {
     <section
       id='about'
       ref={sectionRef}
-      className='py-24 md:py-28 px-6 bg-secondary/20'
+      className='py-12 md:py-14 px-6'
       aria-labelledby='about-heading'
     >
       <div className='max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start'>

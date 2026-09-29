@@ -207,6 +207,10 @@
 
   html {
     scroll-behavior: smooth;
+    /* Clears the fixed header when a link jumps to a section (/#offers,
+       /#faq). Sections used to carry enough top padding to hide it; since
+       the homepage spacing was tightened, the header needs its own room. */
+    scroll-padding-top: 5rem;
   }
 }
 

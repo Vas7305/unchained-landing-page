@@ -87,7 +87,7 @@ describe.each(entries)('the %s demo', (slug, definition) => {
 
   it('loads lazily rather than eagerly', () => {
     // The registry must hold a *function* that imports the demo. Holding the
-    // module itself would put all eight demos in the initial bundle, which is
+    // module itself would put every demo in the initial bundle, which is
     // the one thing §11 rules out.
     expect(typeof definition.load).toBe('function');
     expect(definition.load.length).toBe(0);

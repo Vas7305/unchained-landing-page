@@ -144,7 +144,7 @@ describe('/work/[slug]', () => {
   });
 
   it('keeps a project without a published page out of the index, with an image', async () => {
-    const undetailed = findProject(fallbackProjects, 'unchained-os');
+    const undetailed = findProject(fallbackProjects, 'lanna-kamilina');
     expect(undetailed?.detailed).not.toBe(true);
 
     const meta = await projectMetadata({

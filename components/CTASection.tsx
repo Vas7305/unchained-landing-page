@@ -38,7 +38,7 @@ export default function CTA() {
     <section
       id='contact'
       ref={sectionRef}
-      className='py-24 md:py-28 px-6'
+      className='py-12 md:py-14 px-6'
       aria-labelledby='contact-heading'
     >
       <div className='max-w-4xl mx-auto'>

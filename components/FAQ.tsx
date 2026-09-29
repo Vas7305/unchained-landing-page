@@ -96,7 +96,7 @@ export default function FAQ() {
     <section
       id='faq'
       ref={sectionRef}
-      className='py-24 md:py-28 px-6 bg-secondary/20'
+      className='py-12 md:py-14 px-6'
       aria-labelledby='faq-heading'
     >
       <div className='max-w-3xl mx-auto'>

@@ -9,7 +9,7 @@ import type { DemoDefinition } from './types';
  * shared UI primitives, the simulation layer and the route are written against
  * lib/demo/types.ts and contain no product name, no slug and no special case;
  * this map is the seam where the generic half meets the specific half. Adding
- * a ninth demo is an entry here plus two folders, and touches nothing else.
+ * another demo is an entry here plus two folders, and touches nothing else.
  *
  * ─── Why a code registry when the portfolio is a database ─────────────────
  * The portfolio is published from the admin panel and read at request time
@@ -23,11 +23,11 @@ import type { DemoDefinition } from './types';
  *
  * ─── The theme is not decoration ──────────────────────────────────────────
  * §17: the visitor should feel they are using the product, not reading a
- * presentation about it. Eight products rendered in this website's palette
+ * presentation about it. Five products rendered in this website's palette
  * would all look like this website. Each entry therefore carries the product's
  * own colours, radius and type, which the shared primitives resolve through
  * CSS custom properties — one DemoButton that is correct in a Caribbean
- * marketplace and in a private-equity console.
+ * marketplace and in a Moscow salon.
  *
  * Contrast note: every `--d-muted` below was chosen to stay legible on both
  * `--d-bg` and `--d-surface`, and every `--d-accent-fg` against its accent.
@@ -191,98 +191,6 @@ export const demoRegistry: Record<string, DemoDefinition> = {
     },
     scenarios: [{ id: 'find', label: 'Find a professional' }],
     load: () => import('@/components/demo/apps/mensalere/App'),
-  },
-
-  /* ── Dating app: onboarding, discovery, matches, conversation ──────────── */
-  frito: {
-    frame: 'phone',
-    lang: 'es',
-    surfaceLabel: 'Frito',
-    theme: {
-      '--d-bg': '#100d18',
-      '--d-surface': '#1a1526',
-      '--d-surface-2': '#241d33',
-      '--d-border': '#352c4a',
-      '--d-fg': '#f6f2ff',
-      '--d-muted': '#aca0c6',
-      '--d-accent': '#ff4d6d',
-      '--d-accent-fg': '#ffffff',
-      '--d-ring': '#ff7d95',
-      '--d-positive': '#4ecf9a',
-      '--d-danger': '#ff6b6b',
-      '--d-radius': '22px',
-    },
-    scenarios: [
-      { id: 'registro', label: 'Usuario nuevo', hint: 'Empieza en el registro.' },
-      {
-        id: 'activo',
-        label: 'Con conversaciones',
-        hint: 'Perfil listo y dos matches esperando.',
-      },
-    ],
-    load: () => import('@/components/demo/apps/frito/App'),
-  },
-
-  /* ── Private-equity operating system ───────────────────────────────────── */
-  'unchained-os': {
-    frame: 'desktop',
-    lang: 'en',
-    surfaceLabel: 'Unchained OS — Fund I',
-    theme: {
-      '--d-bg': '#0b0d11',
-      '--d-surface': '#14171e',
-      '--d-surface-2': '#1b1f28',
-      '--d-border': '#262c38',
-      '--d-fg': '#e8ecf3',
-      '--d-muted': '#8e99ab',
-      '--d-accent': '#5b8def',
-      '--d-accent-fg': '#08101f',
-      '--d-ring': '#7ba5f5',
-      '--d-positive': '#3fbf85',
-      '--d-danger': '#e2685e',
-      '--d-radius': '8px',
-    },
-    scenarios: [
-      {
-        id: 'pipeline',
-        label: 'Pipeline review',
-        hint: 'Start on the deal pipeline.',
-      },
-      {
-        id: 'allocation',
-        label: 'Capital allocation',
-        hint: 'Start with the committee ready to allocate.',
-      },
-    ],
-    load: () => import('@/components/demo/apps/unchained-os/App'),
-  },
-
-  /* ── Desktop asset production workstation ──────────────────────────────── */
-  'vector-forge': {
-    frame: 'desktop',
-    lang: 'en',
-    surfaceLabel: 'VectorForge 1.0',
-    // Copied from src/styles/tokens.css in the VectorForge repository. The
-    // demo surface carries the product's full token set itself (see
-    // components/demo/apps/vector-forge/vendor/styles/surface.module.css);
-    // these twelve are what the site's own chrome around the demo uses to
-    // stop looking like it belongs to a different application.
-    theme: {
-      '--d-bg': '#0B0F14',
-      '--d-surface': '#121821',
-      '--d-surface-2': '#1B2430',
-      '--d-border': '#2B3440',
-      '--d-fg': '#ECF1F6',
-      '--d-muted': '#8A95A4',
-      '--d-accent': '#1FB896',
-      '--d-accent-fg': '#0B0F14',
-      '--d-ring': '#5BE0C0',
-      '--d-positive': '#34C759',
-      '--d-danger': '#FC3803',
-      '--d-radius': '12px',
-    },
-    scenarios: [{ id: 'trace', label: 'Trace a mark' }],
-    load: () => import('@/components/demo/apps/vector-forge/App'),
   },
 };
 

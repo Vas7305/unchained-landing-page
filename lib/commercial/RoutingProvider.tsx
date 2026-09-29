@@ -75,7 +75,12 @@ export type CtaSource =
   | 'journey'
   | 'work'
   | 'project'
-  | 'insight';
+  | 'insight'
+  // The homepage's commercial layer. Paired with a `detail` — `offer_a`,
+  // `offer_b`, `offer_c`, or a project slug for `demo` — so a lead's
+  // `source_cta` reads `hero_offer_a`, `offers_offer_b`, `demo_mensalere`.
+  | 'offers'
+  | 'demo';
 
 /** Where the optional inquiry form is in its life. */
 export type InquiryState =

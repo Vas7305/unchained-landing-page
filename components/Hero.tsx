@@ -1,22 +1,38 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ArrowRight, ChevronDown } from 'lucide-react';
-import { track } from '@/lib/analytics';
 import StartProjectButton from '@/components/StartProjectButton';
-import { useTranslation } from '@/lib/i18n/LanguageProvider';
+import { useLanguage } from '@/lib/i18n/LanguageProvider';
+import { locales } from '@/lib/i18n/config';
+import { formatPrice, getOffer, publishedPrice } from '@/lib/offers';
 import type { TranslationKey } from '@/lib/i18n/dictionaries';
 
-const stageFacts: { value: string; key: TranslationKey }[] = [
-  { value: '01', key: 'hero.factFlagship' },
-  { value: '05', key: 'hero.factInDevelopment' },
-  { value: '03', key: 'hero.factPillars' },
-];
+/** Two digits, the way the stage facts have always been set. */
+const pad = (n: number) => String(n).padStart(2, '0');
 
-export default function Hero() {
-  const t = useTranslation();
+/**
+ * The hero's primary CTA is Offer A — the entry offer — rather than a generic
+ * "Start a Project". It opens the same contact panel every CTA opens, tagged
+ * `hero` + `offer_a`, and carries the offer's price only when lib/offers.ts
+ * publishes one; until then it names the offer instead.
+ */
+const heroOffer = getOffer('a');
+
+export default function Hero({ demoCount }: { demoCount: number }) {
+  const { t, locale } = useLanguage();
+  const price = publishedPrice(heroOffer);
+
+  // Honest stage indicator — capability, not commercial claims. Every number
+  // is counted from the code or the published portfolio, not typed in: the
+  // flagship, the demos a visitor can open right now, and the languages this
+  // page itself can be read in.
+  const stageFacts: { value: string; key: TranslationKey }[] = [
+    { value: '01', key: 'hero.factFlagship' },
+    { value: pad(demoCount), key: 'hero.factDemos' },
+    { value: pad(locales.length), key: 'hero.factLanguages' },
+  ];
   const containerRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const h1Ref = useRef<HTMLHeadingElement>(null);
@@ -93,10 +109,8 @@ export default function Hero() {
   return (
     <section
       ref={containerRef}
-      className='relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-6 pt-28 pb-20'
+      className='relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-6 pt-24 md:pt-28 pb-20'
     >
-      {/* Background grid */}
-      <div className='absolute inset-0 blueprint-grid' aria-hidden='true' />
 
       {/* Orbs */}
       <div
@@ -119,7 +133,7 @@ export default function Hero() {
       />
 
       {/* Content */}
-      <div className='relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center gap-8'>
+      <div className='relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center gap-6 md:gap-8'>
         {/* Badge */}
         <div
           ref={badgeRef}
@@ -132,20 +146,21 @@ export default function Hero() {
           {t('hero.badge')}
         </div>
 
-        {/* Headline */}
+        {/* Headline — what a client can buy, in one sentence. A sentence,
+            not a slogan, so it is sized to wrap into a few lines on a phone
+            rather than a column of single words. */}
         <h1
           ref={h1Ref}
-          className='opacity-0 text-5xl sm:text-6xl md:text-7xl font-extrabold leading-[1.05] tracking-tight'
+          className='opacity-0 text-[2rem] leading-[1.1] sm:text-5xl md:text-6xl md:leading-[1.05] font-extrabold tracking-tight text-balance'
         >
-          <span className='gradient-text'>{t('hero.headlineLead')}</span>
-          <br />
+          <span className='gradient-text'>{t('hero.headlineLead')}</span>{' '}
           <span className='text-foreground'>{t('hero.headlineTail')}</span>
         </h1>
 
-        {/* Sub */}
+        {/* Sub — the broader positioning the offers sit on top of. */}
         <p
           ref={descRef}
-          className='opacity-0 max-w-2xl text-lg md:text-xl text-muted-foreground leading-relaxed'
+          className='opacity-0 max-w-2xl text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed'
         >
           {t('hero.description')}
         </p>
@@ -153,29 +168,33 @@ export default function Hero() {
         {/* CTAs */}
         <div
           ref={ctaRef}
-          className='opacity-0 flex flex-col sm:flex-row items-center gap-4'
+          className='opacity-0 flex flex-col sm:flex-row items-center gap-3 sm:gap-4'
         >
           <StartProjectButton
             source='hero'
+            detail='offer_a'
             className='group inline-flex items-center gap-2 bg-foreground text-background font-semibold px-7 py-3.5 rounded-xl text-sm hover:bg-foreground/90 transition-colors duration-200 shadow-lg'
           >
-            {t('nav.startProject')}
+            {t(heroOffer.cta)}
+            {' — '}
+            {price
+              ? `${t('offers.from')} ${formatPrice(price, locale)}`
+              : t(heroOffer.name)}
             <ArrowRight
               size={16}
               aria-hidden='true'
               className='group-hover:translate-x-1 transition-transform duration-200'
             />
           </StartProjectButton>
-          <Link
-            href='/work'
-            onClick={() => track('explore_work_click', { location: 'hero' })}
-            className='inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 px-4 py-3.5 underline decoration-border underline-offset-8 hover:decoration-foreground/40'
+          <a
+            href='#offers'
+            className='inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 px-4 py-3 underline decoration-border underline-offset-8 hover:decoration-foreground/40'
           >
-            {t('common.exploreOurWork')}
-          </Link>
+            {t('hero.seeOffers')}
+          </a>
         </div>
 
-        {/* Honest stage indicator — capability, not commercial claims */}
+        {/* Honest stage indicator — see stageFacts above */}
         <div
           ref={factsRef}
           className='opacity-0 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 pt-2'

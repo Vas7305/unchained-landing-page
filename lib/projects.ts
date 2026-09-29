@@ -27,7 +27,9 @@
  * is the transcription seeded into the table by
  * supabase/migrations/20260907000002_unchained_projects.sql, plus every
  * project added by a later migration alongside its row —
- * 20260907000003_unchained_projects_vectorforge.sql being the first.
+ * 20260907000003_unchained_projects_vectorforge.sql being the first — minus
+ * every project a later migration archived. 20260928000001 retired Frito,
+ * Unchained OS and VectorForge from the public site, so they are not here.
  *
  * It is a floor, not a mirror. It will drift from the table the first time
  * somebody edits a project in the panel, and that is expected: its job is to
@@ -270,72 +272,6 @@ export const fallbackProjects: Project[] = [
     year: '2026',
     industry: 'Mental health & wellbeing',
     thumbnail: '/work/mensalere.webp',
-  },
-  {
-    title: 'Frito',
-    slug: 'frito',
-    description:
-      'A mobile dating app for meeting new people in Cuba, with the marketing and download site behind its iOS and Android launch.',
-    category: 'Mobile App',
-    status: 'in-development',
-    year: '2026',
-    industry: 'Social & dating',
-    thumbnail: '/work/frito.webp',
-  },
-  {
-    title: 'Unchained OS',
-    slug: 'unchained-os',
-    description:
-      'Our own private equity operating system: deal analysis and comparison, pipeline CRM, capital allocation, multi-investor management and fund performance tracking.',
-    category: 'Internal Software',
-    status: 'in-development',
-    year: '2026',
-    industry: 'Private equity & investment operations',
-    thumbnail: '/work/unchained-os.webp',
-  },
-  {
-    title: 'VectorForge',
-    slug: 'vector-forge',
-    description:
-      'A desktop asset production workstation we built for our own work: it traces raster artwork into clean vector files, retouches and compresses images, and generates the complete icon and favicon packages every launch needs — processed entirely on the machine.',
-    category: 'Desktop Application',
-    status: 'internal',
-    detailed: true,
-    year: '2026',
-    industry: 'Design tooling & asset production',
-    thumbnail: '/work/vector-forge.png',
-    services: [
-      'Product architecture',
-      'Product design',
-      'Desktop application development',
-      'Release engineering',
-    ],
-    technologies: [
-      'Tauri 2',
-      'Rust',
-      'React',
-      'TypeScript',
-      'Zustand',
-      'Vite',
-    ],
-    summary:
-      'VectorForge is the asset pipeline behind our own projects: a Windows desktop application that converts raster artwork into production-ready SVG, retouches and optimises images, and produces the full icon, favicon and web-asset packages a site or app launch requires — with every file processed on the machine rather than uploaded to a service.',
-    challenge:
-      'Every project we ship needs the same set of assets: a logo as clean SVG, favicons at a dozen sizes, application icons per platform, images compressed without being degraded. Producing them meant a chain of free web converters and one-off scripts — brand artwork uploaded to services we do not control, settings nobody recorded, and output that differed depending on who prepared it and on what day. It was slow on every project, and it was never twice the same.',
-    solution:
-      'We built the pipeline as a desktop application. A Rust core does the work — raster-to-vector tracing in four tuned modes (logo, icon, illustration, precision), SVG rendering and optimisation, classical image adjustments, and icon-set generation — while a React interface keeps every setting visible and every result reviewable before it is committed. Projects keep their assets, versions and lineage on disk, so an enhancement is a new version rather than an overwritten file; a batch queue applies one recipe to a whole folder; and export produces a validated ZIP with a manifest instead of a folder assembled by hand. It ships as a signed Windows installer on its own update channel.',
-    capabilities: [
-      'Desktop applications (Tauri + Rust)',
-      'Raster-to-vector tracing',
-      'Native image processing',
-      'Icon & favicon generation',
-      'Batch job orchestration',
-      'Offline-first architecture',
-      'Signed installers & auto-update',
-      'Design system implementation',
-    ],
-    outcome:
-      'A shipped 1.0 in daily use: the tool that now produces the vector, icon and favicon assets behind the rest of this portfolio, running offline on the machine that holds the artwork.',
   },
 ];
 

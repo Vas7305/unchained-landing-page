@@ -139,8 +139,8 @@ export async function simulateEach<T>(
 /**
  * A step sequence, for operations the real product reports progress on.
  *
- * VectorForge tracing an image and an export writing a package are not one
- * spinner in the product and should not be one here. `onStep` is called with
+ * A checkout confirming payment and then dispatch is not one spinner in the
+ * product and should not be one here. `onStep` is called with
  * each label in turn; the returned promise settles after the last one.
  */
 export async function simulateSteps(

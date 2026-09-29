@@ -257,8 +257,9 @@ async function sendInvitationEmail(opts: {
   }
 }
 
-// deno-lint-ignore no-explicit-any
-type Admin = any
+// The service-role client, typed as what createClient() returns — the same
+// alias security-core uses — rather than `any`, which both linters reject.
+type Admin = ReturnType<typeof createClient>
 
 /**
  * Record a security event through the database's own contract.

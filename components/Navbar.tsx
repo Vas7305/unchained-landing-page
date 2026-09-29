@@ -17,6 +17,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 // destination rather than a scroll target on the homepage — the homepage
 // section itself (Capabilities, id="what-we-build") is unchanged.
 const navLinks: { key: TranslationKey; href: string }[] = [
+  { key: 'nav.offers', href: '/#offers' },
   { key: 'pillar.software-development', href: '/software-development' },
   { key: 'pillar.business-automation', href: '/business-automation' },
   { key: 'pillar.growth-systems', href: '/growth-systems' },
