@@ -129,8 +129,9 @@ export default function DemoFrame({
         </Chrome>
       )}
 
-      {/* `relative` is the positioning context every DemoModal uses: a dialog
-          inside a demo covers the product, never the website around it. */}
+      {/* `relative` is the positioning context for anything a demo overlays:
+          a dialog inside a demo covers the product, never the website around
+          it. */}
       <div className='relative flex-1 min-h-0 overflow-hidden'>{children}</div>
     </div>
   );

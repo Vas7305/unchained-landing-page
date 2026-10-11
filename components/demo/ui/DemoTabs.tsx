@@ -117,30 +117,3 @@ export default function DemoTabs({
     </div>
   );
 }
-
-/** The panel half of the pattern. Keeps the wiring in one place. */
-export function DemoTabPanel({
-  id,
-  active,
-  children,
-  className = '',
-}: {
-  id: string;
-  active: string;
-  children: ReactNode;
-  className?: string;
-}) {
-  if (id !== active) return null;
-
-  return (
-    <div
-      role='tabpanel'
-      id={`panel-${id}`}
-      aria-labelledby={`tab-${id}`}
-      tabIndex={0}
-      className={`focus-visible:outline-2 focus-visible:outline-[var(--d-ring)] ${className}`}
-    >
-      {children}
-    </div>
-  );
-}

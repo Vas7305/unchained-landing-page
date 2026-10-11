@@ -52,15 +52,6 @@ export function count(value: number, locale: string): string {
   return new Intl.NumberFormat(locale).format(value);
 }
 
-/** A ratio as a percentage, one decimal at most. */
-export function percent(value: number, locale: string, decimals = 1): string {
-  return new Intl.NumberFormat(locale, {
-    style: 'percent',
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  }).format(value);
-}
-
 /** A short weekday-and-day label, e.g. `Mon 14`. */
 export function dayLabel(date: Date, locale: string): string {
   return new Intl.DateTimeFormat(locale, {
@@ -83,8 +74,8 @@ export function longDate(date: Date, locale: string): string {
 /**
  * A stable hue for a name.
  *
- * Used by the shared avatar and by demo tiles that need to look like distinct
- * things without shipping an image for each. Same input, same colour, on every
+ * Used by demo tiles that need to look like distinct things without shipping
+ * an image for each. Same input, same colour, on every
  * render and on both sides of hydration.
  */
 export function hueFrom(seed: string): number {
@@ -94,15 +85,4 @@ export function hueFrom(seed: string): number {
     h |= 0;
   }
   return Math.abs(h) % 360;
-}
-
-/** One or two initials from a display name. */
-export function initials(name: string): string {
-  const parts = name
-    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
-    .split(/\s+/)
-    .filter(Boolean);
-  if (parts.length === 0) return '?';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }

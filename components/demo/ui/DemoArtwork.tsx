@@ -1,6 +1,6 @@
 'use client';
 
-import { hueFrom, initials } from '@/lib/demo/format';
+import { hueFrom } from '@/lib/demo/format';
 
 /**
  * Imagery for the demos, drawn rather than downloaded.
@@ -20,41 +20,10 @@ import { hueFrom, initials } from '@/lib/demo/format';
  * nothing that can 404 — which is most of the asset-optimisation problem
  * solved by not creating it.
  *
- * Determinism: both components derive everything from the `seed` string, so
- * the same person has the same portrait on every render, in every scenario,
- * before and after a reset.
+ * Determinism: the tile derives everything from the `seed` string, so the
+ * same thing has the same image on every render, in every scenario, before
+ * and after a reset.
  */
-
-/** A person, as a monogram on a stable colour. */
-export function DemoAvatar({
-  name,
-  size = 40,
-  square = false,
-}: {
-  name: string;
-  size?: number;
-  /** Squared corners follow the surface radius instead of a circle. */
-  square?: boolean;
-}) {
-  const hue = hueFrom(name);
-
-  return (
-    <span
-      aria-hidden='true'
-      style={{
-        width: size,
-        height: size,
-        fontSize: Math.round(size * 0.36),
-        borderRadius: square ? 'var(--d-radius)' : '9999px',
-        background: `linear-gradient(145deg, oklch(0.72 0.11 ${hue}), oklch(0.55 0.13 ${(hue + 42) % 360}))`,
-        color: 'oklch(0.99 0.01 0)',
-      }}
-      className='inline-flex items-center justify-center font-semibold tracking-wide shrink-0 select-none'
-    >
-      {initials(name)}
-    </span>
-  );
-}
 
 /**
  * A picture-shaped tile: a gallery frame, a product shot, a venue image.
