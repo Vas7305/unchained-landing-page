@@ -34,7 +34,7 @@ export const productDownloads: Record<string, ProductDownload> = {
   kairos: {
     href: '/downloads/kairos/Kairos.apk',
     label: 'download.kairos.android',
-    bytes: 4_732_987,
+    bytes: 4_733_111,
   },
 };
 
