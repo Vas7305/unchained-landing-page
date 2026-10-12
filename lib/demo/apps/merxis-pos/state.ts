@@ -2,7 +2,10 @@ import { fail, ok, type DemoResult } from '@/lib/demo/service';
 import { money } from '@/lib/demo/format';
 import {
   CASH_STEPS,
+  DAY_WAGE,
+  DELIVERIES,
   DENOMINATIONS,
+  FIRST_SHIFT,
   OPENING_FLOAT,
   findProduct,
   products,
@@ -14,6 +17,16 @@ import {
   type Sale,
   type Unit,
 } from './data';
+import {
+  buildIpv,
+  ipvTotals,
+  parseCount,
+  type ClosedShift,
+  type Deductions,
+  type IpvLine,
+  type IpvTotals,
+  type Shift,
+} from './ipv';
 
 /**
  * Merxis POS — the till, the day's sales and the cash closing.
@@ -30,10 +43,15 @@ import {
  *   · cash short of the total is refused before the sale is recorded;
  *   · cancelling a sale puts its products back on the shelf;
  *   · the closing compares the counted bills with what the drawer should hold:
- *     the opening float plus the cash sales since the last closing.
+ *     the opening float plus the cash sales since the last closing;
+ *   · the IPV is built from the books, not typed: the shift's sales are its
+ *     SALIDA, and closing it freezes the sheet with the stock as counted.
  */
 
-export type View = 'caja' | 'ventas' | 'cierre';
+export type View = 'caja' | 'ventas' | 'cierre' | 'ipv';
+
+/** "Pagos del turno", as typed. */
+export type DeductionKey = keyof Deductions;
 
 export interface CartLine {
   productId: string;
@@ -82,9 +100,45 @@ export interface State {
   /** Sales up to this folio belong to an earlier closing. */
   closedThrough: number;
   closings: number;
+  /** The open shift, or null between closing one and opening the next. */
+  shift: Shift | null;
+  /** The last shift closed, shown frozen until the next one opens. */
+  closedShift: ClosedShift | null;
+  /** IPV counts per product, as typed. */
+  ipvCounts: Record<string, string>;
+  deductions: Record<DeductionKey, string>;
+  reviewingShift: boolean;
+  shiftPending: boolean;
+}
+
+/**
+ * The morning shift as the day began: its INICIO is today's stock with the
+ * day's sales put back and the delivery taken out, so its FINAL is the shelf
+ * the demo opens with.
+ */
+function firstShift(sales: readonly Sale[]): Shift {
+  const sold = new Map<string, number>();
+  for (const sale of sales) {
+    if (sale.status !== 'pagada') continue;
+    for (const item of sale.items) {
+      sold.set(item.productId, (sold.get(item.productId) ?? 0) + item.qty);
+    }
+  }
+  const inicio: Record<string, number> = {};
+  for (const product of products) {
+    inicio[product.id] = round3(
+      product.stock + (sold.get(product.id) ?? 0) - (DELIVERIES[product.id] ?? 0),
+    );
+  }
+  return { ...FIRST_SHIFT, afterFolio: 0, inicio, entradas: { ...DELIVERIES } };
+}
+
+function freshDeductions(): Record<DeductionKey, string> {
+  return { sueldo: String(DAY_WAGE / 100), cuentaCasa: '', limpieza: '', extracciones: '' };
 }
 
 export function createInitialState(scenarioId: string): State {
+  const sales = salesFor(scenarioId);
   return {
     scenarioId,
     view: viewFor(scenarioId),
@@ -96,7 +150,7 @@ export function createInitialState(scenarioId: string): State {
     group: null,
     method: 'efectivo',
     received: '',
-    sales: salesFor(scenarioId),
+    sales,
     weighing: null,
     receipt: null,
     confirmCancel: null,
@@ -108,6 +162,12 @@ export function createInitialState(scenarioId: string): State {
     closingPending: false,
     closedThrough: 0,
     closings: 0,
+    shift: firstShift(sales),
+    closedShift: null,
+    ipvCounts: {},
+    deductions: freshDeductions(),
+    reviewingShift: false,
+    shiftPending: false,
   };
 }
 
@@ -136,6 +196,13 @@ export type Action =
   | { type: 'closeFailed'; message: string }
   | { type: 'closeDone'; closing: Closing }
   | { type: 'newShift' }
+  | { type: 'ipvCount'; productId: string; text: string }
+  | { type: 'deduction'; key: DeductionKey; text: string }
+  | { type: 'reviewShift'; open: boolean }
+  | { type: 'shiftStart' }
+  | { type: 'shiftFailed'; message: string }
+  | { type: 'shiftClosed'; closed: ClosedShift }
+  | { type: 'openShift' }
   | { type: 'dismiss' };
 
 export function reducer(state: State, action: Action): State {
@@ -288,6 +355,63 @@ export function reducer(state: State, action: Action): State {
     case 'newShift':
       // The next shift starts with the float the last one closed with.
       return { ...state, closing: null, counts: {} };
+
+    case 'ipvCount':
+      return {
+        ...state,
+        ipvCounts: { ...state.ipvCounts, [action.productId]: action.text.slice(0, 8) },
+      };
+
+    case 'deduction':
+      return {
+        ...state,
+        deductions: { ...state.deductions, [action.key]: action.text.slice(0, 10) },
+        notice: null,
+      };
+
+    case 'reviewShift':
+      return { ...state, reviewingShift: action.open, notice: null };
+
+    case 'shiftStart':
+      return { ...state, shiftPending: true, notice: null };
+
+    case 'shiftFailed':
+      return {
+        ...state,
+        shiftPending: false,
+        reviewingShift: false,
+        notice: { tone: 'error', text: action.message },
+      };
+
+    case 'shiftClosed':
+      return {
+        ...state,
+        shiftPending: false,
+        reviewingShift: false,
+        shift: null,
+        closedShift: action.closed,
+        ipvCounts: {},
+        deductions: freshDeductions(),
+      };
+
+    case 'openShift': {
+      // The next shift starts from the shelf as it stands: one shift's FINAL
+      // is the next one's INICIO.
+      const last = state.closedShift;
+      return {
+        ...state,
+        shift: {
+          number: (last?.number ?? 0) + 1,
+          kind: last?.kind === 'dia' ? 'noche' : 'dia',
+          openedAt: nextTime(state),
+          worker: store.seller,
+          afterFolio: lastFolio(state),
+          inicio: { ...state.stock },
+          entradas: {},
+        },
+        closedShift: null,
+      };
+    }
 
     case 'dismiss':
       return { ...state, notice: null };
@@ -554,6 +678,59 @@ export function closeRegister(state: State): DemoResult<Closing> {
     counted: total,
     difference: total - owed,
     bills: bills(state),
+  });
+}
+
+/* ── IPV ───────────────────────────────────────────────────────────────── */
+
+/** The shift's payments in centavos, and the fields typed as something else. */
+export function deductionsOf(state: State): { values: Deductions; bad: DeductionKey[] } {
+  const values: Deductions = { sueldo: 0, cuentaCasa: 0, limpieza: 0, extracciones: 0 };
+  const bad: DeductionKey[] = [];
+  for (const key of Object.keys(values) as DeductionKey[]) {
+    const raw = state.deductions[key].trim();
+    if (raw === '') continue;
+    const n = parsePesos(raw);
+    if (n === null) bad.push(key);
+    else values[key] = n;
+  }
+  return { values, bad };
+}
+
+/** The open shift's sheet as it stands now, or null with no shift open. */
+export function liveIpv(state: State): { lines: IpvLine[]; totals: IpvTotals } | null {
+  if (!state.shift) return null;
+  const lines = buildIpv(state.shift, state.sales, state.ipvCounts);
+  return {
+    lines,
+    totals: ipvTotals(state.shift, state.sales, lines, deductionsOf(state).values),
+  };
+}
+
+/** Counts typed as something other than a number of 0 or more. */
+export function badCounts(state: State): number {
+  return Object.values(state.ipvCounts).filter((raw) => parseCount(raw) === null).length;
+}
+
+/** "Cerrar turno": the sheet frozen as it is now, or why it cannot close. */
+export function closeShift(state: State): DemoResult<ClosedShift> {
+  const shift = state.shift;
+  if (!shift) return fail('closed', 'No hay un turno abierto.');
+  if (badCounts(state) > 0) {
+    return fail('count', 'Revisa los conteos marcados: solo números de 0 o más.');
+  }
+  const { values, bad } = deductionsOf(state);
+  if (bad.length > 0) {
+    return fail('deduction', 'Revisa los pagos del turno: solo montos de 0 o más.');
+  }
+
+  const lines = buildIpv(shift, state.sales, state.ipvCounts);
+  return ok({
+    ...shift,
+    closedAt: nextTime(state),
+    lines,
+    totals: ipvTotals(shift, state.sales, lines, values),
+    deductions: values,
   });
 }
 

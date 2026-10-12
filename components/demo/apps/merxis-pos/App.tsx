@@ -38,6 +38,7 @@ import {
   change,
   checkout,
   closeRegister,
+  closeShift,
   countLines,
   counted,
   createInitialState,
@@ -60,6 +61,9 @@ import {
   type State,
   type View,
 } from '@/lib/demo/apps/merxis-pos/state';
+import IpvView from './Ipv';
+import { Card, Row } from './ui';
+import { INCOME, radius } from './tokens';
 
 /**
  * Merxis POS — the Caja screen, the day's sales and the cash closing.
@@ -83,9 +87,6 @@ import {
 const TILE_TEXT = '#0b1220';
 const SCAN_BG = '#24324f';
 const SCAN_FG = '#cfe0ff';
-const INCOME = 'var(--d-positive)';
-
-const radius = { borderRadius: 'var(--d-radius)' } as const;
 
 interface Props {
   state: State;
@@ -118,6 +119,17 @@ export default function MerxisPosDemo({ scenarioId }: DemoAppProps) {
     }
     dispatch({ type: 'closeDone', closing: result.value });
     track('demo_completed', { project: 'merxis-pos', workflow: 'cash_closing' });
+  }
+
+  async function closeTurn() {
+    dispatch({ type: 'shiftStart' });
+    const result = await simulate(() => closeShift(state), DEMO_LATENCY.normal);
+    if (!result.ok) {
+      dispatch({ type: 'shiftFailed', message: result.failure.message });
+      return;
+    }
+    dispatch({ type: 'shiftClosed', closed: result.value });
+    track('demo_completed', { project: 'merxis-pos', workflow: 'ipv' });
   }
 
   const day = today(state);
@@ -165,6 +177,9 @@ export default function MerxisPosDemo({ scenarioId }: DemoAppProps) {
           {state.view === 'ventas' && <SalesList state={state} dispatch={dispatch} />}
           {state.view === 'cierre' && (
             <CashClosing state={state} dispatch={dispatch} onClose={close} />
+          )}
+          {state.view === 'ipv' && (
+            <IpvView state={state} dispatch={dispatch} onClose={closeTurn} />
           )}
         </div>
       </div>
@@ -240,6 +255,7 @@ const VIEWS: [View, string][] = [
   ['caja', 'Caja'],
   ['ventas', 'Ventas'],
   ['cierre', 'Cierre'],
+  ['ipv', 'IPV'],
 ];
 
 /** The product's segmented control: the current view sits raised on a card. */
@@ -249,7 +265,7 @@ function ViewSwitch({ view, dispatch }: { view: View; dispatch: Dispatch<Action>
       role='group'
       aria-label='Vista'
       style={radius}
-      className='grid grid-cols-3 gap-1 p-1 bg-[var(--d-surface-2)] w-full @2xl:w-96'
+      className='grid grid-cols-4 gap-1 p-1 bg-[var(--d-surface-2)] w-full @2xl:w-[30rem]'
     >
       {VIEWS.map(([key, text]) => (
         <button
@@ -272,16 +288,6 @@ function ViewSwitch({ view, dispatch }: { view: View; dispatch: Dispatch<Action>
   );
 }
 
-function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return (
-    <section
-      style={radius}
-      className={`bg-[var(--d-surface)] border border-[var(--d-border)] p-5 ${className}`}
-    >
-      {children}
-    </section>
-  );
-}
 
 /* ── Caja ──────────────────────────────────────────────────────────────── */
 
@@ -1055,15 +1061,6 @@ function CashClosing({ state, dispatch, onClose }: Props & { onClose: () => void
           Cerrar caja
         </DemoButton>
       </Card>
-    </div>
-  );
-}
-
-function Row({ term, value }: { term: string; value: string }) {
-  return (
-    <div className='flex justify-between gap-3'>
-      <dt className='text-[var(--d-muted)]'>{term}</dt>
-      <dd className='tabular-nums'>{value}</dd>
     </div>
   );
 }

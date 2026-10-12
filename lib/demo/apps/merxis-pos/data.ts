@@ -53,6 +53,8 @@ export interface DemoProduct {
   unit: Unit;
   /** Price per unit, in centavos. */
   price: number;
+  /** Cost per unit, in centavos. The IPV's COSTO column and its UTILIDAD. */
+  cost: number;
   /** Stock at the start of the demo, in the product's unit. */
   stock: number;
   /** At or below this, the tile flags low stock. */
@@ -73,32 +75,44 @@ const p = (
   group: string,
   unit: Unit,
   pesos: number,
+  costPesos: number,
   stock: number,
   minStock: number,
   color: TileColor,
-): DemoProduct => ({ id, name, sku, group, unit, price: pesos * 100, stock, minStock, color });
+): DemoProduct => ({
+  id,
+  name,
+  sku,
+  group,
+  unit,
+  price: pesos * 100,
+  cost: costPesos * 100,
+  stock,
+  minStock,
+  color,
+});
 
 export const products: readonly DemoProduct[] = [
-  p('refresco', 'Refresco de cola 355 ml', '2000000000017', 'Bebidas', 'pz', 240, 48, 24, 'carmin'),
-  p('agua', 'Agua natural 1.5 L', '2000000000024', 'Bebidas', 'pz', 220, 30, 12, 'cielo'),
-  p('cerveza', 'Cerveza clara 355 ml', '2000000000031', 'Bebidas', 'pz', 280, 6, 24, 'ambar'),
-  p('jugo', 'Jugo de mango 1 L', '2000000000048', 'Bebidas', 'pz', 450, 14, 6, 'naranja'),
-  p('malta', 'Malta 355 ml', '2000000000055', 'Bebidas', 'pz', 260, 20, 8, 'violeta'),
-  p('pan', 'Pan de bocadito 6 u', '2000000000062', 'Elaborados', 'paq', 300, 9, 6, 'ambar'),
-  p('croquetas', 'Croquetas de pollo 10 u', '2000000000079', 'Elaborados', 'paq', 650, 3, 5, 'naranja'),
-  p('pizza', 'Pizza familiar', '2000000000086', 'Elaborados', 'pz', 1800, 4, 2, 'rosa'),
-  p('guayaba', 'Dulce de guayaba 500 g', '2000000000093', 'Elaborados', 'pz', 600, 12, 4, 'carmin'),
-  p('arroz', 'Arroz', '2000000000109', 'Granos', 'kg', 420, 25, 10, 'lima'),
-  p('frijol', 'Frijol negro', '2000000000116', 'Granos', 'kg', 550, 12.5, 5, 'indigo'),
-  p('azucar', 'Azúcar', '2000000000123', 'Granos', 'kg', 380, 18, 6, 'azul'),
-  p('aceite', 'Aceite vegetal 1 L', '2000000000130', 'Despensa', 'pz', 950, 11, 6, 'ambar'),
-  p('queso', 'Queso gouda', '2000000000147', 'Despensa', 'kg', 2600, 2.4, 1, 'naranja'),
-  p('huevos', 'Huevos 30 u', '2000000000154', 'Despensa', 'paq', 3100, 0, 2, 'lima'),
-  p('cafe', 'Café molido 250 g', '2000000000161', 'Despensa', 'pz', 1200, 7, 4, 'turquesa'),
-  p('jabon', 'Jabón de baño', '2000000000178', 'Aseo', 'pz', 250, 15, 6, 'verde'),
-  p('detergente', 'Detergente en polvo 1 kg', '2000000000185', 'Aseo', 'pz', 900, 4, 6, 'cielo'),
-  p('papel', 'Papel higiénico 4 rollos', '2000000000192', 'Aseo', 'paq', 520, 12, 6, 'indigo'),
-  p('desodorante', 'Desodorante roll-on', '2000000000208', 'Aseo', 'pz', 650, 10, 4, 'violeta'),
+  p('refresco', 'Refresco de cola 355 ml', '2000000000017', 'Bebidas', 'pz', 240, 180, 48, 24, 'carmin'),
+  p('agua', 'Agua natural 1.5 L', '2000000000024', 'Bebidas', 'pz', 220, 150, 30, 12, 'cielo'),
+  p('cerveza', 'Cerveza clara 355 ml', '2000000000031', 'Bebidas', 'pz', 280, 210, 6, 24, 'ambar'),
+  p('jugo', 'Jugo de mango 1 L', '2000000000048', 'Bebidas', 'pz', 450, 330, 14, 6, 'naranja'),
+  p('malta', 'Malta 355 ml', '2000000000055', 'Bebidas', 'pz', 260, 190, 20, 8, 'violeta'),
+  p('pan', 'Pan de bocadito 6 u', '2000000000062', 'Elaborados', 'paq', 300, 200, 9, 6, 'ambar'),
+  p('croquetas', 'Croquetas de pollo 10 u', '2000000000079', 'Elaborados', 'paq', 650, 450, 3, 5, 'naranja'),
+  p('pizza', 'Pizza familiar', '2000000000086', 'Elaborados', 'pz', 1800, 1100, 4, 2, 'rosa'),
+  p('guayaba', 'Dulce de guayaba 500 g', '2000000000093', 'Elaborados', 'pz', 600, 420, 12, 4, 'carmin'),
+  p('arroz', 'Arroz', '2000000000109', 'Granos', 'kg', 420, 330, 25, 10, 'lima'),
+  p('frijol', 'Frijol negro', '2000000000116', 'Granos', 'kg', 550, 430, 12.5, 5, 'indigo'),
+  p('azucar', 'Azúcar', '2000000000123', 'Granos', 'kg', 380, 290, 18, 6, 'azul'),
+  p('aceite', 'Aceite vegetal 1 L', '2000000000130', 'Despensa', 'pz', 950, 760, 11, 6, 'ambar'),
+  p('queso', 'Queso gouda', '2000000000147', 'Despensa', 'kg', 2600, 2000, 2.4, 1, 'naranja'),
+  p('huevos', 'Huevos 30 u', '2000000000154', 'Despensa', 'paq', 3100, 2600, 0, 2, 'lima'),
+  p('cafe', 'Café molido 250 g', '2000000000161', 'Despensa', 'pz', 1200, 900, 7, 4, 'turquesa'),
+  p('jabon', 'Jabón de baño', '2000000000178', 'Aseo', 'pz', 250, 170, 15, 6, 'verde'),
+  p('detergente', 'Detergente en polvo 1 kg', '2000000000185', 'Aseo', 'pz', 900, 700, 4, 6, 'cielo'),
+  p('papel', 'Papel higiénico 4 rollos', '2000000000192', 'Aseo', 'paq', 520, 380, 12, 6, 'indigo'),
+  p('desodorante', 'Desodorante roll-on', '2000000000208', 'Aseo', 'pz', 650, 470, 10, 4, 'violeta'),
 ];
 
 export type Method = 'efectivo' | 'tarjeta' | 'transferencia';
@@ -160,7 +174,7 @@ const daySales: readonly Sale[] = [
   sale(1, '08:42', 'efectivo', 1000, [['pan', 1], ['refresco', 2]]),
   sale(2, '09:15', 'transferencia', null, [['arroz', 2], ['frijol', 1], ['aceite', 1]]),
   sale(3, '10:03', 'efectivo', 2000, [['cafe', 1], ['azucar', 1]]),
-  sale(4, '11:27', 'tarjeta', null, [['pizza', 1], ['malta', 4]]),
+  sale(4, '11:27', 'transferencia', null, [['pizza', 1], ['malta', 4]]),
   sale(5, '12:10', 'efectivo', 5000, [['croquetas', 2], ['jugo', 1], ['agua', 2]]),
   sale(6, '13:48', 'efectivo', 2000, [['jabon', 2], ['desodorante', 1]]),
   sale(7, '15:05', 'efectivo', 3000, [['queso', 0.5], ['guayaba', 1], ['pan', 1]]),
@@ -186,6 +200,30 @@ export function salesFor(scenarioId: string): Sale[] {
 export function viewFor(scenarioId: string): 'caja' | 'cierre' {
   return (scenarios[scenarioId] ?? scenarios.turno).view;
 }
+
+/**
+ * The morning delivery, received during the first shift: what the IPV shows
+ * under ENTRADA. Units per product.
+ */
+export const DELIVERIES: Readonly<Record<string, number>> = {
+  refresco: 24,
+  pan: 6,
+  agua: 12,
+};
+
+/** The first shift of the day, as the IPV opens it. */
+export const FIRST_SHIFT = {
+  number: 1,
+  kind: 'dia',
+  openedAt: '08:00',
+  worker: store.seller,
+} as const;
+
+/**
+ * The cashier's day wage, which the product brings into "Pagos del turno"
+ * from Gastos → Sueldos. In centavos.
+ */
+export const DAY_WAGE = 1500 * 100;
 
 /** The change the drawer held when the shift opened, in centavos. */
 export const OPENING_FLOAT = 2000 * 100;
