@@ -295,6 +295,7 @@ export const fallbackProjects: Project[] = [
     year: '2026',
     industry: 'Personal habits & wellbeing',
     thumbnail: '/work/kairos.webp',
+    externalUrl: 'https://kairos-alpha-eight.vercel.app',
   },
 ];
 
