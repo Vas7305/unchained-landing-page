@@ -148,42 +148,67 @@ function Shell({
       {/* ── Controls ─────────────────────────────────────────────────────── */}
       <section className='px-6'>
         <div className='max-w-6xl mx-auto flex flex-wrap items-end gap-x-6 gap-y-4 justify-between'>
-          <div
-            className='flex flex-wrap items-end gap-4'
-            role='group'
-            aria-label={t('demo.controlsLabel')}
-          >
-            {scenarios.length > 1 && (
-              <div className='flex flex-col gap-1.5'>
-                <label
-                  htmlFor='demo-scenario'
-                  className='text-xs uppercase tracking-widest text-muted-foreground/60'
-                >
-                  {t('demo.scenario')}
-                </label>
-                <select
-                  id='demo-scenario'
-                  value={scenarioId}
-                  onChange={(event) => chooseScenario(event.target.value)}
-                  className='glow-border rounded-xl bg-secondary text-foreground text-sm font-medium px-3 min-h-11 pr-8'
-                >
-                  {scenarios.map((scenario) => (
-                    <option key={scenario.id} value={scenario.id}>
-                      {scenario.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            <button
-              type='button'
-              onClick={reset}
-              className='inline-flex items-center gap-2 glow-border rounded-xl bg-secondary hover:bg-accent text-foreground font-semibold px-4 min-h-11 text-sm transition-colors duration-200'
+          <div className='flex flex-wrap items-end gap-4'>
+            <div
+              className='flex flex-wrap items-end gap-4'
+              role='group'
+              aria-label={t('demo.controlsLabel')}
             >
-              <RotateCcw size={14} aria-hidden='true' />
-              {t('demo.reset')}
-            </button>
+              {scenarios.length > 1 && (
+                <div className='flex flex-col gap-1.5'>
+                  <label
+                    htmlFor='demo-scenario'
+                    className='text-xs uppercase tracking-widest text-muted-foreground/60'
+                  >
+                    {t('demo.scenario')}
+                  </label>
+                  <select
+                    id='demo-scenario'
+                    value={scenarioId}
+                    onChange={(event) => chooseScenario(event.target.value)}
+                    className='glow-border rounded-xl bg-secondary text-foreground text-sm font-medium px-3 min-h-11 pr-8'
+                  >
+                    {scenarios.map((scenario) => (
+                      <option key={scenario.id} value={scenario.id}>
+                        {scenario.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <button
+                type='button'
+                onClick={reset}
+                className='inline-flex items-center gap-2 glow-border rounded-xl bg-secondary hover:bg-accent text-foreground font-semibold px-4 min-h-11 text-sm transition-colors duration-200'
+              >
+                <RotateCcw size={14} aria-hidden='true' />
+                {t('demo.reset')}
+              </button>
+            </div>
+
+            {/* The real product beside the demo of it: install it, or visit it.
+                Siblings of the controls group rather than members — they leave
+                the demo, they do not drive it. */}
+            <ProductDownloadLink
+              slug={project.slug}
+              className='inline-flex items-center gap-2 glow-border rounded-xl bg-secondary hover:bg-accent text-foreground font-semibold px-4 min-h-11 text-sm transition-colors duration-200'
+            />
+
+            {/* §14/§15: production is one click away, and clearly a different
+                destination from the demo. */}
+            {project.externalUrl && (
+              <a
+                href={project.externalUrl}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='inline-flex items-center gap-2 min-h-11 px-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200'
+              >
+                {t('detail.visitLive')}
+                <ExternalLink size={14} aria-hidden='true' />
+                <span className='sr-only'>({t('contact.newTab')})</span>
+              </a>
+            )}
           </div>
 
           <p className='text-xs text-muted-foreground/70 max-w-sm leading-relaxed'>
@@ -245,32 +270,12 @@ function Shell({
               />
             </StartProjectButton>
 
-            {/* The real product, for the projects that can be installed. */}
-            <ProductDownloadLink
-              slug={project.slug}
-              className='inline-flex items-center justify-center gap-2 glow-border bg-secondary hover:bg-accent text-foreground font-semibold px-6 py-3 rounded-xl text-sm transition-colors duration-200'
-            />
-
             <Link
               href={`/work/${project.slug}`}
               className='inline-flex items-center justify-center gap-2 glow-border bg-secondary hover:bg-accent text-foreground font-semibold px-6 py-3 rounded-xl text-sm transition-colors duration-200'
             >
               {t('demo.backToProject')}
             </Link>
-
-            {/* §14/§15: production is still one click away, and it is clearly
-                a different destination from the demo. */}
-            {project.externalUrl && (
-              <a
-                href={project.externalUrl}
-                target='_blank'
-                rel='noopener noreferrer'
-                className='inline-flex items-center justify-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground px-6 py-3 transition-colors duration-200'
-              >
-                {t('detail.visitLive')}
-                <ExternalLink size={14} aria-hidden='true' />
-              </a>
-            )}
           </div>
         </div>
       </section>
