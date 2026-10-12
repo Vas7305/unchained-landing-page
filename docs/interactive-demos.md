@@ -231,6 +231,8 @@ is smaller than the site's existing animation library, so it has not been taken.
 Handled once in the shared primitives, so it cannot be forgotten differently in
 eight places:
 
+- **`DemoModal`** — focus moves in on open and returns to the opener on close,
+  Tab cycles inside, Escape closes, `aria-modal` and a labelling heading.
 - **`DemoField`** — real `<label for>`, `aria-invalid` and `aria-describedby`
   wired to the error, ids from `useId`.
 - **`DemoTabs`** — roving tabindex and arrow/Home/End keys.

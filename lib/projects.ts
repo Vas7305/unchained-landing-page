@@ -273,6 +273,18 @@ export const fallbackProjects: Project[] = [
     industry: 'Mental health & wellbeing',
     thumbnail: '/work/mensalere.webp',
   },
+  {
+    title: 'Merxis POS',
+    slug: 'merxis-pos',
+    description:
+      'Our own point of sale for shops, corner stores, cafés and small businesses: checkout, inventory, expenses and real profit, on a phone or a computer — and it keeps working offline.',
+    category: 'Point of Sale App',
+    status: 'completed',
+    year: '2026',
+    industry: 'Retail & small business',
+    thumbnail: '/work/merxis-pos.png',
+    externalUrl: 'https://counter-store.vercel.app',
+  },
 ];
 
 /**

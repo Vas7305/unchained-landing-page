@@ -99,6 +99,10 @@ export const de: Dictionary = {
     'Veranstalter, die Plätze für einen einzigen Termin verkaufen.',
   'showcase.klassisches-ballet.problem':
     'Programm, Platzkategorien und Reservierungen an einem Ort, mit Verfügbarkeit, die sich beim Verkauf aktualisiert.',
+  'showcase.merxis-pos.audience':
+    'Läden, Kioske, Cafés und Bäckereien, die über die Theke verkaufen.',
+  'showcase.merxis-pos.problem':
+    'Jeder Verkauf gebucht, der Bestand aktuell und die Kasse beim Abschluss gezählt — mit oder ohne Internet.',
   'languages.eyebrow': 'Mehrsprachig',
   'languages.title': 'Wir bringen Ihr Unternehmen dazu,',
   'languages.titleAccent': 'die Sprache Ihrer Kunden zu sprechen.',
@@ -325,6 +329,11 @@ export const de: Dictionary = {
     'Eine Plattform, die Menschen für private Online-Beratungen mit Psychologinnen und Psychologen zusammenbringt — mit Fachprofilen und Online-Terminbuchung.',
   'project.mensalere.category': 'Online-Beratungsplattform',
   'project.mensalere.industry': 'Psychische Gesundheit & Wohlbefinden',
+
+  'project.merxis-pos.description':
+    'Unser eigenes Kassensystem für Läden, Kioske, Cafés und kleine Betriebe: Kasse, Bestand, Ausgaben und echter Gewinn, auf dem Handy oder am Computer — und es läuft auch offline.',
+  'project.merxis-pos.category': 'Kassen-App',
+  'project.merxis-pos.industry': 'Einzelhandel & kleine Betriebe',
 
   'workPage.eyebrow': 'Portfolio',
   'workPage.statusKey': 'Legende der Projektstatus',

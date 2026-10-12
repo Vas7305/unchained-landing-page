@@ -109,6 +109,10 @@ export const en = {
     'Event organisers selling seats for a single date.',
   'showcase.klassisches-ballet.problem':
     'The programme, seating categories and reservations in one place, with availability updated as seats sell.',
+  'showcase.merxis-pos.audience':
+    'Shops, corner stores, cafés and bakeries that sell over the counter.',
+  'showcase.merxis-pos.problem':
+    'Every sale rung up, the stock kept current and the till counted at closing — with or without internet.',
   'languages.eyebrow': 'Multilingual',
   'languages.title': 'We make your business speak',
   'languages.titleAccent': 'your customers’ language.',
@@ -339,6 +343,11 @@ export const en = {
     'A platform connecting people with psychology professionals for private online consultations, with professional profiles and online appointment booking.',
   'project.mensalere.category': 'Online Consultation Platform',
   'project.mensalere.industry': 'Mental health & wellbeing',
+
+  'project.merxis-pos.description':
+    'Our own point of sale for shops, corner stores, cafés and small businesses: checkout, inventory, expenses and real profit, on a phone or a computer — and it keeps working offline.',
+  'project.merxis-pos.category': 'Point of Sale App',
+  'project.merxis-pos.industry': 'Retail & small business',
 
   // ── /work ─────────────────────────────────────────────────────────────────
   'workPage.eyebrow': 'Portfolio',

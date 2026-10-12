@@ -192,6 +192,45 @@ export const demoRegistry: Record<string, DemoDefinition> = {
     scenarios: [{ id: 'find', label: 'Find a professional' }],
     load: () => import('@/components/demo/apps/mensalere/App'),
   },
+
+  /* ── Point of sale: till, day's sales, cash closing ────────────────────── */
+  'merxis-pos': {
+    frame: 'desktop',
+    lang: 'es',
+    surfaceLabel: 'Merxis POS · Punto de venta para tu negocio',
+    // The product's "Escritorio moderno" look in dark mode, from
+    // src/appearance.css in the Merxis repository — the look of the
+    // screenshot on its portfolio card.
+    fontFamily:
+      '"Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif',
+    theme: {
+      '--d-bg': '#16181c',
+      '--d-surface': '#1f2228',
+      '--d-surface-2': '#2a2e35',
+      '--d-border': '#30353d',
+      '--d-fg': '#e8eaed',
+      '--d-muted': '#9aa3ae',
+      '--d-accent': '#6c9bff',
+      '--d-accent-fg': '#0b1220',
+      '--d-ring': '#6c9bff',
+      '--d-positive': '#5fd38d',
+      '--d-danger': '#f97066',
+      '--d-radius': '12px',
+    },
+    scenarios: [
+      {
+        id: 'turno',
+        label: 'Caja abierta',
+        hint: 'Media mañana: tres ventas y el ticket vacío.',
+      },
+      {
+        id: 'cierre',
+        label: 'Fin del día',
+        hint: 'Siete ventas cobradas; empieza en el cierre de caja.',
+      },
+    ],
+    load: () => import('@/components/demo/apps/merxis-pos/App'),
+  },
 };
 
 /** Whether a project slug has an interactive demo in this repository. */

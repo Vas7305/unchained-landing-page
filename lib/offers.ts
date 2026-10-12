@@ -96,7 +96,7 @@ export const offers: readonly Offer[] = [
     delivery: null,
     startingPrice: null,
     languages: null,
-    examples: ['lanna-kamilina', 'mensalere', 'klassisches-ballet'],
+    examples: ['merxis-pos', 'lanna-kamilina', 'mensalere', 'klassisches-ballet'],
     pillar: 'business-automation',
   },
   {
@@ -178,6 +178,10 @@ export const showcase: Readonly<
   'klassisches-ballet': {
     audience: 'showcase.klassisches-ballet.audience',
     problem: 'showcase.klassisches-ballet.problem',
+  },
+  'merxis-pos': {
+    audience: 'showcase.merxis-pos.audience',
+    problem: 'showcase.merxis-pos.problem',
   },
 };
 
