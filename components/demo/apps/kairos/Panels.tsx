@@ -47,7 +47,7 @@ interface Props {
   dispatch: Dispatch<Action>;
 }
 
-export function CategoryPill({ category, small = false }: { category: string; small?: boolean }) {
+function CategoryPill({ category, small = false }: { category: string; small?: boolean }) {
   const cat = categoryOf(category);
   return (
     <span
