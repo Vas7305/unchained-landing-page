@@ -394,6 +394,7 @@ export const it: Dictionary = {
     'Ogni demo ricostruisce un sistema che abbiamo progettato e realizzato. Se qualcosa di simile serve alla tua azienda, il passo successivo è una conversazione su che cosa dovrebbe fare.',
 
   'download.merxis-pos.android': 'Scarica Merxis POS per Android',
+  'download.kairos.android': 'Scarica Kairós per Android',
 
   'journeyPage.eyebrow': 'La Sfida Unchained',
   'journeyPage.title': 'Costruire Unchained.',

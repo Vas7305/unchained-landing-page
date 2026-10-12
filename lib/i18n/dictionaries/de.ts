@@ -395,6 +395,7 @@ export const de: Dictionary = {
     'Jede Demo bildet ein System nach, das wir entworfen und gebaut haben. Wenn so etwas in Ihr Unternehmen gehört, ist der nächste Schritt ein Gespräch darüber, was es leisten müsste.',
 
   'download.merxis-pos.android': 'Merxis POS für Android herunterladen',
+  'download.kairos.android': 'Kairós für Android herunterladen',
 
   'journeyPage.eyebrow': 'Die Unchained-Herausforderung',
   'journeyPage.title': 'Unchained Bauen.',

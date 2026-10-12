@@ -394,6 +394,7 @@ export const ru: Dictionary = {
     'Каждое демо воспроизводит систему, которую мы спроектировали и построили. Если подобное нужно вашему бизнесу, следующий шаг — разговор о том, что именно оно должно делать.',
 
   'download.merxis-pos.android': 'Скачать Merxis POS для Android',
+  'download.kairos.android': 'Скачать Kairós для Android',
 
   'journeyPage.eyebrow': 'Вызов Unchained',
   'journeyPage.title': 'Строим Unchained.',

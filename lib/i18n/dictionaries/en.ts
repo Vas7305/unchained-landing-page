@@ -418,6 +418,7 @@ export const en = {
   // Keyed by project slug, like `project.<slug>.*`, so each language can put
   // the product name where its own word order wants it. See lib/downloads.ts.
   'download.merxis-pos.android': 'Download Merxis POS for Android',
+  'download.kairos.android': 'Download Kairós for Android',
 
   // ── /journey ──────────────────────────────────────────────────────────────
   'journeyPage.eyebrow': 'The Unchained Challenge',
