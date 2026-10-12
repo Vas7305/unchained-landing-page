@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { ArrowLeft, ArrowRight, ExternalLink, PlayCircle } from 'lucide-react';
 import { track } from '@/lib/analytics';
 import { demoPath, hasDemo } from '@/lib/demo/registry';
+import { getDownload } from '@/lib/downloads';
+import ProductDownloadLink from '@/components/ProductDownloadLink';
 import ProjectVisual from '@/components/ProjectVisual';
 import ProjectViewTracker from '@/components/ProjectViewTracker';
 import ScrollDepth from '@/components/ScrollDepth';
@@ -38,16 +40,18 @@ function Meta({ label, value }: { label: string; value: string }) {
  * §15: the two destinations are deliberately distinguishable. The demo is the
  * filled, primary action, because it is exploration that stays on this site and
  * needs no account; the live product is the real thing and is marked as
- * leaving. A project with neither renders neither.
+ * leaving. A project with neither renders neither. A project that can be
+ * installed (lib/downloads.ts) also offers the download, after the demo.
  */
 function HeroActions({ project }: { project: Project }) {
   const t = useTranslation();
   const demo = hasDemo(project.slug);
+  const download = Boolean(getDownload(project.slug));
 
-  if (!demo && !project.externalUrl) return null;
+  if (!demo && !project.externalUrl && !download) return null;
 
   return (
-    <div className='mt-8 flex flex-col sm:flex-row gap-3'>
+    <div className='mt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3'>
       {demo && (
         <Link
           href={demoPath(project.slug)}
@@ -63,6 +67,11 @@ function HeroActions({ project }: { project: Project }) {
           />
         </Link>
       )}
+
+      <ProductDownloadLink
+        slug={project.slug}
+        className='inline-flex items-center justify-center gap-2 glow-border bg-secondary hover:bg-accent text-foreground font-semibold px-6 py-3 rounded-xl text-sm transition-colors duration-200'
+      />
 
       {project.externalUrl && (
         <a

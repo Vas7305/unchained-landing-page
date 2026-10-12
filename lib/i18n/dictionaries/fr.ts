@@ -384,6 +384,8 @@ export const fr: Dictionary = {
   'demo.nextBody':
     'Chaque démo reconstitue un système que nous avons conçu et construit. Si quelque chose de similaire a sa place dans votre entreprise, la prochaine étape est une conversation sur ce qu’il devrait faire.',
 
+  'download.merxis-pos.android': 'Télécharger Merxis POS pour Android',
+
   'journeyPage.eyebrow': 'Le Défi Unchained',
   'journeyPage.title': 'Construire Unchained.',
   'journeyPage.lede':

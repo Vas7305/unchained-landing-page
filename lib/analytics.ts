@@ -46,7 +46,10 @@ export type AnalyticsEvent =
   | 'demo_cta_click'
   | 'demo_open'
   | 'demo_reset'
-  | 'demo_completed';
+  | 'demo_completed'
+  // A click on a product's download link (lib/downloads.ts). Carries the
+  // project slug and nothing else.
+  | 'download_click';
 
 type Props = Record<string, string | number | boolean | undefined>;
 

@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, ExternalLink, RotateCcw } from 'lucide-react';
 import StatusBadge from '@/components/StatusBadge';
 import StartProjectButton from '@/components/StartProjectButton';
 import ScrollDepth from '@/components/ScrollDepth';
+import ProductDownloadLink from '@/components/ProductDownloadLink';
 import DemoFrame from './DemoFrame';
 import DemoStage from './DemoStage';
 import { track } from '@/lib/analytics';
@@ -230,7 +231,7 @@ function Shell({
             </p>
           </div>
 
-          <div className='flex flex-col sm:flex-row md:flex-col gap-3 shrink-0'>
+          <div className='flex flex-col sm:flex-row sm:flex-wrap md:flex-col gap-3 shrink-0'>
             <StartProjectButton
               source='project'
               detail={project.slug}
@@ -243,6 +244,12 @@ function Shell({
                 className='group-hover:translate-x-1 transition-transform duration-200'
               />
             </StartProjectButton>
+
+            {/* The real product, for the projects that can be installed. */}
+            <ProductDownloadLink
+              slug={project.slug}
+              className='inline-flex items-center justify-center gap-2 glow-border bg-secondary hover:bg-accent text-foreground font-semibold px-6 py-3 rounded-xl text-sm transition-colors duration-200'
+            />
 
             <Link
               href={`/work/${project.slug}`}

@@ -405,6 +405,11 @@ export const en = {
   'demo.nextBody':
     'Every demo here reconstructs a system we designed and built. If something like it belongs in your business, the next step is a conversation about what it would have to do.',
 
+  // ── Product downloads ─────────────────────────────────────────────────────
+  // Keyed by project slug, like `project.<slug>.*`, so each language can put
+  // the product name where its own word order wants it. See lib/downloads.ts.
+  'download.merxis-pos.android': 'Download Merxis POS for Android',
+
   // ── /journey ──────────────────────────────────────────────────────────────
   'journeyPage.eyebrow': 'The Unchained Challenge',
   'journeyPage.title': 'Building Unchained.',
