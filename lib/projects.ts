@@ -285,6 +285,17 @@ export const fallbackProjects: Project[] = [
     thumbnail: '/work/merxis-pos.png',
     externalUrl: 'https://counter-store.vercel.app',
   },
+  {
+    title: 'Kairós',
+    slug: 'kairos',
+    description:
+      'Our own day counter: mark the day that matters and Kairós counts every day since, celebrates each ten-day milestone, keeps a daily check and a daily alarm — on Android, iPhone or the web, with your data kept only on your device.',
+    category: 'Habit & Milestone Tracker App',
+    status: 'completed',
+    year: '2026',
+    industry: 'Personal habits & wellbeing',
+    thumbnail: '/work/kairos.webp',
+  },
 ];
 
 /**

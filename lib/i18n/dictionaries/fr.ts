@@ -103,6 +103,10 @@ export const fr: Dictionary = {
     'Boutiques, épiceries, cafés et boulangeries qui vendent au comptoir.',
   'showcase.merxis-pos.problem':
     'Chaque vente encaissée, le stock à jour et la caisse comptée à la clôture — avec ou sans internet.',
+  'showcase.kairos.audience':
+    'Les personnes qui veulent une application du quotidien sur leur téléphone — habitudes, santé et suivi personnel.',
+  'showcase.kairos.problem':
+    'Une application qui continue de compter et prévient à l’heure, fonctionne hors ligne et garde les données sur l’appareil — sur Android, iPhone et le web à partir d’un seul code.',
   'languages.eyebrow': 'Multilingue',
   'languages.title': 'Nous faisons parler votre entreprise',
   'languages.titleAccent': 'dans la langue de vos clients.',
@@ -333,6 +337,11 @@ export const fr: Dictionary = {
     'Notre propre caisse enregistreuse pour boutiques, épiceries, cafés et petits commerces : encaissement, stock, dépenses et bénéfice réel, sur téléphone ou ordinateur — et elle fonctionne hors ligne.',
   'project.merxis-pos.category': 'Application de Caisse',
   'project.merxis-pos.industry': 'Commerce de détail et petites entreprises',
+
+  'project.kairos.description':
+    'Notre propre compteur de jours : marquez le jour qui compte et Kairós compte chaque jour depuis, célèbre chaque palier de dix jours, tient un suivi quotidien et une alarme quotidienne — sur Android, iPhone ou le web, avec vos données conservées uniquement sur votre appareil.',
+  'project.kairos.category': 'Application d’habitudes et de paliers',
+  'project.kairos.industry': 'Habitudes personnelles et bien-être',
 
   'workPage.eyebrow': 'Portfolio',
   'workPage.statusKey': 'Légende des statuts de projet',

@@ -102,6 +102,10 @@ export const es: Dictionary = {
     'Tiendas, bodegas, cafeterías y panaderías que venden en mostrador.',
   'showcase.merxis-pos.problem':
     'Cada venta cobrada, el inventario al día y la caja contada al cierre — con o sin internet.',
+  'showcase.kairos.audience':
+    'Personas que quieren una app de uso diario en el teléfono — hábitos, salud y seguimiento personal.',
+  'showcase.kairos.problem':
+    'Una app que sigue contando y avisa a tiempo, funciona sin conexión y guarda los datos en el dispositivo — en Android, iPhone y la web desde un solo código.',
   'languages.eyebrow': 'Multilingüe',
   'languages.title': 'Hacemos que tu negocio hable',
   'languages.titleAccent': 'el idioma de tus clientes.',
@@ -332,6 +336,11 @@ export const es: Dictionary = {
     'Nuestro propio punto de venta para tiendas, bodegas, cafeterías y pequeños negocios: caja, inventario, gastos y utilidad real, en el teléfono o en la computadora — y sigue funcionando sin internet.',
   'project.merxis-pos.category': 'App de Punto de Venta',
   'project.merxis-pos.industry': 'Comercio minorista y pequeños negocios',
+
+  'project.kairos.description':
+    'Nuestro propio contador de días: marca el día que importa y Kairós cuenta cada día desde entonces, celebra cada hito de diez días y lleva un registro diario y una alarma diaria — en Android, iPhone o la web, con tus datos guardados solo en tu dispositivo.',
+  'project.kairos.category': 'App de Hábitos e Hitos',
+  'project.kairos.industry': 'Hábitos personales y bienestar',
 
   'workPage.eyebrow': 'Portafolio',
   'workPage.statusKey': 'Leyenda de estados de proyecto',

@@ -134,6 +134,7 @@ scenario resets the same way, for the same reason.
 | Frito | phone | es | onboarding → discovery → match → conversation | new user / with matches |
 | Unchained OS | desktop | en | pipeline → compare → allocate capital → commit | pipeline / allocation |
 | VectorForge | desktop | en | **the product's own frontend** — import, mode, sliders, trace, split preview, node overlay, SVG export | one |
+| Kairós | desktop | es | dashboard rebuilt from the product's source — a milestone crossed live at midnight, projector, daily checks, counter form, share card, alarm history, light theme | midnight / morning alarm |
 
 ### Why each demo is in its product's own language
 
@@ -169,6 +170,13 @@ Every demo can be made to fail, on purpose and repeatably (§20) — never rando
   sliders is written by the product's store, not by the demo. Cancel is real
   too — the trace is an `AbortController` the product created.
 - **Frito** — under-18 registration is refused.
+- **Kairós** — a marked day after today, an empty title and a target that is
+  not a whole number of days are refused by the counter form. Its other
+  "failure" is time itself: the demo runs on its own clock, fixed per scenario
+  (23:59:20 the night "Sin fumar" turns 30; 06:59:40 before the 07:00 alarm),
+  so the milestone and the alarm happen for every visitor at the same moment.
+  The OS notification tray and the PNG share sheet are drawn inside the
+  window rather than done; the install button and the age gate are left out.
 
 ### Fixtures
 

@@ -109,7 +109,7 @@ export const offers: readonly Offer[] = [
     delivery: null,
     startingPrice: null,
     languages: null,
-    examples: ['tancerca'],
+    examples: ['tancerca', 'kairos'],
     pillar: 'software-development',
   },
 ];
@@ -182,6 +182,10 @@ export const showcase: Readonly<
   'merxis-pos': {
     audience: 'showcase.merxis-pos.audience',
     problem: 'showcase.merxis-pos.problem',
+  },
+  kairos: {
+    audience: 'showcase.kairos.audience',
+    problem: 'showcase.kairos.problem',
   },
 };
 

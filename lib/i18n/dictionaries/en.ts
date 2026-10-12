@@ -113,6 +113,10 @@ export const en = {
     'Shops, corner stores, cafés and bakeries that sell over the counter.',
   'showcase.merxis-pos.problem':
     'Every sale rung up, the stock kept current and the till counted at closing — with or without internet.',
+  'showcase.kairos.audience':
+    'People who want an everyday app on their phone — habit, health and personal tracking.',
+  'showcase.kairos.problem':
+    'An app that keeps counting and reminds on time, works offline and keeps the data on the device — on Android, iPhone and the web from one codebase.',
   'languages.eyebrow': 'Multilingual',
   'languages.title': 'We make your business speak',
   'languages.titleAccent': 'your customers’ language.',
@@ -348,6 +352,11 @@ export const en = {
     'Our own point of sale for shops, corner stores, cafés and small businesses: checkout, inventory, expenses and real profit, on a phone or a computer — and it keeps working offline.',
   'project.merxis-pos.category': 'Point of Sale App',
   'project.merxis-pos.industry': 'Retail & small business',
+
+  'project.kairos.description':
+    'Our own day counter: mark the day that matters and Kairós counts every day since, celebrates each ten-day milestone, keeps a daily check and a daily alarm — on Android, iPhone or the web, with your data kept only on your device.',
+  'project.kairos.category': 'Habit & Milestone Tracker App',
+  'project.kairos.industry': 'Personal habits & wellbeing',
 
   // ── /work ─────────────────────────────────────────────────────────────────
   'workPage.eyebrow': 'Portfolio',

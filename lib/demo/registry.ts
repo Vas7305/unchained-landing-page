@@ -231,6 +231,46 @@ export const demoRegistry: Record<string, DemoDefinition> = {
     ],
     load: () => import('@/components/demo/apps/merxis-pos/App'),
   },
+
+  /* ── Day counter: milestones every ten days, daily checks and alarms ───── */
+  kairos: {
+    frame: 'desktop',
+    lang: 'es',
+    surfaceLabel: 'Kairós — Días & Hitos',
+    // The product's obsidian dark theme, from frontend/src/index.css in the
+    // Kairós repository — the look of the screenshot on its portfolio card.
+    // Inside the window the demo sets these again for its light theme, and
+    // its own three faces through next/font; this stack is what the frame's
+    // title bar reads in.
+    fontFamily: '"DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+    theme: {
+      '--d-bg': '#0B0C10',
+      '--d-surface': '#14161F',
+      '--d-surface-2': '#1C1F2B',
+      '--d-border': '#262A36',
+      '--d-fg': '#F3F4F6',
+      '--d-muted': '#9CA3AF',
+      '--d-accent': '#F59E0B',
+      '--d-accent-fg': '#0B0C10',
+      '--d-ring': '#FBBF24',
+      '--d-positive': '#10B981',
+      '--d-danger': '#EF4444',
+      '--d-radius': '10px',
+    },
+    scenarios: [
+      {
+        id: 'medianoche',
+        label: 'Cruce de hito en vivo',
+        hint: 'Son las 23:59:20: a medianoche «Sin fumar» cumple 30 días. Abre el modo proyector para verlo en grande.',
+      },
+      {
+        id: 'alarma',
+        label: 'Alarma de la mañana',
+        hint: 'Son las 6:59:40 y «Correr cada mañana» tiene su alarma diaria a las 7:00.',
+      },
+    ],
+    load: () => import('@/components/demo/apps/kairos/App'),
+  },
 };
 
 /** Whether a project slug has an interactive demo in this repository. */

@@ -103,6 +103,10 @@ export const de: Dictionary = {
     'Läden, Kioske, Cafés und Bäckereien, die über die Theke verkaufen.',
   'showcase.merxis-pos.problem':
     'Jeder Verkauf gebucht, der Bestand aktuell und die Kasse beim Abschluss gezählt — mit oder ohne Internet.',
+  'showcase.kairos.audience':
+    'Menschen, die eine App für jeden Tag auf dem Handy wollen — Gewohnheiten, Gesundheit und persönliches Tracking.',
+  'showcase.kairos.problem':
+    'Eine App, die weiterzählt und pünktlich erinnert, offline funktioniert und die Daten auf dem Gerät behält — auf Android, iPhone und im Web aus einer Codebasis.',
   'languages.eyebrow': 'Mehrsprachig',
   'languages.title': 'Wir bringen Ihr Unternehmen dazu,',
   'languages.titleAccent': 'die Sprache Ihrer Kunden zu sprechen.',
@@ -334,6 +338,11 @@ export const de: Dictionary = {
     'Unser eigenes Kassensystem für Läden, Kioske, Cafés und kleine Betriebe: Kasse, Bestand, Ausgaben und echter Gewinn, auf dem Handy oder am Computer — und es läuft auch offline.',
   'project.merxis-pos.category': 'Kassen-App',
   'project.merxis-pos.industry': 'Einzelhandel & kleine Betriebe',
+
+  'project.kairos.description':
+    'Unser eigener Tageszähler: Markiere den Tag, der zählt, und Kairós zählt jeden Tag seitdem, feiert jeden Zehn-Tage-Meilenstein und führt eine tägliche Abhakliste und einen täglichen Wecker — auf Android, iPhone oder im Web, mit deinen Daten nur auf deinem Gerät.',
+  'project.kairos.category': 'Gewohnheits- & Meilenstein-App',
+  'project.kairos.industry': 'Persönliche Gewohnheiten & Wohlbefinden',
 
   'workPage.eyebrow': 'Portfolio',
   'workPage.statusKey': 'Legende der Projektstatus',
