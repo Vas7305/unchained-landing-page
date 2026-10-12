@@ -147,3 +147,30 @@ double_confirm_changes = true
 # everything after that check runs as service_role, which no RLS policy
 # governs. Two gates, and the inner one is the one that matters.
 verify_jwt = true
+
+[functions.security-core]
+# OFF, deliberately — and this line is what keeps it off.
+#
+# Applications on their own Supabase projects (TanCerca, Frito) hold no
+# session here. They authenticate to the Core with an APPLICATION KEY in the
+# X-Security-Application-Key header and send no Authorization header at all;
+# lib/security/client.ts → createHttpTransport() is written exactly that way.
+# With the gateway verifying JWTs, every one of those requests is refused with
+# UNAUTHORIZED_NO_AUTH_HEADER before this function runs — a 401 that looks
+# identical to a bad key. That is how security-core v1 shipped: verify_jwt was
+# left at the default, and no application could ingest a single event.
+#
+# Turning it off removes no protection. The only JWT the gateway would accept
+# without a session is this project's anon key, which is public, so on this
+# endpoint the gateway check never stopped anyone but legitimate key-only
+# callers. The real controls are inside, and are unchanged:
+#
+#   ingest_event          the key is SHA-256 hashed here and resolved by
+#                         security_ingest_as_application(), service_role only.
+#   mint/revoke_*         requireSuperAdmin() calls auth.getUser() with the
+#                         forwarded Authorization header, which validates the
+#                         JWT itself, then checks public.roles for super_admin.
+#
+# Without this block, any routine `supabase functions deploy security-core`
+# silently restores the default and breaks ingestion again.
+verify_jwt = false
