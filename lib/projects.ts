@@ -283,7 +283,7 @@ export const fallbackProjects: Project[] = [
     year: '2026',
     industry: 'Retail & small business',
     thumbnail: '/work/merxis-pos.png',
-    externalUrl: 'https://counter-store.vercel.app',
+    externalUrl: 'https://www.merxispos.com',
   },
   {
     title: 'Kairós',
