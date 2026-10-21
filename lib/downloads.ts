@@ -28,7 +28,7 @@ export const productDownloads: Record<string, ProductDownload> = {
   'merxis-pos': {
     href: '/downloads/merxis/MerxisPOS.apk',
     label: 'download.merxis-pos.android',
-    bytes: 6_196_612,
+    bytes: 6_256_720,
   },
   // The signed release APK (1.0.3), as built from the Kairos repository.
   kairos: {
