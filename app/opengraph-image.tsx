@@ -1,12 +1,14 @@
 import { ImageResponse } from 'next/og';
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { siteConfig } from '@/lib/site';
+import { OG_IMAGE_SIZE } from '@/lib/metadata';
+import { ogLogoHeight, ogLogoSrc } from '@/lib/og';
 
 export const runtime = 'nodejs';
-export const size = { width: 1200, height: 630 };
+export const size = OG_IMAGE_SIZE;
 export const contentType = 'image/png';
 export const alt = `${siteConfig.name} — ${siteConfig.tagline}`;
+
+const LOGO_WIDTH = 840;
 
 /**
  * Root-level file-convention OG image (Next.js metadata API). Applies to
@@ -14,13 +16,7 @@ export const alt = `${siteConfig.name} — ${siteConfig.tagline}`;
  * every route in the app — so this is the one image indexable pages need.
  */
 export default async function OpengraphImage() {
-  const markPath = join(
-    process.cwd(),
-    'public',
-    'Unchained Busines Favicon ok12 oscuro.jpg',
-  );
-  const mark = await readFile(markPath);
-  const markSrc = `data:image/jpeg;base64,${mark.toString('base64')}`;
+  const logo = await ogLogoSrc;
 
   return new ImageResponse(
     (
@@ -29,46 +25,27 @@ export default async function OpengraphImage() {
           width: '100%',
           height: '100%',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
+          justifyContent: 'center',
           backgroundColor: '#000000',
-          padding: '0 80px',
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- ImageResponse (satori) renders its own <img>, not next/image */}
         <img
-          src={markSrc}
-          width={260}
-          height={260}
+          src={logo}
+          width={LOGO_WIDTH}
+          height={ogLogoHeight(LOGO_WIDTH)}
           alt=''
-          style={{ borderRadius: 32 }}
         />
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            marginLeft: 56,
+            marginTop: 56,
+            fontSize: 32,
+            color: '#a3a3ad',
           }}
         >
-          <div
-            style={{
-              fontSize: 60,
-              fontWeight: 700,
-              color: '#ffffff',
-              letterSpacing: '-0.02em',
-            }}
-          >
-            {siteConfig.name}
-          </div>
-          <div
-            style={{
-              marginTop: 20,
-              fontSize: 30,
-              color: '#a3a3ad',
-              maxWidth: 780,
-            }}
-          >
-            {siteConfig.tagline}
-          </div>
+          {siteConfig.tagline}
         </div>
       </div>
     ),

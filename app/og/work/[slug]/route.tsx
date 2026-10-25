@@ -5,7 +5,7 @@ import sharp from 'sharp';
 import { findProject } from '@/lib/projects';
 import { loadProjects } from '@/lib/portfolio';
 import { OG_IMAGE_SIZE } from '@/lib/metadata';
-import { siteConfig } from '@/lib/site';
+import { ogLogoHeight, ogLogoSrc } from '@/lib/og';
 
 type Params = { slug: string };
 
@@ -19,11 +19,6 @@ export async function generateStaticParams(): Promise<Params[]> {
 }
 
 const PUBLIC_DIR = join(process.cwd(), 'public');
-
-/** The brand mark, the same on every card, so it is read once per process. */
-const markSrc = readFile(
-  join(PUBLIC_DIR, 'Unchained Busines Favicon ok12 oscuro.jpg'),
-).then((mark) => `data:image/jpeg;base64,${mark.toString('base64')}`);
 
 /**
  * The screenshot as a PNG data URI, or null when there is none to show.
@@ -64,7 +59,8 @@ async function screenshot(src: string | undefined): Promise<string | null> {
 }
 
 /**
- * A project's share card: its screenshot above its name, 1200×630 PNG.
+ * A project's share card: its screenshot above its name and the company
+ * logo, 1200×630 PNG.
  *
  * A route handler rather than an `opengraph-image.tsx` beside the page,
  * because a file-convention image overrides the page's own metadata — and the
@@ -78,9 +74,9 @@ export async function GET(
   const project = findProject(await loadProjects(), slug);
   if (!project) return new Response('Not found', { status: 404 });
 
-  const [shot, mark] = await Promise.all([
+  const [shot, logo] = await Promise.all([
     screenshot(project.heroImage ?? project.thumbnail),
-    markSrc,
+    ogLogoSrc,
   ]);
 
   const card = new ImageResponse(
@@ -111,25 +107,57 @@ export async function GET(
             }}
           />
         ) : null}
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element -- see above */}
-          <img
-            src={mark}
-            width={shot ? 72 : 160}
-            height={shot ? 72 : 160}
-            alt=''
-            style={{ borderRadius: shot ? 12 : 24 }}
-          />
+        {shot ? (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div
+                style={{
+                  fontSize: 44,
+                  fontWeight: 700,
+                  color: '#ffffff',
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                {project.title}
+              </div>
+              <div style={{ marginTop: 4, fontSize: 22, color: '#a3a3ad' }}>
+                {project.category}
+              </div>
+            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element -- see above */}
+            <img
+              src={logo}
+              width={300}
+              height={ogLogoHeight(300)}
+              alt=''
+            />
+          </div>
+        ) : (
+          // No screenshot: the logo carries the card, the project under it.
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
-              marginLeft: shot ? 24 : 44,
+              alignItems: 'center',
             }}
           >
+            {/* eslint-disable-next-line @next/next/no-img-element -- see above */}
+            <img
+              src={logo}
+              width={720}
+              height={ogLogoHeight(720)}
+              alt=''
+            />
             <div
               style={{
-                fontSize: shot ? 44 : 64,
+                marginTop: 56,
+                fontSize: 52,
                 fontWeight: 700,
                 color: '#ffffff',
                 letterSpacing: '-0.02em',
@@ -137,17 +165,11 @@ export async function GET(
             >
               {project.title}
             </div>
-            <div
-              style={{
-                marginTop: shot ? 4 : 16,
-                fontSize: shot ? 22 : 30,
-                color: '#a3a3ad',
-              }}
-            >
-              {`${project.category} · ${siteConfig.name}`}
+            <div style={{ marginTop: 8, fontSize: 26, color: '#a3a3ad' }}>
+              {project.category}
             </div>
           </div>
-        </div>
+        )}
       </div>
     ),
     { ...OG_IMAGE_SIZE },
