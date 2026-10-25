@@ -72,12 +72,27 @@ describe('with no overrides', () => {
   });
 
   it('uses the content’s own image', () => {
-    expect(meta.openGraph?.images).toEqual(['/work/tancerca-hero.webp']);
+    const own = buildCmsMetadata(
+      { ...defaults, image: '/work/merxis-pos.png' },
+      undefined,
+    );
+    expect(own.openGraph?.images).toEqual([
+      expect.objectContaining({ url: '/work/merxis-pos.png' }),
+    ]);
+  });
+
+  it('skips a content image link previews cannot show', () => {
+    // defaults.image is WebP.
+    expect(meta.openGraph?.images).toEqual([
+      expect.objectContaining({ url: SITE_OG_IMAGE }),
+    ]);
   });
 
   it('falls back to the site image when the content has none', () => {
     const bare = buildCmsMetadata({ ...defaults, image: undefined }, undefined);
-    expect(bare.openGraph?.images).toEqual([SITE_OG_IMAGE]);
+    expect(bare.openGraph?.images).toEqual([
+      expect.objectContaining({ url: SITE_OG_IMAGE }),
+    ]);
   });
 });
 
@@ -112,7 +127,9 @@ describe('with overrides', () => {
   });
 
   it('prefers the editor’s OG image over the content’s', () => {
-    expect(meta.openGraph?.images).toEqual(['/og/tancerca-social.png']);
+    expect(meta.openGraph?.images).toEqual([
+      expect.objectContaining({ url: '/og/tancerca-social.png' }),
+    ]);
   });
 });
 
@@ -162,5 +179,17 @@ describe('robots', () => {
 
   it('is absent for an ordinary page', () => {
     expect(buildCmsMetadata(defaults, undefined).robots).toBeUndefined();
+  });
+});
+
+describe('an OG image override in a format previews cannot show', () => {
+  it('falls through to the content’s image rather than to nothing', () => {
+    const meta = buildCmsMetadata(
+      { ...defaults, image: '/work/merxis-pos.png' },
+      { ogImage: '/og/tancerca-social.webp' },
+    );
+    expect(meta.openGraph?.images).toEqual([
+      expect.objectContaining({ url: '/work/merxis-pos.png' }),
+    ]);
   });
 });

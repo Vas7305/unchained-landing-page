@@ -44,7 +44,9 @@ describe('/insights', () => {
     expect(og.title).toBe(`Insights — ${siteConfig.name}`);
     expect(og.description).toBe(indexMetadata.description);
     expect(og.url).toBe(`${siteConfig.url}/insights`);
-    expect(og.images).toEqual(['/opengraph-image']);
+    expect(og.images).toEqual([
+      expect.objectContaining({ url: '/opengraph-image' }),
+    ]);
   });
 
   it('is left indexable', () => {
@@ -133,7 +135,9 @@ describe('/insights/custom-software-or-saas', () => {
     expect(og.title).toBe(`${article.title} — ${siteConfig.name}`);
     expect(og.description).toBe(article.description);
     expect(og.url).toBe(`${siteConfig.url}${path}`);
-    expect(og.images).toEqual([SITE_OG_IMAGE]);
+    expect(og.images).toEqual([
+      expect.objectContaining({ url: SITE_OG_IMAGE }),
+    ]);
     expect(og.type).toBe('article');
     expect(og.publishedTime).toBe(article.publishedAt);
     expect((meta.twitter as { card?: string }).card).toBe(

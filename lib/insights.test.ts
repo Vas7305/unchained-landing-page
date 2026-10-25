@@ -159,7 +159,7 @@ describe('Custom Software or SaaS? A Framework for Deciding', () => {
   it('takes the site OG image rather than inventing an asset', () => {
     expect(article.ogImage).toBeUndefined();
     expect(buildInsightMetadata(article).openGraph?.images).toEqual([
-      '/opengraph-image',
+      expect.objectContaining({ url: '/opengraph-image' }),
     ]);
   });
 });
@@ -260,11 +260,15 @@ describe('buildInsightMetadata', () => {
   });
 
   it('always carries an OG image, falling back to the site one', () => {
-    expect(meta.openGraph?.images).toEqual(['/opengraph-image']);
+    expect(meta.openGraph?.images).toEqual([
+      expect.objectContaining({ url: '/opengraph-image' }),
+    ]);
     const withOwn = buildInsightMetadata(
       fixture({ ogImage: '/insights/example.png' }),
     );
-    expect(withOwn.openGraph?.images).toEqual(['/insights/example.png']);
+    expect(withOwn.openGraph?.images).toEqual([
+      expect.objectContaining({ url: '/insights/example.png' }),
+    ]);
   });
 
   it('publishes article dates', () => {

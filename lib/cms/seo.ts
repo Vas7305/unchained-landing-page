@@ -16,6 +16,7 @@
  *   OG title         → SEO title → content title
  *   OG description   → SEO description → content description
  *   OG image         → the content's own image → the site image
+ *                      (skipping any link previews cannot show, e.g. WebP)
  *
  * ─── "Do not generate meaningless duplicate metadata" ─────────────────────
  * The chain above deliberately produces the SAME string in several slots when
@@ -28,7 +29,11 @@
  */
 
 import type { Metadata } from 'next';
-import { SITE_OG_IMAGE, buildPageMetadata } from '@/lib/metadata';
+import {
+  SITE_OG_IMAGE,
+  buildPageMetadata,
+  isShareableImage,
+} from '@/lib/metadata';
 import { text, externalUrl, mediaRef } from './sanitize';
 
 /** The overrides an editor may set, all optional. */
@@ -81,6 +86,8 @@ export type SeoDefaults = {
   path: string;
   /** The content's own image, if it has one. */
   image?: string;
+  /** What `image` shows, for og:image:alt. */
+  imageAlt?: string;
   type?: 'website' | 'article';
   publishedTime?: string;
   modifiedTime?: string;
@@ -119,7 +126,12 @@ export function buildCmsMetadata(
     // name, and an editor who wrote an OG title meant that exact string.
     socialTitle: seo?.ogTitle,
     type: defaults.type ?? 'website',
-    image: seo?.ogImage ?? defaults.image ?? SITE_OG_IMAGE,
+    // The first image in the chain a link preview can actually show: an
+    // editor's WebP override must not knock out a usable default behind it.
+    image:
+      [seo?.ogImage, defaults.image].find(isShareableImage) ?? SITE_OG_IMAGE,
+    // The alt describes the content's image, so it only travels with it.
+    imageAlt: seo?.ogImage ? undefined : defaults.imageAlt,
     publishedTime: defaults.publishedTime,
     modifiedTime: defaults.modifiedTime,
     robots: defaults.robots,

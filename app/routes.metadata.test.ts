@@ -6,7 +6,7 @@ import { metadata as growthMetadata } from './growth-systems/page';
 import { metadata as journeyMetadata } from './journey/page';
 import { metadata as workMetadata } from './work/page';
 import { generateMetadata as projectMetadata } from './work/[slug]/page';
-import { SITE_OG_IMAGE } from '@/lib/metadata';
+import { SITE_OG_IMAGE, projectOgImage } from '@/lib/metadata';
 import { siteConfig } from '@/lib/site';
 import { pillarContent } from '@/lib/pillar-content';
 import { fallbackProjects, findProject } from '@/lib/projects';
@@ -62,7 +62,9 @@ describe('the home page', () => {
     expect(og.title).toBe(HOME_OG_TITLE);
     expect(og.description).toBe(siteConfig.description);
     expect(og.url).toBe(`${siteConfig.url}/`);
-    expect(og.images).toEqual([SITE_OG_IMAGE]);
+    expect(og.images).toEqual([
+      expect.objectContaining({ url: SITE_OG_IMAGE }),
+    ]);
     expect(og.type).toBe('website');
   });
 });
@@ -93,7 +95,9 @@ describe.each(routes)('$name', ({ meta, path }) => {
   });
 
   it('keeps a valid OG image and the site name', () => {
-    expect(og.images).toEqual([SITE_OG_IMAGE]);
+    expect(og.images).toEqual([
+      expect.objectContaining({ url: SITE_OG_IMAGE }),
+    ]);
     expect(og.siteName).toBe(siteConfig.name);
   });
 
@@ -134,7 +138,9 @@ describe('/work/[slug]', () => {
     expect(og.title).toBe(`${project.title} — ${siteConfig.name}`);
     expect(og.title).not.toBe(HOME_OG_TITLE);
     expect(og.description).not.toBe(siteConfig.description);
-    expect(og.images).toEqual([project.heroImage]);
+    expect(og.images).toEqual([
+      expect.objectContaining({ url: projectOgImage(project.slug) }),
+    ]);
     expect(og.type).toBe('article');
   });
 

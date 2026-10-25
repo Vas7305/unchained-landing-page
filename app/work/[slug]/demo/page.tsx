@@ -5,7 +5,7 @@ import JsonLd from '@/components/JsonLd';
 import { findProject } from '@/lib/projects';
 import { loadProjects } from '@/lib/portfolio';
 import { hasDemo } from '@/lib/demo/registry';
-import { buildPageMetadata, SITE_OG_IMAGE } from '@/lib/metadata';
+import { buildPageMetadata, projectOgImage } from '@/lib/metadata';
 import { breadcrumbSchema } from '@/lib/structured-data';
 
 type Params = { slug: string };
@@ -50,7 +50,8 @@ export async function generateMetadata({
     title: `${project.title} — Interactive Demo`,
     description: `Explore an interactive, simulated demonstration of ${project.title} — ${project.category.toLowerCase()} built by Unchained Business. No account, no setup, no real data.`,
     path: `/work/${project.slug}/demo`,
-    image: project.heroImage ?? project.thumbnail ?? SITE_OG_IMAGE,
+    image: projectOgImage(project.slug),
+    imageAlt: project.heroImageAlt ?? project.thumbnailAlt,
     ...(project.detailed ? {} : { robots: { index: false, follow: true } }),
   });
 }

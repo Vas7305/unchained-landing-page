@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { SITE_OG_IMAGE, absoluteUrl, buildPageMetadata } from './metadata';
+import {
+  OG_IMAGE_SIZE,
+  SITE_OG_IMAGE,
+  absoluteUrl,
+  buildPageMetadata,
+  isShareableImage,
+  projectOgImage,
+} from './metadata';
 import { siteConfig } from './site';
 
 /**
@@ -50,14 +57,70 @@ describe('buildPageMetadata', () => {
   });
 
   it('always carries an OG image, because declaring openGraph drops the file convention', () => {
-    expect(meta.openGraph?.images).toEqual([SITE_OG_IMAGE]);
+    expect(meta.openGraph?.images).toEqual([
+      expect.objectContaining({ url: SITE_OG_IMAGE }),
+    ]);
     const withOwn = buildPageMetadata({
+      title: 'TanCerca',
+      description: 'A project.',
+      path: '/work/tancerca',
+      image: '/work/merxis-pos.png',
+    });
+    expect(withOwn.openGraph?.images).toEqual([
+      expect.objectContaining({ url: '/work/merxis-pos.png' }),
+    ]);
+  });
+
+  it('never advertises an image link previews cannot show', () => {
+    // A WebP og:image renders as an empty card on LinkedIn, WhatsApp and
+    // Facebook, which is what every project page used to ship.
+    const webp = buildPageMetadata({
       title: 'TanCerca',
       description: 'A project.',
       path: '/work/tancerca',
       image: '/work/tancerca-hero.webp',
     });
-    expect(withOwn.openGraph?.images).toEqual(['/work/tancerca-hero.webp']);
+    expect(webp.openGraph?.images).toEqual([
+      expect.objectContaining({ url: SITE_OG_IMAGE }),
+    ]);
+  });
+
+  it('declares size, type and alt for the images it generates', () => {
+    for (const image of [SITE_OG_IMAGE, projectOgImage('tancerca')]) {
+      const built = buildPageMetadata({
+        title: 'TanCerca',
+        description: 'A project.',
+        path: '/work/tancerca',
+        image,
+      });
+      expect(built.openGraph?.images).toEqual([
+        {
+          url: image,
+          ...OG_IMAGE_SIZE,
+          type: 'image/png',
+          alt: `TanCerca — ${siteConfig.name}`,
+        },
+      ]);
+    }
+  });
+
+  it('does not guess the size of an image it did not generate', () => {
+    const built = buildPageMetadata({
+      title: 'TanCerca',
+      description: 'A project.',
+      path: '/work/tancerca',
+      image: '/work/merxis-pos.png',
+      imageAlt: 'The Merxis POS checkout screen',
+    });
+    expect(built.openGraph?.images).toEqual([
+      { url: '/work/merxis-pos.png', alt: 'The Merxis POS checkout screen' },
+    ]);
+  });
+
+  it('puts the same image on the Twitter card', () => {
+    expect(meta.twitter?.images).toEqual([
+      expect.objectContaining({ url: SITE_OG_IMAGE }),
+    ]);
   });
 
   it('mirrors the social title and description onto the Twitter card', () => {
@@ -123,5 +186,22 @@ describe('buildPageMetadata', () => {
     });
     expect(meta.openGraph?.title).toBe('Something else entirely');
     expect(meta.twitter?.title).toBe('Something else entirely');
+  });
+});
+
+describe('isShareableImage', () => {
+  it('accepts the formats every link preview reads', () => {
+    expect(isShareableImage('/work/merxis-pos.png')).toBe(true);
+    expect(isShareableImage('/a/photo.JPG')).toBe(true);
+    expect(isShareableImage(SITE_OG_IMAGE)).toBe(true);
+    expect(isShareableImage(projectOgImage('tancerca'))).toBe(true);
+  });
+
+  it('rejects WebP, AVIF and SVG, query string or not', () => {
+    expect(isShareableImage('/work/tancerca-hero.webp')).toBe(false);
+    expect(isShareableImage('https://x.supabase.co/a.webp?v=2')).toBe(false);
+    expect(isShareableImage('/a.avif')).toBe(false);
+    expect(isShareableImage('/logo.svg')).toBe(false);
+    expect(isShareableImage(undefined)).toBe(false);
   });
 });

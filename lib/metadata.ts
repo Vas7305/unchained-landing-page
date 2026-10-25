@@ -26,6 +26,37 @@ import { siteConfig } from '@/lib/site';
  */
 export const SITE_OG_IMAGE = '/opengraph-image';
 
+/** The size of every OG image this site generates itself. */
+export const OG_IMAGE_SIZE = { width: 1200, height: 630 } as const;
+
+/**
+ * A project's generated share card (app/og/work/[slug]/route.tsx): its
+ * screenshot and name on a 1200×630 PNG, in place of the raw screenshot.
+ */
+export function projectOgImage(slug: string): string {
+  return `/og/work/${encodeURIComponent(slug)}`;
+}
+
+/** Whether `src` is one of the PNGs generated above, of known size. */
+function isGeneratedOgImage(src: string): boolean {
+  return src === SITE_OG_IMAGE || src.startsWith('/og/work/');
+}
+
+/**
+ * Whether the platforms that unfurl links can actually show `src`.
+ *
+ * WebP and AVIF are the site's default screenshot formats and are fine on the
+ * page, but LinkedIn, WhatsApp and Facebook's crawler render a card with no
+ * image at all when og:image points at one — which is what every project page
+ * shipped with. SVG is not accepted by any of them. Only the extension is
+ * read: a remote CMS image is never fetched here.
+ */
+export function isShareableImage(src: string | undefined): src is string {
+  if (!src) return false;
+  const path = src.split(/[?#]/)[0].toLowerCase();
+  return !/\.(webp|avif|svg)$/.test(path);
+}
+
 /** An absolute URL on the canonical host, from a root-relative path. */
 export function absoluteUrl(path = '/'): string {
   return new URL(path, `${siteConfig.url}/`).toString();
@@ -45,8 +76,11 @@ export type PageMetadataInput = {
   socialTitle?: string;
   /** `og:type`. Defaults to `website`. */
   type?: 'website' | 'article';
-  /** `og:image`. Defaults to the site-wide image. */
+  /** `og:image`. Defaults to the site-wide image, and falls back to it when
+   *  the one given is in a format link previews cannot show. */
   image?: string;
+  /** `og:image:alt`. Defaults to the social title. */
+  imageAlt?: string;
   publishedTime?: string;
   modifiedTime?: string;
   robots?: Metadata['robots'];
@@ -60,6 +94,7 @@ export function buildPageMetadata({
   socialTitle,
   type = 'website',
   image = SITE_OG_IMAGE,
+  imageAlt,
   publishedTime,
   modifiedTime,
   robots,
@@ -68,6 +103,19 @@ export function buildPageMetadata({
   // would give the home page "… — Unchained Business — Unchained Business".
   const social =
     socialTitle ?? (titleAbsolute ? title : `${title} — ${siteConfig.name}`);
+
+  const url = isShareableImage(image) ? image : SITE_OG_IMAGE;
+  // Facebook and WhatsApp skip the image on a URL's first share unless its
+  // size is declared, so it is — wherever this site knows it, which is for the
+  // images it generates. A CMS upload's size is not known here and is left
+  // for the crawler to read.
+  const ogImage = {
+    url,
+    alt: imageAlt ?? social,
+    ...(isGeneratedOgImage(url)
+      ? { ...OG_IMAGE_SIZE, type: 'image/png' }
+      : {}),
+  };
 
   return {
     title: titleAbsolute ? { absolute: title } : title,
@@ -78,15 +126,17 @@ export function buildPageMetadata({
       description,
       url: absoluteUrl(path),
       siteName: siteConfig.name,
+      locale: 'en_US',
       type,
       ...(publishedTime ? { publishedTime } : {}),
       ...(modifiedTime ? { modifiedTime } : {}),
-      images: [image],
+      images: [ogImage],
     },
     twitter: {
       card: 'summary_large_image',
       title: social,
       description,
+      images: [{ url: ogImage.url, alt: ogImage.alt }],
     },
     ...(robots ? { robots } : {}),
   };

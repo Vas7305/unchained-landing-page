@@ -4,7 +4,7 @@ import ProjectDetail from '@/components/ProjectDetail';
 import JsonLd from '@/components/JsonLd';
 import { detailedOf, findProject } from '@/lib/projects';
 import { loadProjects } from '@/lib/portfolio';
-import { SITE_OG_IMAGE } from '@/lib/metadata';
+import { projectOgImage } from '@/lib/metadata';
 import { buildCmsMetadata } from '@/lib/cms/seo';
 import { breadcrumbSchema } from '@/lib/structured-data';
 
@@ -42,11 +42,13 @@ export async function generateMetadata({
       description: project.summary ?? project.description,
       path: `/work/${project.slug}`,
       type: 'article',
-      // The project's real screenshot is a better share preview than the
-      // generic site image; a project without one still gets a valid
-      // og:image, because declaring `openGraph` opts the route out of the root
-      // file convention.
-      image: project.heroImage ?? project.thumbnail ?? SITE_OG_IMAGE,
+      // The project's own share card — its screenshot and name, generated as
+      // a PNG — rather than the screenshot itself, which is WebP and shows as
+      // an empty card on LinkedIn, WhatsApp and Facebook. A project without a
+      // screenshot still gets a card. Naming it is required: declaring
+      // `openGraph` opts the route out of the root file convention.
+      image: projectOgImage(project.slug),
+      imageAlt: project.heroImageAlt ?? project.thumbnailAlt,
       // Only projects with `detailed: true` have enough published content to
       // warrant a public SEO landing page — the flag the panel sets, which the
       // database refuses without the prose behind it. Others still render
