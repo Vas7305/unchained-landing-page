@@ -1,9 +1,9 @@
 {
-  "versionName": "1.0.7",
-  "versionCode": 8,
+  "versionName": "1.0.8",
+  "versionCode": 9,
   "url": "https://www.unchainedbusiness.com/downloads/kairos/Kairos.apk",
-  "bytes": 4933701,
-  "sha256": "2640c76b51325ba50241589b5fae08e5aea80491ed44741aa394bef9a91e2876",
+  "bytes": 4935473,
+  "sha256": "b4f2d5297c00c871136c2773942f7eae2f942cf9218c31af9b44dcd8fc3cff42",
   "date": "2026-11-14",
-  "notes": "Las alarmas suenan aunque el teléfono esté en silencio, como un despertador. Recordatorios «dentro de X días». Botón ▶ en cada contador para escuchar su tono de alarma."
+  "notes": "Arregla la actualización desde la app, que fallaba siempre. Incluye las novedades de 1.0.7: alarmas que suenan en silencio, recordatorios «dentro de X días» y botón ▶ para escuchar el tono de cada contador."
 }
