@@ -29,7 +29,7 @@ export const productDownloads: Record<string, ProductDownload> = {
   'merxis-pos': {
     href: '/downloads/merxis/MerxisPOS.apk',
     label: 'download.merxis-pos.android',
-    bytes: 6_697_842,
+    bytes: 6_700_054,
   },
   // The signed Cuba release APK (1.0.6), as built from the Kairos repository. The app's
   // in-app updater reads kairos-update.json next to it.
