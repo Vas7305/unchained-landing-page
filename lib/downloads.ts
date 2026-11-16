@@ -24,12 +24,12 @@ export interface ProductDownload {
 }
 
 export const productDownloads: Record<string, ProductDownload> = {
-  // The signed release APK (1.3.1), as built from the Merxis repository. The app's
+  // The signed release APK (1.6.0), as built from the Merxis repository. The app's
   // in-app updater downloads this same file via merxispos.com/descargar/MerxisPOS.apk.
   'merxis-pos': {
     href: '/downloads/merxis/MerxisPOS.apk',
     label: 'download.merxis-pos.android',
-    bytes: 6_700_054,
+    bytes: 6_847_807,
   },
   // The signed Cuba release APK (1.0.8), as built from the Kairos repository. The app's
   // in-app updater reads kairos-update.json next to it.
